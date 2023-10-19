@@ -55,7 +55,7 @@
             </call>
         </service>
 
-        <service id="ReiffIntegrations\Seeburger\DataConverter\OrderIdocConverter"/>
+        <service id="ReiffIntegrations\Seeburger\DataConverter\OrderIdocConverter" />
 
         <service id="ReiffIntegrations\Seeburger\Client\SeeburgerClient"/>
     </services>

@@ -28,6 +28,7 @@ interface Configuration
     public const CONFIG_KEY_ORDER_EXPORT_URL               = 'ReiffIntegrations.config.orderExportUrl';
     public const CONFIG_KEY_ORDERS_API_URL                 = 'ReiffIntegrations.config.ordersApiUrl';
     public const CONFIG_KEY_ORDER_DETAILS_API_URL          = 'ReiffIntegrations.config.orderDetailsApiUrl';
+    public const CONFIG_KEY_ORDER_IGNORED_PAYMENT_METHOD_IDS = 'ReiffIntegrations.config.paymentMethodIdsToIgnore';
 
     public const CONFIG_KEY_ROOT_CATEGORY            = 'ReiffIntegrations.config.rootCategory';
     public const CONFIG_KEY_CATEGORY_MAIN_CMS_PAGE   = 'ReiffIntegrations.config.mainCategoriesCmsPage';

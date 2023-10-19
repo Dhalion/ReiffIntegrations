@@ -822,11 +822,6 @@ class ProductImportHandler extends AbstractImportHandler
 
     private function getIsCloseout(ProductStruct $productStruct): bool
     {
-        $lagerVerkauf = $productStruct->getDataByKey('Lagerverkauf');
-        if(!$lagerVerkauf) {
-            return false;
-        }
-
-        return $lagerVerkauf === self::POSITIVE_BOOL_VALUE;
+        return (bool)$productStruct->getDataByKey('Lagerverkauf');
     }
 }

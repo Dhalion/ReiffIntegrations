@@ -39,7 +39,7 @@ class ProductStruct extends Struct
         $this->data = $data;
     }
 
-    public function getDataByKey(string $key): null|string|array
+    public function getDataByKey(string $key): null|string|array|bool
     {
         return $this->data[$key] ?? null;
     }

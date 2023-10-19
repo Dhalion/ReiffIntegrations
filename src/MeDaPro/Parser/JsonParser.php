@@ -97,21 +97,20 @@ class JsonParser
             }
 
             if (array_key_exists(self::CLOSEOUT_IDENTIFIER, $firstVariant['raw'])) {
-                unset($firstVariant['raw'][self::CLOSEOUT_IDENTIFIER]);
+                unset($firstVariant['attributes'][self::CLOSEOUT_IDENTIFIER]);
             }
 
             if (array_key_exists(self::CLOSEOUT_IDENTIFIER, $firstVariant['attributes'])) {
                 unset($firstVariant['attributes'][self::CLOSEOUT_IDENTIFIER]);
             }
 
-            if (array_key_exists(self::CLOSEOUT_FIELD, $firstVariant['raw'])) {
-                unset($firstVariant['raw'][self::CLOSEOUT_FIELD]);
-            }
-
             if (array_key_exists(self::CLOSEOUT_FIELD, $firstVariant['attributes'])) {
                 unset($firstVariant['attributes'][self::CLOSEOUT_FIELD]);
             }
 
+            if (array_key_exists(self::CLOSEOUT_FIELD, $firstVariant['raw'])) {
+                unset($firstVariant['attributes'][self::CLOSEOUT_FIELD]);
+            }
 
             $mainProduct = new ProductStruct(
                 $catalogNodes[$firstVariant['raw']['variationGroupId']]['uId'],
@@ -150,8 +149,8 @@ class JsonParser
                 foreach ($product['raw'] as $key => $value) {
                     $cleanKey = $this->cleanupAttributeName($key);
 
-                    if ($key === self::CLOSEOUT_FIELD) {
-                        $structuredProduct[self::CLOSEOUT_FIELD] = $value;
+                    if ($key === self::CLOSEOUT_IDENTIFIER) {
+                        $structuredProduct[self::CLOSEOUT_FIELD] = $value === self::CLOSEOUT_FIELD;
                     }
 
                     if ($key === self::CLOSEOUT_FIELD || $key === self::CLOSEOUT_IDENTIFIER) {

@@ -6,6 +6,7 @@ namespace ReiffIntegrations\Installer;
 
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
+use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
@@ -39,6 +40,8 @@ class CustomFieldInstaller
     public const ORDER_COMMISSION           = 'reiff_order_commission';
     public const ORDER_COMPLETE_DELIVERY    = 'reiff_order_is_complete_delivery';
     public const ORDER_LINE_ITEM_COMMISSION = 'reiff_order_line_item_commission';
+
+    public const PAYMENT_TERMS_OF_PAYMENT   = 'reiff_payment_terms_of_payment';
 
     public const CUSTOMER_PROVIDED_DEBTOR_NUMBER   = 'reiff_customer_provided_debtor_number';
     public const CUSTOMER_IS_OCI                   = 'reiff_customer_is_oci';
@@ -379,6 +382,38 @@ class CustomFieldInstaller
                             'de-DE' => 'Ist eine vollständige Lieferung',
                         ],
                         'customFieldPosition' => 1,
+                    ],
+                ],
+            ],
+        ],
+        [
+            'id' => '018ab774742f71eca13a093aad680bba',
+            'name' => 'REIFF Zahlungsdaten',
+            'active' => true,
+            'config' => [
+                'label' => [
+                    'en-GB' => 'REIFF payment data',
+                    'de-DE' => 'REIFF Zahlungsdaten',
+                ]
+            ],
+            'relations' => [
+                [
+                    'id' => '018ab775ad4c72a7ab201863fe00e7d0',
+                'entityName' => PaymentMethodDefinition::ENTITY_NAME,
+                ],
+            ],
+            'customFields' => [
+                [
+                    'id'     => '018ab77712587229a6dd063e4c8675db',
+                    'name'   => self::PAYMENT_TERMS_OF_PAYMENT,
+                    'active' => true,
+                    'type'   => CustomFieldTypes::TEXT,
+                    'config' => [
+                        'label' => [
+                            'en-GB' => 'Terms of payment',
+                            'de-DE' => 'Zahlungsbedingung',
+                        ],
+                        'customFieldPosition' => 0,
                     ],
                 ],
             ],
