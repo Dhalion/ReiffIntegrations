@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <service id="ReiffIntegrations\Sap\Contract\ContractController" public="true">
+            <argument type="service" id="ReiffIntegrations\Sap\Contract\ContractListingPageLoader"/>
+            <argument type="service" id="ReiffIntegrations\Sap\Contract\ContractStatusPageLoader"/>
+
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+            <call method="setTwig">
+                <argument type="service" id="twig"/>
+            </call>
+        </service>
+
+        <service id="ReiffIntegrations\Sap\Contract\ContractListingPageLoader">
+            <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
+            <argument type="service" id="ReiffIntegrations\Sap\Contract\ApiClient\ContractListClient"/>
+        </service>
+
+        <service id="ReiffIntegrations\Sap\Contract\ApiClient\ContractListClient">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="ReiffIntegrations\Logger"/>
+            <argument type="service" id="ReiffIntegrations\Sap\Contract\ApiClient\ContractListResponseParser"/>
+        </service>
+
+        <service id="ReiffIntegrations\Sap\Contract\ApiClient\ContractListResponseParser">
+            <argument type="service" id="ReiffIntegrations\Logger"/>
+        </service>
+
+        <service id="ReiffIntegrations\Sap\Contract\ContractStatusPageLoader">
+            <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
+            <argument type="service" id="ReiffIntegrations\Sap\Contract\ApiClient\ContractStatusClient"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="ReiffIntegrations\Sap\Contract\ApiClient\ContractStatusClient">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="ReiffIntegrations\Logger"/>
+            <argument type="service" id="ReiffIntegrations\Sap\Contract\ApiClient\ContractStatusResponseParser"/>
+        </service>
+
+        <service id="ReiffIntegrations\Sap\Contract\ApiClient\ContractStatusResponseParser">
+            <argument type="service" id="ReiffIntegrations\Logger"/>
+            <argument type="service" id="country.repository"/>
+        </service>
+    </services>
+</container>

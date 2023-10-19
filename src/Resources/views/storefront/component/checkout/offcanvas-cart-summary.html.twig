@@ -1,0 +1,24 @@
+{% sw_extends '@Storefront/storefront/component/checkout/offcanvas-cart-summary.html.twig' %}
+
+{% block component_offcanvas_summary_content_info %}
+    <div class="row offcanvas-shipping-info">
+        <span class="col-7 shipping-label shipping-cost">
+            <strong>{{ "checkout.summaryShipping"|trans|sw_sanitize }}</strong>
+            {% if loop.first %}
+                <small {% if page.shippingMethods|length %}class="js-toggle-shipping-selection"{% endif %}>
+                    ({{ activeShipping.shippingMethod.translated.name }})
+                </small>
+            {% endif %}
+        </span>
+
+        <span class="col-5 pb-2 shipping-value shipping-cost">
+            {% if context.hasExtension(constant('ReiffIntegrations\\Sap\\DeliveryInformation\\Struct\\DeliveryCostsNotComputable::NAME')) %}
+                <span class="k10r-reiff-integration-delivery-costs-not-computable">
+                    + {{ "ReiffIntegrations.checkout.cart.delivery.deliveryCostsNotComputable.summaryShippingHint"|trans|sw_sanitize }}
+                </span>
+            {% else %}
+                <strong>+ {{ activeShipping.shippingCosts.totalPrice|currency }}</strong>
+            {% endif %}
+        </span>
+    </div>
+{% endblock %}

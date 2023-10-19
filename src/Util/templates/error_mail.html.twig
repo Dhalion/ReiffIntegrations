@@ -1,0 +1,7 @@
+{{ filename }}<br>
+<br>
+{% for error in errors %}
+    <hr>
+    Message: {{ error.message|nl2br }}<br>
+    Exception Identifier: {{ error.identifier }}<br>
+{% endfor %}

@@ -1,0 +1,22 @@
+{% sw_extends "@Storefront/storefront/plugins/maxia_variants_table/product-detail/buy-widget-cheapest-price.html.twig" %}
+
+{% block page_product_detail_price_content %}
+    {% set listPrice = price.listPrice %}
+
+    <p class="product-detail-price">
+        {% if showFrom %}
+            <span class="cheapest-price-from">{{ "maxia-variants-table.minimalBuybox.cheapestPriceFrom"|trans }}</span>
+        {% endif %}
+        {% sw_include '@Storefront/storefront/component/k10r-price/simple-price-placeholder.html.twig' with { productNumber: page.product.productNumber, price: price.unitPrice } %}
+        {% block order_unit %}
+            <span class="product-price-unit-text">
+                    {% block order_unit_divider %}
+                        {{ 'ReiffIntegrations.unit.divider'|trans }}
+                    {% endblock %}
+                {% block order_unit_unit %}
+                    {{ page.product.packUnit }}
+                {% endblock %}
+                </span>
+        {% endblock %}
+    </p>
+{% endblock %}

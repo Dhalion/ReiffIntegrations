@@ -1,0 +1,10 @@
+@import "~scss/variables";
+
+.product-commission-data {
+    .label{
+        font-weight: 600;
+    }
+    .value {
+        color: $color-gray-600;
+    }
+}

@@ -1,0 +1,8 @@
+{{ filename }}
+
+{% for error in errors %}
+    --------------------------------------------------------------------
+    Message: {{ error.message }}
+    Exception Identifier: {{ error.identifier }}
+
+{% endfor %}

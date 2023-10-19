@@ -1,0 +1,96 @@
+{% sw_extends '@SwagB2bPlatform/storefront/layout/_b2blayout.html.twig' %}
+
+{# @var page \ReiffIntegrations\Sap\Contracts\ContractsPage #}
+{% block base_content %}
+    <div class="module-order" data-reiff-contracts>
+        {% block reiff_contracts %}
+            <h1>{{ "ReiffIntegrations.contract.list.title" | trans | sw_sanitize }}</h1>
+            {% block reiff_contracts_filter %}
+                <form>
+                    {% set datePickerOptions = {
+                        locale: app.request.locale,
+                        maxDate: 'today',
+                        enableTime: false,
+                        rangeStartInput: constant('ReiffIntegrations\\Sap\\Contract\\ContractListingPageLoader::PARAMETER_FROM_DATE'),
+                        rangeEndInput: constant('ReiffIntegrations\\Sap\\Contract\\ContractListingPageLoader::PARAMETER_TO_DATE'),
+                        dateFormat: 'Y-m-d'
+                    } %}
+                    <label>
+                        {{ 'ReiffIntegrations.contract.list.dateFilter.from' | trans | sw_sanitize }}
+                        <input type="text"
+                               name="{{ constant('ReiffIntegrations\\Sap\\Contract\\ContractListingPageLoader::PARAMETER_FROM_DATE') }}"
+                               class="customDate"
+                               {% if page.fromDate %}value="{{ page.fromDate|date('Y-m-d') }}"{% endif %}
+                               placeholder="{{ "ReiffIntegrations.contract.list.dateFilter.placeholder" | trans | sw_sanitize }}"
+                               data-date-picker
+                               data-date-picker-options="{{ datePickerOptions|json_encode|escape('html_attr') }}"
+                        />
+                    </label>
+                    <label>
+                        {{ 'ReiffIntegrations.contract.list.dateFilter.to' | trans | sw_sanitize }}
+                        <input type="text"
+                               name="{{ constant('ReiffIntegrations\\Sap\\Contract\\ContractListingPageLoader::PARAMETER_TO_DATE') }}"
+                               class="customDate"
+                               {% if page.toDate %}value="{{ page.toDate|date('Y-m-d') }}"{% endif %}
+                               placeholder="{{ "ReiffIntegrations.contract.list.dateFilter.placeholder" | trans | sw_sanitize }}"
+                               data-date-picker
+                               data-date-picker-options="{{ datePickerOptions|json_encode|escape('html_attr') }}"
+                        />
+                    </label>
+                    <button type="submit" class="btn btn-primary">
+                        {{ 'general.formSubmit' | trans | sw_sanitize }}
+                    </button>
+                </form>
+            {% endblock %}
+            {% block reiff_contracts_list %}
+                {% if page.contracts.count == 0 %}
+                    {% block reiff_contracts_list_empty %}
+                        {% if page.success %}
+                            {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                                type: "warning",
+                                content: "ReiffIntegrations.contract.list.nothingFound" | trans | sw_sanitize
+                            } %}
+                        {% else %}
+                            {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                                type: "danger",
+                                content: "ReiffIntegrations.contract.list.somethingWentWrong" | trans | sw_sanitize
+                            } %}
+                        {% endif %}
+                    {% endblock %}
+                {% else %}
+                    {# @var contract \ReiffIntegrations\Sap\Contracts\Struct\ContractListStruct #}
+                    {% for contract in page.contracts %}
+                        {% block reiff_contracts_list_row %}
+                            <div class="b2b-accordion">
+                                <div class="b2b-accordion__title ajax-panel-link"
+                                     data-target="reiff-contract-detail-{{ contract.contractNumber }}"
+                                     data-bs-target="reiff-contract-detail-{{ contract.contractNumber }}"
+                                     data-href="{{ path('frontend.b2b.k10r_reiff_integrations.contracts.detail', { contractNumber: contract.contractNumber }) }}">
+                                    {% sw_icon 'arrow-right' style { pack: 'solid' } %}
+                                    {% block reiff_contracts_list_row_overview %}
+                                        <span>
+                                            {{ contract.contractNumber }}
+                                            ({{ contract.documentReference }})
+                                            -
+                                            {{ 'ReiffIntegrations.contract.list.validRangeText'|trans({"%from%": contract.validFrom|format_date('medium', locale=app.request.locale), "%to%": contract.validTo|format_date('medium', locale=app.request.locale) }) }}
+                                            -
+                                            {{ contract.statusDescription }}
+                                            -
+                                            {{ contract.documentNetValue|currency(contract.documentCurrency) }}
+                                        </span>
+                                    {% endblock %}
+                                </div>
+                                <div class="b2b-accordion__body">
+                                    <div
+                                        class="b2b--ajax-panel"
+                                        data-id="reiff-contract-detail-{{ contract.contractNumber }}"
+                                        data-url=""></div>
+                                </div>
+                            </div>
+                        {% endblock %}
+                    {% endfor %}
+                {% endif %}
+            {% endblock %}
+        {% endblock %}
+    </div>
+{% endblock %}

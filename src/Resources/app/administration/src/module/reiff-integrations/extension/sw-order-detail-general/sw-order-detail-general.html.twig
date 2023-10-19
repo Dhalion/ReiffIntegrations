@@ -1,0 +1,38 @@
+{% block sw_order_detail_general_line_items_card %}
+    <sw-card
+        class="sw-order-detail-base__additional-info-card"
+        position-identifier="sw-order-detail-base-additional-info"
+        :title="$tc('ReiffIntegrations.order.additionalData.cardTitle')"
+        :is-loading="isLoading"
+    >
+        <sw-container
+            columns="repeat(auto-fit, minmax(250px, 1fr))"
+            gap="0px 32px"
+        >
+
+            <div>
+                <label>{{ $tc('ReiffIntegrations.order.additionalData.isCompleteDeliveryLabel') }}</label>
+                <p>
+                    <sw-checkbox-field :disabled="true"
+                                       :value="order?.customFields?.reiff_order_is_complete_delivery ? order?.customFields?.reiff_order_is_complete_delivery : false"></sw-checkbox-field>
+                </p>
+            </div>
+
+            <div>
+                <label>{{ $tc('ReiffIntegrations.order.additionalData.orderCommissionLabel') }}</label>
+                <p v-html="order?.customFields?.reiff_order_commission ? order?.customFields?.reiff_order_commission : ''"></p>
+            </div>
+
+            <sw-button
+                variant="primary"
+                v-tooltip.bottom="{ message: $tc('ReiffIntegrations.order.actions.resetExport.buttonPlaceholder') }"
+                :disabled="isResetting"
+                :isLoading="isResetting"
+                @click="resetOrderExport">
+                {{ $tc('ReiffIntegrations.order.actions.resetExport.buttonLabel') }}
+            </sw-button>
+        </sw-container>
+    </sw-card>
+
+    {% parent %}
+{% endblock %}

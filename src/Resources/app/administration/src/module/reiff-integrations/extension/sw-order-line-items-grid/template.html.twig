@@ -1,0 +1,11 @@
+{% block sw_order_line_items_grid_grid_columns_label_content %}
+    {% parent() %}
+
+    <br />
+    <div v-if="!isInlineEdit && item && item.customFields" class="product-commission-data">
+        <p>
+            <span class="label">{{ $tc('ReiffIntegrations.order.additionalData.productCommissionLabel') }}:</span>
+            <span v-html="item.customFields.reiff_order_line_item_commission" class="value"></span>
+        </p>
+    </div>
+{% endblock %}

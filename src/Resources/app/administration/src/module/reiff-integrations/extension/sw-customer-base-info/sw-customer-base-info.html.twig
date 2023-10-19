@@ -1,0 +1,21 @@
+{% block sw_customer_base_metadata_customer_number %}
+    {% parent() %}
+
+    <sw-description-list>
+        <dt class="sw-customer-base-info__label">
+            {{ $tc('ReiffIntegrations.customer.detail.debtorNumberLabel') }}
+        </dt>
+        <dd class="sw-customer-base__label-customer-debtorNumber">
+            <p v-if="!customerEditMode && customer && customer.extensions && customer.extensions.reiffCustomer && customer.extensions.reiffCustomer.debtorNumber">
+                {{ customer.extensions.reiffCustomer.debtorNumber }}
+            </p>
+            <p v-else-if="!customerEditMode">
+                -
+            </p>
+            <sw-text-field v-else
+                v-model="customer.extensions.reiffCustomer.debtorNumber"
+                :placeholder="$tc('ReiffIntegrations.customer.detail.debtorNumberPlaceholder')"
+            />
+        </dd>
+    </sw-description-list>
+{% endblock %}

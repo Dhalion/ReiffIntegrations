@@ -1,0 +1,12 @@
+{% sw_extends '@SwagB2bPlatform/storefront/frontend/b2bdashboard/index.html.twig' %}
+
+{% block b2b_dashboard_blocks %}
+    {% if pages is defined and pages is not empty %}
+        {% set pages = pages|merge([{
+            name: 'ReiffIntegrations.contract',
+            route: 'k10r_reiff_integrations.contracts'
+        }]) %}
+    {% endif %}
+
+    {{ parent() }}
+{% endblock %}

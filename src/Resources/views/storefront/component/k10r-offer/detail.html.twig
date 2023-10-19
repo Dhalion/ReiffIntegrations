@@ -1,0 +1,58 @@
+{% sw_extends '@SwagB2bPlatform/storefront/layout/_b2blayout.html.twig' %}
+
+{% block base_content %}
+    {% if page.hasErrors %}
+        {% sw_include '@Storefront/storefront/component/k10r-offer/error-response.html.twig' with {  } %}
+    {% else %}
+        {# @var offer \ReiffIntegrations\Sap\Struct\OfferDocumentStruct #}
+        {% set offer = page.offer %}
+        <div class="k10r-reiff-integration-account-offer-overview">
+            {% block k10r_account_offer_detail_table %}
+                <table class="table data-tables k10r-reiff-integration-account-offer-detail-table">
+                    <thead>
+                    <tr>
+                        <th class="dtr-control sorting_asc">{{ "ReiffIntegrations.customer.offer.table.document.number"|trans }}</th>
+                        <th>{{ "ReiffIntegrations.customer.offer.table.document.reference"|trans }}</th>
+                        <th>{{ "ReiffIntegrations.customer.offer.table.document.validTo"|trans }}</th>
+                        <th>{{ "ReiffIntegrations.customer.offer.table.document.type"|trans }}</th>
+                        <th>{{ "ReiffIntegrations.customer.offer.table.document.orderFee"|trans }}</th>
+                        <th>{{ "ReiffIntegrations.customer.offer.table.document.additionalCosts"|trans }}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>{{ offer.number }}</td>
+                        <td>{{ offer.reference }}</td>
+                        <td>{{ offer.validTo ? offer.validTo|format_date('short', locale=app.request.locale) : ''}}</td>
+                        <td>{{ offer.type }}</td>
+                        <td>{{ offer.orderFee|currency(offer.currency) }}</td>
+                        <td>{{ offer.additionalCosts|currency(offer.currency) }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            {% endblock %}
+            {% block k10r_account_offer_detail_positions %}
+                <div class="k10r-reiff-integration-account-offer-detail">
+                    <div class="k10r-reiff-integration-account-offer-detail-inner mb-4">
+                        {% sw_include '@Storefront/storefront/component/k10r-offer/offer-position-list.html.twig' with {
+                            positions: offer.positions,
+                            locale: locale
+                        } %}
+                    </div>
+                </div>
+            {% endblock %}
+            {% block k10r_account_offer_detail_actions %}
+                <div>
+                    <a href="{{ url('frontend.k10r_reiff_integrations.account.offer.document', { offerNumber: offer.number }) }}"
+                       class="btn btn-primary">
+                        {{ "ReiffIntegrations.customer.offer.downloadLink"|trans }}
+                    </a>
+                    <a href="{{ url('frontend.k10r_reiff_integrations.account.offer.accept', { offerNumber: offer.number }) }}"
+                       class="btn btn-primary">
+                        {{ "ReiffIntegrations.customer.offer.acceptLink"|trans }}
+                    </a>
+                </div>
+            {% endblock %}
+        </div>
+    {% endif %}
+{% endblock %}

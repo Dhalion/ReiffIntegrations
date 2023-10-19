@@ -1,0 +1,37 @@
+{% sw_extends '@Storefront/storefront/page/product-detail/buy-widget-price.html.twig' %}
+
+{% block page_product_detail_price_content %}
+    {% set listPrice = price.listPrice %}
+    {% set isListPrice = listPrice.percentage > 0 %}
+    {% set isRegulationPrice = price.regulationPrice != null %}
+
+    <p class="product-detail-price{% if isListPrice %} with-list-price{% endif %}{% if isRegulationPrice %} with-regulation-price{% endif %}">
+        {{ price.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
+        {% block order_unit %}
+            <span class="product-price-unit-text">
+                {% block order_unit_divider %}
+                    {{ 'ReiffIntegrations.unit.divider'|trans }}
+                {% endblock %}
+                {% block order_unit_unit %}
+                    {{ page.product.packUnit }}
+                {% endblock %}
+            </span>
+        {% endblock %}
+        {% if isFallback and debtorNumber %}
+            <span class="d-none" data-k10r-reiff-price-display-plugin>
+                <span {{ dataBsToggleAttr }}="tooltip" class="price--error" title="{{ 'ReiffIntegrations.price.error.ERROR_SAP'|trans }}">
+                    {% sw_icon 'warning' %}
+                </span>
+            </span>
+        {% endif %}
+    </p>
+
+    {% if isListPrice %}
+        {{ block('page_product_detail_was_price') }}
+    {% endif %}
+    {% if isRegulationPrice %}
+        <span class="product-detail-list-price-wrapper">
+            <span class="regulation-price">{{ "general.listPricePreviously"|trans({'%price%': price.regulationPrice.price|currency }) }}{{ "general.star"|trans|sw_sanitize }}</span>
+        </span>
+    {% endif %}
+{% endblock %}

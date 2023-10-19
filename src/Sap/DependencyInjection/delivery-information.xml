@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <service id="ReiffIntegrations\Sap\DeliveryInformation\ApiClient\AvailabilityApiClient">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="ReiffIntegrations\Logger"/>
+        </service>
+
+        <service id="ReiffIntegrations\Sap\DeliveryInformation\AvailabilityController" public="true">
+            <argument type="service" id="ReiffIntegrations\Sap\DeliveryInformation\AvailabilityService"/>
+
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+            <call method="setTwig">
+                <argument type="service" id="twig"/>
+            </call>
+        </service>
+
+        <service id="ReiffIntegrations\Sap\DeliveryInformation\AvailabilityService">
+            <argument type="service" id="cache.object"/>
+            <argument type="service" id="ReiffIntegrations\Sap\DeliveryInformation\ApiClient\AvailabilityApiClient"/>
+        </service>
+
+        <service id="ReiffIntegrations\Sap\DeliveryInformation\CartDeliveryInformationProcessor">
+            <argument type="service" id="ReiffIntegrations\Sap\DeliveryInformation\AvailabilityService" />
+
+            <tag name="shopware.cart.collector" priority="4500"/>
+            <tag name="shopware.cart.processor" priority="-5100"/>
+        </service>
+    </services>
+</container>

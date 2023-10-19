@@ -1,0 +1,139 @@
+{# @var page ReiffIntegrations\Sap\Contract\ContractStatusPage #}
+{# @var contract ReiffIntegrations\Sap\Contract\Struct\ContractStatusStruct #}
+{% block reiff_contract_detail %}
+    {% set contract = page.contractStatus %}
+
+    {% block reiff_contract_detail_container %}
+        <div class="contract-detail-container">
+            {% block reiff_contract_detail_overview %}
+                <h3><span class="font-weight-bold">{{ 'ReiffIntegrations.contract.detail.contractInfo'|trans }}:</span> {{ contract.contractNumber }} ({{ contract.contractType }})</h3>
+                {% if contract.headerDataStruct is defined and contract.headerDataStruct is not empty %}
+                    <h4><span class="font-weight-bold">{{ 'ReiffIntegrations.contract.detail.netValue'|trans }}:</span> {{ contract.headerDataStruct.documentNetValue|currency(contract.currencyIso) }}</h4>
+                    <h5><span class="font-weight-bold">{{ 'ReiffIntegrations.contract.detail.statusDescription'|trans }}:</span> {{ contract.headerDataStruct.statusDescription }}</h5>
+                    <p>
+                        <span class="font-weight-bold">{{ 'ReiffIntegrations.contract.detail.customerInformation'|trans }}:</span> {{ contract.headerDataStruct.customer }} - {{ contract.headerDataStruct.customerName }}
+                    </p>
+                    <p>
+                        <span class="font-weight-bold">{{ 'ReiffIntegrations.contract.detail.reference'|trans }}:</span> {{ contract.headerDataStruct.documentReference }}<br>
+                        <span class="font-weight-bold">{{ 'ReiffIntegrations.contract.detail.createdAt'|trans }}:</span> {{ contract.headerDataStruct.documentDate|format_date('medium', locale=app.request.locale) }}<br>
+                        <span class="font-weight-bold">{{ 'ReiffIntegrations.contract.detail.validRange'|trans }}:</span> {{ 'ReiffIntegrations.contract.detail.validRangeText'|trans({"%from%": contract.headerDataStruct.validFrom|format_date('medium', locale=app.request.locale), "%to%": contract.headerDataStruct.validTo|format_date('medium', locale=app.request.locale) }) }}
+                    </p>
+                {% endif %}
+            {% endblock %}
+
+            {% block reiff_contract_detail_addresses %}
+                <div>
+                    <div class="row">
+                        {% set addressCols = (12 / contract.addressCollection.count)|round %}
+                        {% for address in contract.addressCollection %}
+                            {% block reiff_contract_detail_address %}
+                                <div class="col-{{ addressCols }}">
+                                    {% block reiff_contract_detail_address_inner %}
+                                        <h5>{{ ('ReiffIntegrations.contract.detail.address.type.' ~ address.type) | trans }}</h5>
+                                        <p>
+                                            {{ address.name }}<br>
+                                            {{ address.street }} {{ address.number }}<br>
+                                            {{ address.zip }} {{ address.city }}<br>
+                                            {{ address.country }}<br>
+                                            {{ address.phone }}<br>
+                                            {{ address.teleBox }}<br>
+                                            {{ address.fax }}<br>
+                                        </p>
+                                    {% endblock %}
+                                </div>
+                            {% endblock %}
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endblock %}
+            {% block reiff_contract_detail_items %}
+                <div>
+                    <table class="table">
+                        <thead>
+                            <th>{{ 'ReiffIntegrations.contract.detail.tableHeader.itemNumber' | trans }}</th>
+                            <th>
+                                {{ 'ReiffIntegrations.contract.detail.tableHeader.quantity' | trans }}
+                                <br />
+                                <span class="font-weight-lighter">{{ 'ReiffIntegrations.contract.detail.tableHeader.additionalQuantity' | trans }}</span>
+                            </th>
+                            <th>{{ 'ReiffIntegrations.contract.detail.tableHeader.price' | trans }}</th>
+                            <th>{{ 'ReiffIntegrations.contract.detail.tableHeader.statusDescription' | trans }}</th>
+                            <th>{{ 'ReiffIntegrations.contract.detail.tableHeader.contractItemOrderInformation' | trans }}</th>
+                        </thead>
+                        <tbody>
+                        {# @var ReiffIntegrations\Sap\Contract\Struct\Status\ContractItemDataStruct itemDataStruct #}
+                        {% for itemDataStruct in contract.itemDataCollection %}
+                            {% block reiff_contract_detail_item %}
+                                <tr>
+                                    <td>
+                                        {% if itemDataStruct.productId is not empty %}
+                                            <a href="{{ path('frontend.detail.page', {productId: itemDataStruct.productId}) }}"
+                                               class="ignore--b2b-ajax-panel"
+                                               target="_blank">
+                                        {% endif %}
+                                        {{ itemDataStruct.materialNumber }}
+                                        {% if itemDataStruct.customerMaterialNumber is not empty %}
+                                            ({{ itemDataStruct.customerMaterialNumber }})
+                                            {% if itemDataStruct.customProductNumber is not empty %}
+                                                /({{ itemDataStruct.customProductNumber }})
+                                            {% endif %}
+                                        {% elseif itemDataStruct.customProductNumber is not empty %}
+                                            ({{ itemDataStruct.customProductNumber }})
+                                        {% endif %}
+                                        {% if itemDataStruct.productId is not empty %}
+                                            </a>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {{ itemDataStruct.targetQuantity }} (<span class="quantity-used">{{ itemDataStruct.usedQuantity }}</span>/<span class="quantity-open">{{ itemDataStruct.openQuantity }}</span>)
+                                        {{ itemDataStruct.salesUnit }}
+                                        <br/>
+                                    </td>
+                                    <td>
+                                        {{ itemDataStruct.netValue|currency(itemDataStruct.currency) }} ({{ itemDataStruct.netPrice|currency(itemDataStruct.currency) }})
+                                    </td>
+                                    <td>
+                                        {{ itemDataStruct.statusDescription }}
+                                    </td>
+                                    <td>
+                                        <table>
+                                            <thead>
+                                                <th>{{ 'ReiffIntegrations.contract.detail.tableHeader.orderInformation.orderNumber'|trans }}</th>
+                                                <th>{{ 'ReiffIntegrations.contract.detail.tableHeader.orderInformation.orderPosition'|trans }}</th>
+                                                <th>{{ 'ReiffIntegrations.contract.detail.tableHeader.orderInformation.orderDate'|trans }}</th>
+                                                <th>{{ 'ReiffIntegrations.contract.detail.tableHeader.orderInformation.reference'|trans }}</th>
+                                                <th>{{ 'ReiffIntegrations.contract.detail.tableHeader.orderInformation.quantity'|trans }}</th>
+                                            </thead>
+                                            <tbody>
+                                            {% for itemUsage in itemDataStruct.itemUsage %}
+                                                <tr>
+                                                    <td>
+                                                        {{ itemUsage.orderNumber }}
+                                                    </td>
+                                                    <td>
+                                                        {{ itemUsage.orderItemNumber }}
+                                                    </td>
+                                                    <td>
+                                                        {{ itemUsage.orderDate|format_date('medium', locale=app.request.locale) }}
+                                                    </td>
+                                                    <td>
+                                                        {{ itemUsage.orderCustReference }}
+                                                    </td>
+                                                    <td>
+                                                        {{ itemUsage.orderItemQuantity }} {{ itemUsage.orderItemUom }}
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            {% endblock %}
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endblock %}
+        </div>
+    {% endblock %}
+{% endblock %}

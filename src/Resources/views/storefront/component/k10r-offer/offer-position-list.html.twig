@@ -1,0 +1,32 @@
+
+<table class="table data-tables k10r-reiff-integration-account-offer-position-table">
+    <thead>
+        <tr>
+            <th><nobr>{{ "ReiffIntegrations.customer.offer.table.position.number"|trans }}</nobr></th>
+            <th>{{ "ReiffIntegrations.customer.offer.table.position.itemNumber"|trans }}</th>
+            <th>{{ "ReiffIntegrations.customer.offer.table.position.description"|trans }}</th>
+            <th>{{ "ReiffIntegrations.customer.offer.table.position.orderQuantity"|trans }}</th>
+            <th>{{ "ReiffIntegrations.customer.offer.table.position.orderUom"|trans }}</th>
+            <th>{{ "ReiffIntegrations.customer.offer.table.position.itemPrice"|trans }}</th>
+            <th>{{ "ReiffIntegrations.customer.offer.table.position.priceUnit"|trans }}</th>
+            <th><nobr>{{ "ReiffIntegrations.customer.offer.table.position.priceUom"|trans }}</nobr></th>
+            <th>{{ "ReiffIntegrations.customer.offer.table.position.itemValue"|trans }}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {# @var position \ReiffIntegrations\Sap\Struct\OfferDocumentPositionStruct #}
+        {% for position in positions %}
+            <tr>
+                <td>{{ position.number }}</td>
+                <td>{{ position.itemNumber }}</td>
+                <td>{{ position.description }}</td>
+                <td>{{ position.orderQuantity }}</td>
+                <td>{{ position.orderUom }}</td>
+                <td>{{ position.itemPrice|currency(position.currency) }}</td>
+                <td>{{ position.priceUnit }}</td>
+                <td>{{ position.priceUom }}</td>
+                <td>{{ position.itemValue|currency(position.currency) }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>

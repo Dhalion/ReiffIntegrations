@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <service id="ReiffIntegrations\Components\Order\EventSubscriber\CheckoutConfirmEventSubscriber">
+            <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface" />
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="ReiffIntegrations\Components\Order\EventSubscriber\OrderPlacedEventSubscriber">
+            <argument type="service" id="request_stack" />
+            <argument type="service" id="order.repository" />
+            <argument type="service" id="order_line_item.repository" />
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+    </services>
+</container>

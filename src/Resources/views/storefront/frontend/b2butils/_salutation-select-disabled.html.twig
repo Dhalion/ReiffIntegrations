@@ -1,0 +1,11 @@
+{% block b2b_salutation_select_dropdown %}
+    <span class="icon-arrow">{% sw_icon 'arrow-head-down' %}</span>
+    <select name="salutation" class="custom-select"{% if selectedSalutation %} selected="selected"{% endif %} {% if required %} required{% endif %} disabled="disabled" aria-disabled="true">
+        {% block b2b_salutation_select_dropdown_options %}
+            <option value="" disabled{% if not selectedSalutation %} selected="selected"{% endif %}>{{ "b2b.SalutationPlaceholder"|trans }}</option>
+            {% for salutation in b2b_salutation() %}
+                <option value="{{ salutation.salutationKey }}"{% if salutation.salutationKey == selectedSalutation %} selected="selected"{% endif %}>{{ salutation.translated.displayName }}</option>
+            {% endfor %}
+        {% endblock %}
+    </select>
+{% endblock %}

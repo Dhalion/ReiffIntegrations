@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <service id="ReiffIntegrations\MeDaPro\Command\CatalogImportCommand">
+            <argument type="service" id="messenger.bus.shopware"/>
+            <argument type="service" id="ReiffIntegrations\Util\MessageHandler\ImportMessageHandler"/>
+            <argument type="service" id="ReiffIntegrations\MeDaPro\Parser\JsonParser"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="ReiffIntegrations\Util\LockHandler"/>
+            <argument type="service" id="ReiffIntegrations\MeDaPro\ImportHandler\CategoryImportHandler"/>
+            <argument type="service" id="ReiffIntegrations\MeDaPro\ImportHandler\ProductImportHandler"/>
+            <argument type="service" id="ReiffIntegrations\MeDaPro\ImportHandler\PropertyImportHandler"/>
+            <argument type="service" id="ReiffIntegrations\MeDaPro\ImportHandler\ManufacturerImportHandler"/>
+            <argument type="service" id="ReiffIntegrations\MeDaPro\ImportHandler\MediaImportHandler"/>
+            <argument type="service" id="ReiffIntegrations\Util\Mailer"/>
+            <argument type="service" id="ReiffIntegrations\Util\ImportArchiver"/>
+            <tag name="console.command"/>
+        </service>
+
+        <service id="ReiffIntegrations\MeDaPro\Command\CatalogImportCleanupCommand">
+            <argument type="service" id="ReiffIntegrations\MeDaPro\Parser\JsonParser"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="ReiffIntegrations\Util\Mailer"/>
+            <argument type="service" id="ReiffIntegrations\Util\ImportArchiver"/>
+            <argument type="service" id="ReiffIntegrations\MeDaPro\Cleaner\ProductActivator"/>
+            <argument type="service" id="ReiffIntegrations\MeDaPro\Cleaner\CategoryActivator"/>
+            <argument type="service" id="ReiffIntegrations\MeDaPro\Cleaner\PropertiesDeleter"/>
+            <argument type="service" id="ReiffIntegrations\MeDaPro\Cleaner\SortmentRemoval"/>
+            <argument type="service" id="ReiffIntegrations\MeDaPro\DataProvider\RuleProvider"/>
+            <tag name="console.command"/>
+        </service>
+
+        <service id="ReiffIntegrations\MeDaPro\Parser\JsonParser" />
+
+        <service id="ReiffIntegrations\MeDaPro\DataAbstractionLayer\CategoryExtension">
+            <tag name="shopware.entity.extension"/>
+        </service>
+        <service id="ReiffIntegrations\MeDaPro\DataAbstractionLayer\ReiffCategoryDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+        <service id="ReiffIntegrations\MeDaPro\DataAbstractionLayer\MediaExtension">
+            <tag name="shopware.entity.extension"/>
+        </service>
+        <service id="ReiffIntegrations\MeDaPro\DataAbstractionLayer\ReiffMediaDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="ReiffIntegrations\MeDaPro\Helper\MediaHelper">
+            <argument type="service" id="media.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
+            <argument type="service" id="shopware.filesystem.temp"/>
+            <argument type="service" id="ReiffIntegrations\Filesystem"/>
+            <argument type="string">%shopware.filesystem.temp.config.root%</argument>
+        </service>
+
+        <service id="ReiffIntegrations\MeDaPro\DataProvider\RuleProvider">
+            <argument type="service" id="rule_condition.repository"/>
+        </service>
+
+    </services>
+</container>

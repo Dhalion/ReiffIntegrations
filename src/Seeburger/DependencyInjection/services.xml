@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <service id="ReiffIntegrations\Seeburger\Handler\OrderExportHandler">
+            <argument type="service" id="ReiffIntegrations\Util\ExportArchiver"/>
+            <argument type="service" id="ReiffIntegrations\Logger"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="ReiffIntegrations\Util\Mailer"/>
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="ReiffIntegrations\Seeburger\Helper\OrderHelper"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="ReiffIntegrations\Seeburger\DataConverter\OrderIdocConverter"/>
+            <argument type="service" id="ReiffIntegrations\Seeburger\Client\SeeburgerClient"/>
+
+            <tag name="reiff_integrations.export_handler"/>
+        </service>
+
+        <service id="ReiffIntegrations\Seeburger\Command\OrderExportCommand">
+            <argument type="service" id="messenger.bus.shopware"/>
+            <argument type="service" id="ReiffIntegrations\Util\MessageHandler\ExportMessageHandler"/>
+            <argument type="service" id="ReiffIntegrations\Seeburger\Handler\OrderExportHandler"/>
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="reiff_order.repository"/>
+
+            <tag name="console.command"/>
+        </service>
+
+        <service id="ReiffIntegrations\Seeburger\Command\OrderExportMonitoringCommand">
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="ReiffIntegrations\Util\Mailer"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+
+            <tag name="console.command"/>
+        </service>
+
+        <service id="ReiffIntegrations\Seeburger\DataAbstractionLayer\OrderExtension">
+            <tag name="shopware.entity.extension"/>
+        </service>
+        <service id="ReiffIntegrations\Seeburger\DataAbstractionLayer\ReiffOrderDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="ReiffIntegrations\Seeburger\Helper\OrderHelper">
+            <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
+        </service>
+
+        <service id="ReiffIntegrations\Seeburger\Controller\Administration\OrderController" public="true">
+            <argument type="service" id="reiff_order.repository" />
+
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
+        <service id="ReiffIntegrations\Seeburger\DataConverter\OrderIdocConverter"/>
+
+        <service id="ReiffIntegrations\Seeburger\Client\SeeburgerClient"/>
+    </services>
+</container>

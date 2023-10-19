@@ -1,0 +1,34 @@
+{# @var \Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult orders #}
+{# @var \Shopware\Core\System\SalesChannel\SalesChannelEntity salesChannel #}
+
+{% for order in orders.entities %}
+{# @var \Shopware\Core\Checkout\Order\OrderEntity order #}
+{% set reiffOrder = order.getExtension(constant('ReiffIntegrations\\Seeburger\\DataAbstractionLayer\\OrderExtension::EXTENSION_NAME')) %}
+--------------------------------------------------------------------
+Bestellnummer:
+    {{ order.orderNumber }}
+
+Bestellt am:
+    {{ order.orderDateTime|date('Y-m-d H:i:s') }}
+
+Bestellung zuletzt gemeldet:
+{% if reiffOrder.notifiedAt is not null %}
+    {{ reiffOrder.notifiedAt|date('Y-m-d H:i:s') }}
+{% else %}
+    -
+{% endif %}
+
+Bestellung zum Export eingereiht seit:
+{% if reiffOrder.queuedAt is not null %}
+    {{ reiffOrder.queuedAt|date('Y-m-d H:i:s') }}
+{% else %}
+    -
+{% endif %}
+
+Anzahl der Exportversuche:
+{% if reiffOrder.exportTries is not null %}
+    {{ reiffOrder.exportTries }}
+{% else %}
+    -
+{% endif %}
+{% endfor %}

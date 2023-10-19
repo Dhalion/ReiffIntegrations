@@ -1,0 +1,45 @@
+{# @var \Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult orders #}
+{# @var \Shopware\Core\System\SalesChannel\SalesChannelEntity salesChannel #}
+
+{% for order in orders.entities %}
+    {# @var \Shopware\Core\Checkout\Order\OrderEntity order #}
+    {% set reiffOrder = order.getExtension(constant('ReiffIntegrations\\Seeburger\\DataAbstractionLayer\\OrderExtension::EXTENSION_NAME')) %}
+    <div id="order-{{ order.orderNumber }}" style="margin-bottom: 60px; border-top: 1px solid #000">
+        <label for="orderNumber-{{ order.orderNumber }}">Bestellnummer:</label>
+        <div id="orderNumber-{{ order.orderNumber }}" style="margin-bottom:1rem">
+            {{ order.orderNumber }}
+        </div>
+
+        <label for="orderDateTime-{{ order.orderNumber }}">Bestellt am:</label>
+        <div id="orderDateTime-{{ order.orderNumber }}" style="margin-bottom:1rem">
+            {{ order.orderDateTime|date('Y-m-d H:i:s') }}
+        </div>
+
+        <label for="orderNotifiedAt-{{ order.orderNumber }}">Bestellung zuletzt gemeldet:</label>
+        <div id="orderNotifiedAt-{{ order.orderNumber }}" style="margin-bottom:1rem">
+            {% if reiffOrder.notifiedAt is not null %}
+                {{ reiffOrder.notifiedAt|date('Y-m-d H:i:s') }}
+            {% else %}
+                -
+            {% endif %}
+        </div>
+
+        <label for="orderQueuedAt-{{ order.orderNumber }}">Bestellung zum Export eingereiht seit:</label>
+        <div id="orderQueuedAt-{{ order.orderNumber }}" style="margin-bottom:1rem">
+            {% if reiffOrder.queuedAt is not null %}
+                {{ reiffOrder.queuedAt|date('Y-m-d H:i:s') }}
+            {% else %}
+                -
+            {% endif %}
+        </div>
+
+        <label for="orderExportTries-{{ order.orderNumber }}">Anzahl der Exportversuche:</label>
+        <div id="orderExportTries-{{ order.orderNumber }}" style="margin-bottom:1rem">
+            {% if reiffOrder.exportTries is not null %}
+                {{ reiffOrder.exportTries }}
+            {% else %}
+                -
+            {% endif %}
+        </div>
+    </div>
+{% endfor %}

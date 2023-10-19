@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <service id="ReiffIntegrations\Sap\DataAbstractionLayer\CustomerExtension">
+            <tag name="shopware.entity.extension"/>
+        </service>
+
+        <service id="ReiffIntegrations\Sap\DataAbstractionLayer\ReiffCustomerDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="ReiffIntegrations\Sap\Page\Orders\OrdersPageLoader">
+            <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
+            <argument type="service" id="ReiffIntegrations\Sap\Api\Client\Orders\OrderListApiClient"/>
+            <argument type="service" id="ReiffIntegrations\Sap\Api\Client\Orders\OrderDetailApiClient"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="ReiffIntegrations\Sap\Api\Client\Orders\OrderListResponseParser">
+            <argument type="service" id="ReiffIntegrations\Logger"/>
+        </service>
+
+        <service id="ReiffIntegrations\Sap\Api\Client\Orders\OrderListApiClient">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="ReiffIntegrations\Logger"/>
+            <argument type="service" id="ReiffIntegrations\Sap\Api\Client\Orders\OrderListResponseParser"/>
+        </service>
+
+        <service id="ReiffIntegrations\Sap\Api\Client\Orders\OrderDetailResponseParser">
+            <argument type="service" id="ReiffIntegrations\Logger"/>
+            <argument type="service" id="country.repository"/>
+        </service>
+
+        <service id="ReiffIntegrations\Sap\Api\Client\Orders\OrderDetailApiClient">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="ReiffIntegrations\Logger"/>
+            <argument type="service" id="ReiffIntegrations\Sap\Api\Client\Orders\OrderDetailResponseParser"/>
+        </service>
+
+        <service id="ReiffIntegrations\Sap\Api\Client\Pdf\OrderPdfResponseParser">
+            <argument type="service" id="ReiffIntegrations\Logger"/>
+        </service>
+
+        <service id="ReiffIntegrations\Sap\Api\Client\Pdf\OrderPdfApiClient">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="ReiffIntegrations\Logger"/>
+            <argument type="service" id="ReiffIntegrations\Sap\Api\Client\Pdf\OrderPdfResponseParser"/>
+        </service>
+
+        <service id="ReiffIntegrations\Sap\Api\Client\Cart\CartApiClient">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="ReiffIntegrations\Logger"/>
+        </service>
+
+        <service id="ReiffIntegrations\Sap\Cart\PriceCartProcessor">
+            <argument type="service" id="ReiffIntegrations\Sap\Api\Client\Cart\CartApiClient"/>
+            <argument type="service" id="cache.object"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\CashRounding"/>
+
+            <tag name="shopware.cart.collector" priority="4500"/>
+            <tag name="shopware.cart.processor" priority="4500"/>
+        </service>
+
+        <service id="ReiffIntegrations\Sap\Cart\LineItemRemovedSubscriber">
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="ReiffIntegrations\Sap\SalesChannel\PriceSalesChannelContextFactory" decorates="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory">
+            <argument type="service" id="ReiffIntegrations\Sap\SalesChannel\PriceSalesChannelContextFactory.inner"/>
+            <argument type="service" id="request_stack" on-invalid="null"/>
+        </service>
+    </services>
+</container>

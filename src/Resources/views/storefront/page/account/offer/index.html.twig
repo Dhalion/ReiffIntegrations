@@ -1,0 +1,21 @@
+{% sw_extends '@SwagB2bPlatform/storefront/layout/_b2blayout.html.twig' %}
+
+{% set asyncSapOfferPluginOptions = {
+    url: path('frontend.k10r_reiff_integrations.account.offer.ajax_list'),
+    locale: locale,
+    pageLength: 25
+} %}
+
+{% block base_content %}
+    <div class="account-offers"
+         data-k10r-reiff-async-sap-offer-plugin="true"
+         data-k10r-reiff-async-sap-offer-plugin-options="{{ asyncSapOfferPluginOptions|json_encode }}">
+        <div class="account-offers-main">
+            <div class="account-offers-overview">
+                <div class="table offers-table" >
+                    {% sw_include '@Storefront/storefront/component/k10r-offer/index.html.twig' with {  } %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

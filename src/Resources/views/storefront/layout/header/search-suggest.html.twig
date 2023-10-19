@@ -1,0 +1,27 @@
+{% sw_extends "@Storefront/storefront/layout/header/search-suggest.html.twig" %}
+
+{% block layout_search_suggest_result_price %}
+    <div class="col-auto search-suggest-product-price">
+        {% set price = product.calculatedPrice %}
+        {% if product.calculatedPrices.count > 0 %}
+            {% set price = product.calculatedPrices.last %}
+        {% endif %}
+
+        {% set referencePrice = price.referencePrice %}
+
+        {% if product.calculatedPrices.count > 1 %}
+            {{ "listing.listingTextFrom"|trans|sw_sanitize }}
+        {% endif %}
+        <span class="search-suggest-product-price">
+            {% sw_include '@Storefront/storefront/component/k10r-price/simple-price-placeholder.html.twig' with { productNumber: product.productNumber, price: price.unitPrice } %}
+        </span>
+
+        {% if price.referencePrice is not null %}
+            <br><small class="search-suggest-product-reference-price">({{ price.referencePrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} / {{ price.referencePrice.referenceUnit }}&nbsp;{{ price.referencePrice.unitName }})</small>
+        {% endif %}
+
+        {% if price.regulationPrice.price is not null %}
+            <small class="search-suggest-product-list-price">{{ "general.listPricePreviously"|trans({'%price%': price.regulationPrice.price|currency }) }}{{ "general.star"|trans|sw_sanitize }}</small>
+        {% endif %}
+    </div>
+{% endblock %}

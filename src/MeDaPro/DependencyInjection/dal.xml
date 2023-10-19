@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <service id="ReiffIntegrations\MeDaPro\DataAbstractionLayer\CategoryExtension">
+            <tag name="shopware.entity.extension"/>
+        </service>
+
+        <service id="ReiffIntegrations\MeDaPro\DataAbstractionLayer\ReiffCategoryDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="ReiffIntegrations\MeDaPro\DataAbstractionLayer\MediaExtension">
+            <tag name="shopware.entity.extension"/>
+        </service>
+
+        <service id="ReiffIntegrations\MeDaPro\DataAbstractionLayer\ReiffMediaDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="ReiffIntegrations\MeDaPro\DataAbstractionLayer\ProductExtension">
+            <tag name="shopware.entity.extension"/>
+        </service>
+
+        <service id="ReiffIntegrations\MeDaPro\DataAbstractionLayer\ReiffProductDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+    </services>
+</container>

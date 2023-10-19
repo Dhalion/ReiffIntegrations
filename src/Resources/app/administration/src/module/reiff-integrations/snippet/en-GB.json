@@ -1,0 +1,42 @@
+{
+    "ReiffIntegrations": {
+        "order": {
+            "actions": {
+                "resetExport": {
+                    "buttonLabel": "Reset order export",
+                    "buttonPlaceholder": "Resets error counter and export status",
+                    "label": "Order Export",
+                    "title": "Order Export"
+                }
+            },
+            "messages": {
+                "successResetExport": "The order export of this order was reset successfully"
+            },
+            "additionalData": {
+                "isCompleteDeliveryLabel": "Is a complete delivery",
+                "orderCommissionLabel": "Ordering commission",
+                "productCommissionLabel": "Product commission",
+                "cardTitle": "Additional information"
+            }
+        },
+        "customer": {
+            "list": {
+                "tableHeader": {
+                    "debtorNumberLabel": "Debtor number",
+                    "doubleOptInRegistrationLabel": "Completed double opt-in",
+                    "isOciCustomerLabel": "Is an OCI customer",
+                    "company": "Company incl. company name"
+                }
+            },
+            "detail": {
+                "debtorNumberLabel": "Debtor number of the customer",
+                "debtorNumberPlaceholder": "-"
+            }
+        },
+        "rule": {
+            "reiffCustomerCustomFieldEmpty": {
+                "label": "The customer custom field is empty"
+            }
+        }
+    }
+}

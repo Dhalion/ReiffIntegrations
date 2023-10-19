@@ -1,0 +1,25 @@
+{% sw_extends '@Storefront/storefront/component/delivery-information.html.twig' %}
+
+{% block component_delivery_information %}
+    {# @var product \Shopware\Core\Content\Product\ProductEntity #}
+    {% if page is defined and page.product is defined %}
+        {% set product = page.product %}
+    {% endif %}
+
+    {% if product is defined and product.translated is defined and product.translated.customFields is defined and product.translated.customFields.reiff_product_shipping_time is defined %}
+        {% set deliveryCode = product.translated.customFields.reiff_product_shipping_time %}
+    {% else %}
+        {% set deliveryCode = null %}
+    {% endif %}
+
+    {% if product is defined %}
+        <div class="product-delivery-information">
+            {%  sw_include '@Storefront/storefront/component/k10r-product-delivery-information/index.html.twig' with {
+                productNumber: product.productNumber,
+                deliveryCode: deliveryCode,
+                isProductShippingFree: product.shippingFree,
+                isProductActive: product.active,
+            } %}
+        </div>
+    {% endif %}
+{% endblock %}

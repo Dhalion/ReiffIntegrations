@@ -1,0 +1,241 @@
+{% sw_extends "@SwagB2bPlatform/storefront/frontend/b2baddress/_form.html.twig" %}
+
+{# Salutation is not disabled due to used import #}
+
+{% block b2b_address_form_input_type %}
+    {% if type == 'shipping' %}
+        <label for="type">{{ "b2b.TypeLabel"|trans }} *</label>
+        <select
+                name="type"
+                class="custom-select form-control">
+            <option
+                value=""
+                disabled
+            >
+                {{ "b2b.TypeLabel"|trans }}
+            </option>
+            <option
+                value="shipping"
+                selected="selected"
+            >
+                {{ "b2b.ShippingAddress"|trans }}
+            </option>
+        </select>
+    {% else %}
+        <label for="type">{{ "b2b.TypeLabel"|trans }} *</label>
+        <select disabled="disabled" aria-disabled="true"
+                name="type"
+                class="custom-select form-control"
+                required
+        >
+            <option
+                value=""
+                disabled
+                selected="selected"
+            >
+                {{ "b2b.TypeLabel"|trans }}
+            </option>
+            <option
+                value="billing"
+                {% if type == 'billing' %}selected="selected"{% endif %}
+            >
+                {{ "b2b.BillingAddress"|trans }}
+            </option>
+            <option
+                value="shipping"
+                {% if type == 'shipping' %}selected="selected"{% endif %}
+            >
+                {{ "b2b.ShippingAddress"|trans }}
+            </option>
+        </select>
+    {% endif %}
+{% endblock %}
+{% block b2b_address_form_input_ustid %}
+    {% if type == 'shipping' %}
+        {{ parent() }}
+    {% else %}
+        <label for="ustid">{{ "b2b.TaxIdLabel"|trans }}</label>
+        <input disabled="disabled" aria-disabled="true"
+               class="form-control"
+               type="text"
+               name="ustid"
+               value="{{ address.ustid }}"
+               placeholder="{{ "b2b.TaxIdPlaceholder"|trans }}"
+               autofocus
+        >
+    {% endif %}
+{% endblock %}
+{% block b2b_address_form_input_company %}
+    {% if type == 'shipping' %}
+        {{ parent() }}
+    {% else %}
+        <label for="company">{{ "b2b.CompanyLabel"|trans }} *</label>
+        <input disabled="disabled" aria-disabled="true"
+               class="form-control"
+               type="text"
+               name="company"
+               value="{{ address.company }}"
+               placeholder="{{ "b2b.CompanyPlaceholder"|trans }}"
+               required
+        >
+    {% endif %}
+{% endblock %}
+{% block b2b_address_form_input_deparment %}
+    {% if type == 'shipping' %}
+        {{ parent() }}
+    {% else %}
+        <label for="department">{{ "b2b.DepartmentLabel"|trans }}</label>
+        <input disabled="disabled" aria-disabled="true"
+               class="form-control"
+               type="text"
+               name="department"
+               value="{{ address.department }}"
+               placeholder="{{ "b2b.DepartmentPlaceholder"|trans }}"
+        >
+    {% endif %}
+{% endblock %}
+{% block b2b_address_form_input_salutation %}
+    {% if type == 'shipping' %}
+        {{ parent() }}
+    {% else %}
+        <label>{{ "b2b.SalutationLabel"|trans }} *</label>
+        {% sw_include "@ReiffIntegrations/storefront/frontend/b2butils/_salutation-select-disabled.html.twig" with { 'selectedSalutation': address.salutation, 'required': true } %}
+    {% endif %}
+{% endblock %}
+{% block b2b_address_form_input_firstname %}
+    {% if type == 'shipping' %}
+        {{ parent() }}
+    {% else %}
+        <label for="firstName">{{ "b2b.FirstNameLabel"|trans }} *</label>
+        <input disabled="disabled" aria-disabled="true"
+               class="form-control"
+               type="text"
+               name="firstname"
+               value="{{ address.firstname }}"
+               placeholder="{{ "b2b.FirstNamePlaceholder"|trans }}"
+               required
+        >
+    {% endif %}
+{% endblock %}
+{% block b2b_address_form_input_lastname %}
+    {% if type == 'shipping' %}
+        {{ parent() }}
+    {% else %}
+        <label for="lastname">{{ "b2b.LastNameLabel"|trans }} *</label>
+        <input disabled="disabled" aria-disabled="true"
+               class="form-control"
+               type="text"
+               name="lastname"
+               value="{{ address.lastname }}"
+               placeholder="{{ "b2b.LastNamePlaceholder"|trans }}"
+               required
+        >
+    {% endif %}
+{% endblock %}
+{% block b2b_address_form_input_street %}
+    {% if type == 'shipping' %}
+        {{ parent() }}
+    {% else %}
+        <label for="street">{{ "b2b.StreetLabel"|trans }} *</label>
+        <input disabled="disabled" aria-disabled="true"
+               class="form-control"
+               type="text"
+               name="street"
+               value="{{ address.street }}"
+               placeholder="{{ "b2b.StreetPlaceholder"|trans }}"
+               required
+        >
+    {% endif %}
+{% endblock %}
+{% block b2b_address_form_input_additional_address_line1 %}
+    {% if type == 'shipping' %}
+        {{ parent() }}
+    {% else %}
+        <label for="additional_address_line1">{{ "b2b.AddressAdditionalLabel"|trans }} 1 {% if requiredFields.addressAdditional1 %}*{% endif %}</label>
+        <input disabled="disabled" aria-disabled="true"
+               class="form-control"
+               type="text"
+               name="additional_address_line1"
+               value="{{ address.additional_address_line1 }}"
+               placeholder="{{ "b2b.AddressAdditionalPlaceholder"|trans }} 1"
+        >
+    {% endif %}
+{% endblock %}
+{% block b2b_address_form_input_additional_address_line2 %}
+    {% if type == 'shipping' %}
+        {{ parent() }}
+    {% else %}
+        <label for="additional_address_line2">{{ "b2b.AddressAdditionalLabel"|trans }} 2 {% if requiredFields.addressAdditional2 %}*{% endif %}</label>
+        <input disabled="disabled" aria-disabled="true"
+               class="form-control"
+               type="text"
+               name="additional_address_line2"
+               value="{{ address.additional_address_line2 }}"
+               placeholder="{{ "b2b.AddressAdditionalPlaceholder"|trans }} 2"
+        >
+    {% endif %}
+{% endblock %}
+{% block b2b_address_form_input_zipcode %}
+    {% if type == 'shipping' %}
+        {{ parent() }}
+    {% else %}
+        <label for="zipcode">{{ "b2b.ZipcodeLabel"|trans }} *</label>
+        <input disabled="disabled" aria-disabled="true"
+               class="form-control"
+               type="text"
+               name="zipcode"
+               value="{{ address.zipcode }}"
+               placeholder="{{ "b2b.ZipcodePlaceholder"|trans }}"
+               required
+        >
+    {% endif %}
+{% endblock %}
+{% block b2b_address_form_input_city %}
+    {% if type == 'shipping' %}
+        {{ parent() }}
+    {% else %}
+        <label for="city">{{ "b2b.CityLabel"|trans }} *</label>
+        <input disabled="disabled" aria-disabled="true"
+               class="form-control"
+               type="text"
+               name="city"
+               value="{{ address.city }}"
+               placeholder="{{ "b2b.CityPlaceholder"|trans }}"
+               required
+        >
+    {% endif %}
+{% endblock %}
+{% block b2b_address_form_input_country_id %}
+    {% if type == 'shipping' %}
+        {{ parent() }}
+    {% else %}
+        <label for="country_id">{{ "b2b.CountryLabel"|trans }} *</label>
+        <select disabled="disabled" aria-disabled="true"
+                name="country_id"
+                class="custom-select"
+                required
+        >
+            <option disabled value="" selected="selected">{{ "b2b.CountryPlaceholder"|trans }}  *</option>
+
+            {% for countryKey, countryName in countryList %}
+                <option value="{{ countryKey }}" {% if (address.country_id.getValue) == countryKey %} selected="selected" {% endif %}>
+                    {{ countryName }}
+                </option>
+            {% endfor %}
+        </select>
+    {% endif %}
+{% endblock %}
+{% block b2b_address_form_input_phone %}
+    {% if type == 'shipping' %}
+        {{ parent() }}
+    {% else %}
+        <label for="phone">{{ "b2b.PhoneLabel"|trans }} {% if requiredFields.phone %}*{% endif %}</label>
+        <input disabled="disabled" aria-disabled="true"
+               class="form-control"
+               type="text"
+               name="phone"
+               value="{{ address.phone }}"
+               placeholder="{{ "b2b.PhonePlaceholder"|trans }}"
+        >
+    {% endif %}
+{% endblock %}

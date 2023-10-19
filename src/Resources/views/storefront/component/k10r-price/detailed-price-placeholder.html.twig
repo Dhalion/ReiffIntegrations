@@ -1,0 +1,12 @@
+{# @var price Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice #}
+{% block reiff_integration_k10r_price_switch %}
+    {{ constant('ReiffIntegrations\\Sap\\ShopPricing\\DetailedPriceHandler::PRICE_SWITCH_PLACEHOLDER_FORMATTED') }}{{ productNumber }}#{{ unit }}#
+
+    {% if calculatedPrices.count == 0 %}
+        {{ constant('ReiffIntegrations\\Sap\\ShopPricing\\DetailedPriceHandler::PRICE_SWITCH_PLACEHOLDER_FALLBACK') }}{{ productNumber }}#1#{{ calculatedPrice.unitPrice }}#
+    {% else %}
+        {% for price in calculatedPrices %}
+            {{ constant('ReiffIntegrations\\Sap\\ShopPricing\\DetailedPriceHandler::PRICE_SWITCH_PLACEHOLDER_FALLBACK') }}{{ productNumber }}#{{ price.quantity }}#{{ price.unitPrice }}#
+        {% endfor %}
+    {% endif %}
+{% endblock %}

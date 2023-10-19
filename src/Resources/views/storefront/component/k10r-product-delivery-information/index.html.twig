@@ -1,0 +1,105 @@
+{% block k10r_product_delivery_information %}
+    {% if isProductShippingFree %}
+        {% block component_delivery_information_shipping_free %}
+            <p class="delivery-information delivery-shipping-free">
+                {% block component_delivery_information_shipping_free_inner %}
+                    <span class="delivery-status-indicator bg-info"></span>
+                    {{ "general.deliveryShippingFree"|trans|sw_sanitize }}
+                {% endblock %}
+            </p>
+        {% endblock %}
+    {% endif %}
+
+    {% if not isProductActive %}
+        {% block component_delivery_information_not_available %}
+            <link itemprop="availability" href="http://schema.org/LimitedAvailability"/>
+            <p class="delivery-information delivery-not-available">
+                {% block component_delivery_information_not_available_inner %}
+                    <span class="delivery-status-indicator bg-danger"></span>
+                    {{ "general.deliveryNotAvailable"|trans|sw_sanitize }}
+                {% endblock %}
+            </p>
+        {% endblock %}
+    {% else %}
+        <div class="availability-display availability-not-loaded"
+             data-k10r-reiff-availability-display-plugin="true"
+             data-k10r-reiff-availability-display-plugin-options='{
+                "requestUrl": "{{ path('frontend.reiff.availability') }}",
+                "productNumber": "{{ productNumber }}"
+            }'>
+            {% block k10r_product_delivery_information_livedata %}
+                <p class="availability-livedata delivery-information k10r-reiff-integration-delivery-information-livedata d-none">
+                    {% block k10r_product_delivery_information_livedata_inner %}
+                        <span class="delivery-status-indicator bg-success"></span>
+                        <span class="live-content"></span>
+                    {% endblock %}
+                </p>
+            {% endblock %}
+            {% block k10r_product_delivery_information_fallback %}
+                <div class="availability-fallback">
+                    {% if deliveryCode == 1 %}
+                        {% block k10r_product_delivery_information_code1 %}
+                            <link itemprop="availability" href="http://schema.org/InStock"/>
+                            <p class="delivery-information delivery-available k10r-reiff-integration-delivery-information-code-1">
+                                {% block k10r_product_delivery_information_code1_inner %}
+                                    <span class="delivery-status-indicator bg-success"></span>
+                                    {{ "ReiffIntegrations.checkout.cart.delivery.deliveryTime.code1"|trans|sw_sanitize }}
+                                {% endblock %}
+                            </p>
+                        {% endblock %}
+                    {% elseif deliveryCode == 2 %}
+                        {% block k10r_product_delivery_information_code2 %}
+                            <link itemprop="availability" href="http://schema.org/InStock"/>
+                            <p class="delivery-information delivery-available k10r-reiff-integration-delivery-information-code-2">
+                                {% block k10r_product_delivery_information_code2_inner %}
+                                    <span class="delivery-status-indicator bg-success"></span>
+                                    {{ "ReiffIntegrations.checkout.cart.delivery.deliveryTime.code2"|trans|sw_sanitize }}
+                                {% endblock %}
+                            </p>
+                        {% endblock %}
+                    {% elseif deliveryCode == 3 %}
+                        {% block k10r_product_delivery_information_code3 %}
+                            <link itemprop="availability" href="http://schema.org/LimitedAvailability"/>
+                            <p class="delivery-information k10r-reiff-integration-delivery-information-code-3">
+                                {% block k10r_product_delivery_information_code3_inner %}
+                                    <span class="delivery-status-indicator bg-dark"></span>
+                                    {{ "ReiffIntegrations.checkout.cart.delivery.deliveryTime.code3"|trans|sw_sanitize }}
+                                {% endblock %}
+                            </p>
+                        {% endblock %}
+                    {% elseif deliveryCode == 4 %}
+                        {% block k10r_product_delivery_information_code4 %}
+                            <link itemprop="availability" href="http://schema.org/LimitedAvailability"/>
+                            <p class="delivery-information k10r-reiff-integration-delivery-information-code-4">
+                                {% block k10r_product_delivery_information_code4_inner %}
+                                    <span class="delivery-status-indicator bg-dark"></span>
+                                    {{ "ReiffIntegrations.checkout.cart.delivery.deliveryTime.code4"|trans|sw_sanitize }}
+                                {% endblock %}
+                            </p>
+                        {% endblock %}
+                    {% elseif deliveryCode == 5 %}
+                        {% block k10r_product_delivery_information_code5 %}
+                            <link itemprop="availability" href="http://schema.org/LimitedAvailability"/>
+                            <p class="delivery-information k10r-reiff-integration-delivery-information-code-5">
+                                {% block k10r_product_delivery_information_code5_inner %}
+                                    <span class="delivery-status-indicator bg-warning"></span>
+                                    {{ "ReiffIntegrations.checkout.cart.delivery.deliveryTime.code5"|trans|sw_sanitize }}
+                                {% endblock %}
+                            </p>
+                        {% endblock %}
+                    {% else %}
+                        {% block k10r_product_delivery_information_code_fallback %}
+                            <link itemprop="availability" href="http://schema.org/LimitedAvailability"/>
+                            <p class="delivery-information delivery-not-available k10r-reiff-integration-delivery-information-code-fallback">
+                                {% block k10r_product_delivery_information_code_fallback_inner %}
+                                    <span class="delivery-status-indicator bg-dark"></span>
+                                    {{ "ReiffIntegrations.checkout.cart.delivery.deliveryTime.codeFallback"|trans|sw_sanitize }}
+                                {% endblock %}
+                            </p>
+                        {% endblock %}
+                    {% endif %}
+                </div>
+            {% endblock %}
+        </div>
+    {% endif %}
+{% endblock %}

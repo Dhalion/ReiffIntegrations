@@ -1,0 +1,42 @@
+{
+    "ReiffIntegrations": {
+        "order": {
+            "actions": {
+                "resetExport": {
+                    "buttonLabel": "Bestellexport zurücksetzen",
+                    "buttonPlaceholder": "Setzt Fehlerzähler und Exportstatus zurück",
+                    "label": "Bestellexport",
+                    "title": "Bestellexport"
+                }
+            },
+            "messages": {
+                "successResetExport": "Der Bestellexport dieser Bestellung wurde erfolgreich zurückgesetzt"
+            },
+            "additionalData": {
+                "isCompleteDeliveryLabel": "Ist eine vollständige Lieferung",
+                "orderCommissionLabel": "Bestellkommission",
+                "productCommissionLabel": "Produktkommission",
+                "cardTitle": "Weitere Informationen"
+            }
+        },
+        "customer": {
+            "list": {
+                "tableHeader": {
+                    "debtorNumberLabel": "Debitorennummer",
+                    "doubleOptInRegistrationLabel": "Abgeschlossener Double-Opt-In",
+                    "isOciCustomerLabel": "Ist ein OCI-Kunde",
+                    "company": "Firma inkl. Firmierung"
+                }
+            },
+            "detail": {
+                "debtorNumberLabel": "Debitorennummer des Kunden",
+                "debtorNumberPlaceholder": "-"
+            }
+        },
+        "rule": {
+            "reiffCustomerCustomFieldEmpty": {
+                "label": "Das Zusatzfeld am Kunden ist leer"
+            }
+        }
+    }
+}

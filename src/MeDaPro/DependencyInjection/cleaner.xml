@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <service id="ReiffIntegrations\MeDaPro\Cleaner\SortmentRemoval">
+            <argument type="service" id="Doctrine\DBAL\Connection" />
+        </service>
+        <service id="ReiffIntegrations\MeDaPro\Cleaner\ProductActivator">
+            <argument type="service" id="Doctrine\DBAL\Connection" />
+            <argument type="service" id="product.repository" />
+        </service>
+        <service id="ReiffIntegrations\MeDaPro\Cleaner\CategoryActivator">
+            <argument type="service" id="Doctrine\DBAL\Connection" />
+            <argument type="service" id="category.repository" />
+        </service>
+        <service id="ReiffIntegrations\MeDaPro\Cleaner\PropertiesDeleter">
+            <argument type="service" id="Doctrine\DBAL\Connection" />
+            <argument type="service" id="property_group_option.repository" />
+            <argument type="service" id="property_group.repository" />
+        </service>
+    </services>
+</container>

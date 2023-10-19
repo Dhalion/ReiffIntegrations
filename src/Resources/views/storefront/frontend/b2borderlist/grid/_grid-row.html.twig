@@ -1,0 +1,89 @@
+{% sw_extends '@SwagB2bPlatform/storefront/frontend/b2borderlist/grid/_grid-row.html.twig' %}
+
+{% block b2b_orderlist_grid_row_inner_actions_inner %}
+    <button
+        title="{{ "b2b.OrderListEdit"|trans }}"
+        type="button"
+        class="btn btn-light b2b--modal-link {{ b2b_acl("b2borderlist", "detail") }}"
+        data-bs-target="order-list-detail"
+        data-href="{{ path("frontend.b2b.b2borderlist.detail", { orderlist: row.id.getValue, orderContextId: row.orderContextId.getValue }) }}"
+        data-modal-size="xl"
+    >
+        {% sw_icon 'paper-pencil-signed' %}
+    </button>
+
+    <button
+        title="{{ "b2b.OrderListAddToCart"|trans }}"
+        type="button"
+        class="btn btn-light b2b--modal-link"
+        data-bs-target="orderlist-tab-content"
+        data-href="{{ path("frontend.b2b.b2borderlistlineitemreference.filteredGrid", { orderListId: row.id.getValue, excludeMode: 'true', addAllToCart: 'true' }) }}"
+        data-modal-size="auto"
+        data-plugins="gridComponent,orderlistMultiEdit"
+        {% if row.lineItemList.references|length == 0 %}disabled{% endif %}
+    >
+        {% sw_icon 'basket' %}
+    </button>
+
+    <form
+        action="{{ path("frontend.b2b.b2borderlist.duplicate") }}"
+        method="post"
+        class="form--inline {{ b2b_acl("b2borderlist", "duplicate") }}"
+    >
+
+        <input
+            type="hidden"
+            name="id"
+            value="{{ row.id.getValue }}"
+        >
+        <button
+            title="{{ "b2b.OrderListDuplicate"|trans }}"
+            type="submit"
+            class="btn btn-light component-action-duplicate"
+        >
+            {% sw_icon 'duplicate' %}
+        </button>
+    </form>
+
+    <form
+        action="{{ path("frontend.b2b.b2borderlist.exportCsv") }}"
+        method="post"
+        class="form--inline ignore--b2b-ajax-panel {{ b2b_acl("b2borderlist", "exportCsv") }}"
+        target="_blank"
+    >
+
+        <input
+            type="hidden"
+            name="id"
+            value="{{ row.id.getValue }}"
+        >
+        <button
+            title="{{ "b2b.ExportList"|trans }}"
+            type="submit"
+            class="btn btn-light component-action-export"
+            {% if row.lineItemList.references|length == 0 %}disabled{% endif %}
+        >
+            {% sw_icon 'cloud-download' %}
+        </button>
+    </form>
+
+    <form
+        action="{{ path('frontend.b2b.b2borderlist.remove') }}"
+        method="post"
+        class="form--inline {{ b2b_acl('b2borderlist', 'remove') }}"
+    >
+
+        <input type="hidden" name="id" value="{{ row.id.getValue }}" />
+        <input type="hidden" name="confirmName" value="{{ row.name }}" />
+
+        <button
+            class="btn btn-light component-action-delete"
+            title="{{ "b2b.OrderListDelete"|trans }}"
+            type="submit"
+            data-confirm="true"
+            data-confirm-url="{{ path('frontend.b2b.b2bconfirm.remove') }}?confirmName={{ row.name }}&isUnderDelete=1"
+        >
+            {% sw_icon 'trash' %}
+        </button>
+    </form>
+{% endblock %}

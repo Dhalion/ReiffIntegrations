@@ -1,0 +1,17 @@
+{% block sw_customer_list_grid_columns %}
+    {% parent() %}
+
+    <template #column-debtorNumber="{ item, compact, isInlineEdit }">
+        <p v-if="item && item.extensions && item.extensions.reiffCustomer && item.extensions.reiffCustomer.debtorNumber && item.extensions.reiffCustomer.debtorNumber.length > 0" v-html="item.extensions.reiffCustomer.debtorNumber"></p>
+        <p v-else>-</p>
+    </template>
+
+    <template #column-doubleOptInRegistration="{ item, compact, isInlineEdit }">
+        <sw-checkbox-field v-model="item.doubleOptInRegistration" :disabled="true"></sw-checkbox-field>
+    </template>
+
+    <template #column-isOciCustomer="{ item, compact, isInlineEdit }">
+        <sw-checkbox-field v-if="item && item.customFields" :value="item.customFields.reiff_customer_is_oci" :disabled="true"></sw-checkbox-field>
+        <sw-checkbox-field v-else :value="false" :disabled="true"></sw-checkbox-field>
+    </template>
+{% endblock %}

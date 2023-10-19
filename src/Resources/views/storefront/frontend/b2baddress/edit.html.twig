@@ -1,0 +1,7 @@
+{% sw_extends "@SwagB2bPlatform/storefront/frontend/b2baddress/edit.html.twig" %}
+
+{% block b2b_modal_base_content_inner_scrollable_inner_bottom_inner %}
+    {% if address.type == 'shipping' %}
+        {{ parent() }}
+    {% endif %}
+{% endblock %}

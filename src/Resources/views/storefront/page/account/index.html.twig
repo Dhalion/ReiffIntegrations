@@ -1,0 +1,11 @@
+{% sw_extends '@Storefront/storefront/page/account/index.html.twig' %}
+
+{% block page_account_overview_profile_actions %}
+    <div class="card-actions">
+        <a href="{{ path('frontend.account.profile.page') }}"
+           title="{{ "ReiffIntegrations.customer.account.profile.overviewChangePassword"|trans|striptags }}"
+           class="btn btn-light">
+            {{ "ReiffIntegrations.customer.account.profile.overviewChangePassword"|trans|sw_sanitize }}
+        </a>
+    </div>
+{% endblock %}

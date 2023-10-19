@@ -1,0 +1,84 @@
+{% sw_extends "@SwagB2bPlatform/storefront/frontend/b2bcontact/_form.html.twig" %}
+
+{# Salutation/Active flag is not disabled due to used import #}
+
+{% block b2b_contact_form_rows_firstName %}
+    <label for="firstName">{{ "b2b.FirstNameLabel"|trans }}*</label>
+    <input disabled="disabled" aria-disabled="true"
+        class="form-control"
+        type="text"
+        name="firstName"
+        value="{{ contact.firstName }}"
+        placeholder="{{ "b2b.FirstNamePlaceholder"|trans }}"
+        autofocus
+        required
+    >
+{% endblock %}
+{% block b2b_contact_form_rows_lastName %}
+    <label for="lastName">{{ "b2b.LastNameLabel"|trans }}*</label>
+    <input disabled="disabled" aria-disabled="true"
+        class="form-control"
+        type="text"
+        name="lastName"
+        value="{{ contact.lastName }}"
+        placeholder="{{ "b2b.LastNamePlaceholder"|trans }}"
+        required
+    >
+{% endblock %}
+{% block b2b_contact_form_rows_email %}
+    <label for="email">{{ "b2b.EmailLabel"|trans }}*</label>
+    <input disabled="disabled" aria-disabled="true"
+        class="form-control"
+        type="email"
+        name="email"
+        value="{{ contact.email }}"
+        placeholder="{{ "b2b.EmailPlaceholder"|trans }}"
+        required
+    >
+{% endblock %}
+{% block b2b_contact_form_rows_department %}
+    <label for="department">{{ "b2b.DepartmentLabel"|trans }}</label>
+    <input disabled="disabled" aria-disabled="true"
+        class="form-control"
+        type="text"
+        name="department"
+        value="{{ contact.department }}"
+        placeholder="{{ "b2b.DepartmentPlaceholder"|trans }}"
+    >
+{% endblock %}
+{% block b2b_contact_form_rows_passwordNew %}
+    <label for="passwordNew">{{ "b2b.PasswordLabel"|trans }}*</label>
+    <input disabled="disabled" aria-disabled="true"
+        type="password"
+        name="passwordNew"
+        class="b2b--input-password form-control"
+        placeholder="{{ "b2b.PasswordPlaceholder"|trans }}"
+        autocomplete="new-password"
+    >
+{% endblock %}
+{% block b2b_contact_form_rows_passwordRepeat %}
+    <label>{{ "b2b.ConfirmPasswordLabel"|trans }}*</label>
+    <input disabled="disabled" aria-disabled="true"
+        type="password"
+        name="passwordRepeat"
+        class="b2b--input-password form-control"
+        placeholder="{{ "b2b.ConfirmPasswordPlaceholder"|trans }}"
+        autocomplete="new-password"
+    >
+{% endblock %}
+{% block b2b_contact_form_rows_passwordActivation %}
+    <span class="custom-control custom-checkbox box--input">
+        <input disabled="disabled" aria-disabled="true"
+            type="checkbox"
+            class="custom-control-input b2b--password-activation"
+            id="passwordActivation"
+            name="passwordActivation"
+            value="1"
+            {% if type is same as("create") %}checked="checked"{% endif %}
+        >
+        <label for="passwordActivation"
+               class="custom-control-label">{{ "b2b.PasswordActivationLabel"|trans }}</label>
+    </span>
+{% endblock %}
+
+{% block b2b_contact_form_rows_active %}{% endblock %}

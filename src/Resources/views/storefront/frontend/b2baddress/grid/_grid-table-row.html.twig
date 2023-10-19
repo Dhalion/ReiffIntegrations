@@ -1,0 +1,53 @@
+{% sw_extends "@SwagB2bPlatform/storefront/frontend/b2baddress/grid/_grid-table-row.html.twig" %}
+
+{% block b2b_address_grid_table_row_cells_actions %}
+    {% if type == 'shipping' %}
+        <button
+            title="{{ 'b2b.EditAddress'|trans }}"
+            type="button"
+            data-row-id="{{ rowId }}"
+            data-href="{{ path('frontend.b2b.b2baddress.detail', {'id': rowId }) }}"
+            class="btn btn-light b2b--modal-link {{ b2b_acl('b2baddress', 'detail') }}"
+            data-bs-target="address-detail"
+            data-target="address-detail"
+            data-modal-size="lg"
+        >
+            {% sw_icon 'paper-pencil-signed' %}
+        </button>
+    {% else %}
+        <a href="Rechnungsadresse"
+            onclick="(arguments[0] || window.event).stopPropagation();window.location.href = this.href; return;"
+            title="{{ 'ReiffIntegrations.customer.orders.address.changeBillingAddressTitle'|trans }}"
+            class="btn btn-light">
+            {% sw_icon 'paper-pencil-signed' %}
+        </a>
+    {% endif %}
+
+    {% if type == 'shipping' %}
+        <form
+            action="{{ path('frontend.b2b.b2baddress.remove', { 'type': type }) }}"
+            method="post"
+            class="form--inline"
+        >
+            {% block b2b_address_grid_table_row_cells_actions_form %}
+                <input
+                    type="hidden"
+                    name="id"
+                    value="{{ rowId }}"
+                >
+
+                {% if row.is_used == false %}
+                    <button
+                        title="{{ 'b2b.DeleteAddress'|trans }}"
+                        type="submit"
+                        class="btn btn-light component-action-delete {{ b2b_acl('b2baddress', 'remove') }}"
+                        data-confirm="true"
+                        data-confirm-url="{{ path('frontend.b2b.b2bconfirm.remove') }}?isUnderDelete=1"
+                    >
+                        {% sw_icon 'trash' %}
+                    </button>
+                {% endif %}
+            {% endblock %}
+        </form>
+    {% endif %}
+{% endblock %}

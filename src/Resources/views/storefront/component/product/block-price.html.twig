@@ -1,0 +1,23 @@
+{% sw_extends '@Storefront/storefront/component/product/block-price.html.twig' %}
+
+{% block component_product_detail_block_price_content %}
+    {{ parent() }}
+    {% block order_unit %}
+        <span class="product-price-unit-text">
+            {% block order_unit_divider %}
+                {{ 'ReiffIntegrations.unit.divider'|trans }}
+            {% endblock %}
+            {% block order_unit_unit %}
+                {{ unit }}
+            {% endblock %}
+        </span>
+    {% endblock %}
+
+    {% if isPageRendering and debtorNumber and isFallback %}
+        <span class="d-none" data-k10r-reiff-price-display-plugin>
+            <span {{ dataBsToggleAttr }}="tooltip" class="price--error" title="{{ constant('ReiffIntegrations\\Sap\\ShopPricing\\SimplePriceHandler::ERROR_PLACEHOLDER') }}{{ productNumber }}#">
+                {% sw_icon 'warning' %}
+            </span>
+        </span>
+    {% endif %}
+{% endblock %}

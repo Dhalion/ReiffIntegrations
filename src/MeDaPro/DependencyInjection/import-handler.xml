@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <service id="ReiffIntegrations\MeDaPro\ImportHandler\CategoryImportHandler">
+            <argument type="service" id="ReiffIntegrations\Logger"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="ReiffIntegrations\Util\Mailer"/>
+            <argument type="service" id="ReiffIntegrations\Util\EntitySyncer"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="category.repository"/>
+            <argument type="service" id="ReiffIntegrations\MeDaPro\Helper\MediaHelper"/>
+            <argument type="service" id="ReiffIntegrations\MeDaPro\DataProvider\RuleProvider"/>
+
+            <tag name="reiff_integrations.import_handler"/>
+        </service>
+
+        <service id="ReiffIntegrations\MeDaPro\ImportHandler\ProductImportHandler">
+            <argument type="service" id="ReiffIntegrations\Logger"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="ReiffIntegrations\Util\Mailer"/>
+            <argument type="service" id="ReiffIntegrations\Util\EntitySyncer"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="product.repository"/>
+            <argument type="service" id="tax.repository"/>
+            <argument type="service" id="sales_channel.repository"/>
+            <argument type="service" id="category.repository"/>
+            <argument type="service" id="ReiffIntegrations\MeDaPro\Helper\MediaHelper"/>
+            <argument type="service" id="messenger.bus.shopware"/>
+            <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer"/>
+            <argument type="service" id="unit.repository"/>
+            <argument type="service" id="ReiffIntegrations\MeDaPro\DataProvider\RuleProvider"/>
+
+            <tag name="reiff_integrations.import_handler"/>
+        </service>
+
+        <service id="ReiffIntegrations\MeDaPro\ImportHandler\PropertyImportHandler">
+            <argument type="service" id="ReiffIntegrations\Logger"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="ReiffIntegrations\Util\Mailer"/>
+            <argument type="service" id="ReiffIntegrations\Util\EntitySyncer"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="property_group.repository"/>
+
+            <tag name="reiff_integrations.import_handler"/>
+        </service>
+
+        <service id="ReiffIntegrations\MeDaPro\ImportHandler\ManufacturerImportHandler">
+            <argument type="service" id="ReiffIntegrations\Logger"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="ReiffIntegrations\Util\Mailer"/>
+            <argument type="service" id="ReiffIntegrations\Util\EntitySyncer"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="product_manufacturer.repository"/>
+            <argument type="service" id="ReiffIntegrations\MeDaPro\Helper\MediaHelper"/>
+
+            <tag name="reiff_integrations.import_handler"/>
+        </service>
+
+        <service id="ReiffIntegrations\MeDaPro\ImportHandler\MediaImportHandler">
+            <argument type="service" id="ReiffIntegrations\Logger"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="ReiffIntegrations\Util\Mailer"/>
+            <argument type="service" id="ReiffIntegrations\Util\EntitySyncer"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="ReiffIntegrations\MeDaPro\Helper\MediaHelper"/>
+
+            <tag name="reiff_integrations.import_handler"/>
+        </service>
+    </services>
+</container>

@@ -1,0 +1,35 @@
+{% sw_extends '@SwagB2bPlatform/storefront/frontend/b2bordernumber/grid/_grid-table-row.html.twig' %}
+
+{% block b2b_ordernumber_grid_row_inner_actions_inner %}
+    <button
+        name="saveButton"
+        title="{{ 'b2b.SaveCustomOrderNumber'|trans }}"
+        type="button"
+        class="btn btn-light btn--edit {% if row.id.getValue %}{{ b2b_acl('b2bordernumber', 'update') }}{% else %}{{ b2b_acl('b2bordernumber', 'create') }}{% endif %}"
+        {% if not row %}hidden{% endif %}
+    >
+        {% sw_icon 'save' %}
+    </button>
+
+    {% if row %}
+        <form
+            action="{{ path('frontend.b2b.b2bordernumber.remove') }}"
+            method="post"
+            class="form--inline {{ b2b_acl('b2bordernumber', 'remove') }}"
+            data-ajax-panel-trigger-reload="order-number-grid"
+        >
+            <input type="hidden" name="id" value="{{ row.id.getValue }}"/>
+            <input type="hidden" name="confirmName" value="{{ row.name }}">
+
+            <button
+                title="{{ 'b2b.DeleteCustomOrderNumber'|trans }}"
+                type="submit"
+                class="btn btn-light component-action-delete"
+                data-confirm="true"
+                data-confirm-url="{{ path('frontend.b2b.b2bconfirm.remove') }}?isUnderDelete=1"
+            >
+                {% sw_icon 'trash' %}
+            </button>
+        </form>
+    {% endif %}
+{% endblock %}

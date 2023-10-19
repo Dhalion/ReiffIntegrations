@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <service id="ReiffIntegrations\Filesystem" class="League\Flysystem\MountManager" public="true">
+            <factory service="ReiffIntegrations\Util\FilesystemFactory" method="factory" />
+        </service>
+
+        <service id="ReiffIntegrations\Logger" class="Monolog\Logger">
+            <factory service="Shopware\Core\Framework\Log\LoggerFactory" method="createRotating"/>
+
+            <argument type="string">reiff_integrations</argument>
+        </service>
+
+        <service id="ReiffIntegrations\Util\FilesystemFactory">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
+            <argument type="service" id="ReiffIntegrations\Logger" />
+            <argument>%env(APP_ENV)%</argument>
+        </service>
+
+        <service id="ReiffIntegrations\Util\ExportArchiver">
+            <argument type="service" id="ReiffIntegrations\Filesystem" />
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
+        </service>
+
+        <service id="ReiffIntegrations\Util\ImportArchiver">
+            <argument type="service" id="ReiffIntegrations\Filesystem" />
+        </service>
+
+        <service id="ReiffIntegrations\Util\EntitySyncer">
+            <argument type="service" id="Shopware\Core\Framework\Api\Sync\SyncService"/>
+        </service>
+
+        <service id="ReiffIntegrations\Util\Mailer">
+            <argument type="service" id="Shopware\Core\Content\Mail\Service\MailService"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="ReiffIntegrations\Logger"/>
+        </service>
+
+        <service id="ReiffIntegrations\Util\MessageHandler\ExportMessageHandler">
+            <argument type="tagged_iterator" tag="reiff_integrations.export_handler"/>
+
+            <tag name="messenger.message_handler"/>
+        </service>
+
+        <service id="ReiffIntegrations\Util\MessageHandler\ImportMessageHandler">
+            <argument type="tagged_iterator" tag="reiff_integrations.import_handler"/>
+            <argument type="service" id="ReiffIntegrations\Util\ImportArchiver"/>
+
+            <tag name="messenger.message_handler"/>
+        </service>
+
+        <service id="ReiffIntegrations\Util\LockHandler">
+            <argument type="service" id="cache.object" />
+        </service>
+    </services>
+</container>

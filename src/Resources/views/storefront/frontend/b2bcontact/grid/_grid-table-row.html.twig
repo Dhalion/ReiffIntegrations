@@ -1,0 +1,41 @@
+{% sw_extends "@SwagB2bPlatform/storefront/frontend/b2bcontact/grid/_grid-table-row.html.twig" %}
+
+{% block b2b_contact_grid_table_row_cells %}
+    <td data-label="{{ 'b2b.FirstNameLabel'|trans }}">{{ row.firstName }}</td>
+    <td data-label="{{ 'b2b.LastNameLabel'|trans }}">{{ row.lastName }}</td>
+    <td data-label="{{ 'b2b.EmailLabel'|trans }}">{{ row.email }}</td>
+    <td data-label="{{ 'b2b.StateLabel'|trans }}" class="col-status">
+        {% if row.active %}
+            <span title="{{ 'b2b.ActiveLabel'|trans }}">
+                {% sw_icon 'circle-x-small' style { 'pack': 'solid', 'color': 'success' } %}
+            </span>
+        {% else %}
+            <span title="{{ 'b2b.DisabledLabel'|trans }}">
+                {% sw_icon 'circle-x-small' style { 'pack': 'solid', 'color': 'danger' } %}
+            </span>
+        {% endif %}
+    </td>
+    {% if
+        b2b_acl_check('b2bcontact', 'detail')
+        or b2b_acl_check('b2bcontact', 'remove')
+    %}
+        <td
+            data-label="{{ 'b2b.ActionsLabel'|trans }}"
+            class="col-actions"
+        >
+            <button
+                title="{{ 'b2b.EditContact'|trans }}"
+                type="button"
+                class="btn btn-light b2b--modal-link {{ b2b_acl('b2bcontact', 'detail') }}"
+                data-bs-target="contact-detail"
+                data-target="contact-detail"
+                data-row-id="{{ row.id }}"
+                data-href="{{ path('frontend.b2b.b2bcontact.detail') }}?id={{ row.id }}"
+                data-plugins="ajaxPanelUpload,contactPasswordActivation"
+                data-modal-size="xl"
+            >
+                {% sw_icon 'paper-pencil-signed' %}
+            </button>
+        </td>
+    {% endif %}
+{% endblock %}

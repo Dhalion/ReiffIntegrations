@@ -1,0 +1,104 @@
+{% sw_extends '@Storefront/storefront/page/checkout/confirm/index.html.twig' %}
+
+{# @var page \\Shopware\\Storefront\\Page\\Checkout\\Confirm\\CheckoutConfirmPage #}
+{% block b2b_checkout_confirm_additional %}
+    {% set orderReferenceKey = constant('Shopware\\B2B\\Order\\BridgePlatform\\OrderServiceDecorator::ORDER_REFERENCE_KEY') %}
+    {% set deliveryDateKey = constant('Shopware\\B2B\\Order\\BridgePlatform\\OrderServiceDecorator::REQUESTED_DELIVERY_DATE_KEY') %}
+    {% set additionalDataExtensionKey = constant('Shopware\\B2B\\Order\\BridgePlatform\\AdditionalDataExtension::NAME') %}
+
+    {% set reiffCheckoutPageExtensionName = constant('ReiffIntegrations\\Components\\Order\\EventSubscriber\\CheckoutConfirmEventSubscriber::PAGE_EXTENSION_KEY') %}
+    {% set maxLengthCustomOrderNumber = constant('ReiffIntegrations\\Components\\Order\\EventSubscriber\\CheckoutConfirmEventSubscriber::MAX_LENGTH_CUSTOM_ORDER_NUMBER') %}
+    {% set maxLengthComissionOrder = constant('ReiffIntegrations\\Components\\Order\\EventSubscriber\\CheckoutConfirmEventSubscriber::MAX_LENGTH_COMMISSION_ORDER') %}
+
+    {% set checkoutConfirmPageExtension = page.getExtension(reiffCheckoutPageExtensionName) %}
+    {% set orderReference = page.cart.getExtension(additionalDataExtensionKey).getOrderReferenceNumber() %}
+    {% set deliveryDate = page.cart.getExtension(additionalDataExtensionKey).getRequestedDeliveryDate() %}
+
+    {% set tomorrow = "tomorrow"|date('Y-m-d') %}
+    {% set disabledDates = [] %}
+    {% if config('ReiffIntegrations.config.disabledDates') is not empty %}
+        {%- set disabledDates = config('ReiffIntegrations.config.disabledDates')|split(',') -%}
+    {% endif %}
+    {% set pickerOptions = {
+        locale: app.request.locale,
+        enableTime: false,
+        minDate: tomorrow,
+        disable: disabledDates
+    } %}
+
+    <div class="form-row b2b-additional-fields">
+        <div class="form-group col-sm-6 b2b--row b2b--order-reference">
+            <label class="form-label" for="{{ orderReferenceKey }}">
+                {{ 'ReiffIntegrations.checkout.additionalFields.order.customOrderReferenceNumberLabel'|trans }}
+            </label>
+            <input
+                id="{{ orderReferenceKey }}"
+                type="text"
+                class="form-control"
+                name="{{ orderReferenceKey }}"
+                form="confirmOrderForm"
+                placeholder="{{ 'b2b.OrderReferenceNumberLabel'|trans }}"
+                {% if orderReference != null %}value="{{ orderReference }}"{% endif %}
+                {% if checkoutConfirmPageExtension is defined and checkoutConfirmPageExtension[customOrderNumberMaxLength] is defined %}
+                    maxlength="{{ checkoutConfirmPageExtension[customOrderNumberMaxLength] }}"
+                {% endif %}
+            >
+            <small class="form-text">
+                {{ 'b2b.CustomOrderReferenceNumberHelpText'|trans }}
+            </small>
+        </div>
+        <div class="form-group col-sm-6 b2b--row b2b--order-commission-text">
+            {% set commission_number = 40 %}
+            {% if checkoutConfirmPageExtension is defined and checkoutConfirmPageExtension[maxLengthComissionOrder] is defined %}
+                {% set commission_number = checkoutConfirmPageExtension[maxLengthComissionOrder] %}
+            {% endif %}
+
+            <label class="form-label" for="orderCommissionText">
+                {{ 'ReiffIntegrations.checkout.additionalFields.order.commissionLabel'|trans({ '%commission_number%' : commission_number }) }}
+            </label>
+            <input
+                id="orderCommissionText"
+                type="text"
+                class="form-control"
+                name="orderCommissionText"
+                form="confirmOrderForm"
+                placeholder="{{ 'ReiffIntegrations.checkout.additionalFields.order.commissionPlaceholder'|trans }}"
+                maxlength="{{ commission_number }}"
+            >
+        </div>
+    </div>
+
+    <div class="form-group col-12 b2b--row b2b--delivery-date">
+        <label class="form-label" for="{{ deliveryDateKey }}">
+            {{ 'b2b.RequestedDeliveryDateHelpText'|trans }}:
+        </label>
+        <input
+            id="{{ deliveryDateKey }}"
+            type="text"
+            class="form-control"
+            name="{{ deliveryDateKey }}"
+            form="confirmOrderForm"
+            data-date-picker="true"
+            data-date-picker-options="{{ pickerOptions|json_encode|escape('html_attr') }}"
+            placeholder="{{ 'b2b.RequestedDeliveryDateLabel'|trans }}"
+            {% if deliveryDate != null %}value="{{ deliveryDate }}"{% endif %}
+        >
+        <small class="form-text">
+            {{ 'ReiffIntegrations.checkout.additionalFields.order.desiredDeliveryDateInfo'|trans }}
+        </small>
+    </div>
+
+    <div class="form-group col-12 b2b--row b2b--order-complete-delivery-indicator-checkbox">
+        <div class="{{ formCheckboxWrapperClass }}">
+            <input
+                    id="orderCompleteDeliveryIndicator"
+                    class="{{ formCheckInputClass }} checkout-confirm-orderCompleteDeliveryIndicator-checkbox"
+                    type="checkbox"
+                    name="orderCompleteDeliveryIndicator"
+                    form="confirmOrderForm">
+            <label class="checkout-confirm-orderCompleteDeliveryIndicator-label custom-control-label" for="orderCompleteDeliveryIndicator">
+                {{ 'ReiffIntegrations.checkout.additionalFields.order.completeDeliveryIndicatorLabel'|trans }}
+            </label>
+        </div>
+    </div>
+{% endblock %}

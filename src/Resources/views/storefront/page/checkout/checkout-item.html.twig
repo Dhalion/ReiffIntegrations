@@ -1,0 +1,29 @@
+{% sw_extends '@Storefront/storefront/page/checkout/checkout-item.html.twig' %}
+
+{% block page_checkout_item_delivery_date %}
+    {% if lineItem.type == constant('Shopware\\Core\\Checkout\\Cart\\LineItem\\LineItem::PRODUCT_LINE_ITEM_TYPE') and lineItem.hasExtension(constant('ReiffIntegrations\\Sap\\DeliveryInformation\\Struct\\DeliveryInformation::NAME')) %}
+        {# @var deliveryInformation \ReiffIntegrations\Sap\DeliveryInformation\Struct\DeliveryInformation #}
+        {% set deliveryInformation = lineItem.getExtension(constant('ReiffIntegrations\\Sap\\DeliveryInformation\\Struct\\DeliveryInformation::NAME'))  %}
+
+        <div class="cart-item-delivery-date">
+            {%  sw_include '@Storefront/storefront/component/k10r-product-delivery-information/index.html.twig' with {
+                productNumber: lineItem.payload.productNumber,
+                deliveryCode: deliveryInformation.deliveryCode,
+                isProductShippingFree: deliveryInformation.isProductShippingFree,
+                isProductActive: deliveryInformation.isProductActive,
+            } %}
+        </div>
+    {% else %}
+        {{ parent() }}
+    {% endif %}
+{% endblock %}
+
+{% block page_checkout_item_total_price_inner %}
+    {{ parent() }}
+
+    {% if lineItem is instanceof('Shopware\\Core\\Checkout\\Cart\\LineItem\\LineItem') and lineItem.type == constant('Shopware\\Core\\Checkout\\Cart\\LineItem\\LineItem::PRODUCT_LINE_ITEM_TYPE') and context.customer and not lineItem.hasExtension(constant('Shopware\\Core\\Content\\Product\\Cart\\ProductCartProcessor::CUSTOM_PRICE')) %}
+        <span {{ dataBsToggleAttr }}="tooltip" class="price--error" title="{{ 'ReiffIntegrations.price.error.ERROR_SAP' | trans }}">
+            {% sw_icon 'warning' style { size: 'xs' } %}
+        </span>
+    {% endif %}
+{% endblock %}

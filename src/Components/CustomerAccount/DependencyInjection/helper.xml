@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <service id="ReiffIntegrations\Components\CustomerAccount\Helper\AddressHelper">
+            <argument type="service" id="b2b_address.crud_service"/>
+            <argument type="service" id="b2b_front_auth.login_context"/>
+            <argument type="service" id="b2b_debtor.debtor_repository"/>
+            <argument type="service" id="b2b_role.repository"/>
+            <argument type="service" id="b2b_easy_mode.service"/>
+            <argument type="service" id="b2b_acl.grant_context_provider_chain"/>
+            <argument type="service" id="b2b_address.service"/>
+            <argument type="service" id="b2b_address.acl_access_writer"/>
+            <argument type="service" id="ReiffIntegrations\Logger"/>
+            <argument type="service" id="customer.repository"/>
+        </service>
+    </services>
+</container>

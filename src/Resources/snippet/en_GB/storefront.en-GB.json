@@ -1,0 +1,172 @@
+{
+    "ReiffIntegrations": {
+        "customer": {
+            "account": {
+                "profile": {
+                    "overviewChangePassword": "Change Password"
+                }
+            },
+            "offer": {
+                "navItemTitle": "Offers",
+                "backToOverviewLink": "Back to overview",
+                "detailLink": "Details",
+                "listLoading": "Please wait, the data is loading...",
+                "listEmptyMessage": "The list contains no entries.",
+                "errorResponseMessage": "Unfortunately, an error occurred when determining the data.<br>Please contact the administrator.",
+                "errorNotFoundMessage": "The requested document is not available.",
+                "acceptLink": "Accept offer",
+                "downloadLink": "Download document",
+                "table": {
+                    "detailLink": "Line Items",
+                    "document": {
+                        "number": "Offer No.",
+                        "reference": "Reference",
+                        "validTo": "valid to",
+                        "type": "Type",
+                        "orderFee": "Order fee",
+                        "additionalCosts": "additional costs",
+                        "positions": "Line Items"
+                    },
+                    "positionModalHeader": "Positions document Nr.",
+                    "position": {
+                        "number": "Pos. No.",
+                        "itemNumber": "No.",
+                        "description": "Description",
+                        "orderQuantity": "Quantity",
+                        "orderUom": "Order Uom",
+                        "itemPrice": "Price",
+                        "priceUnit": "Unit",
+                        "priceUom": "Uom",
+                        "itemValue": "Item value",
+                        "numerator": "Numerator",
+                        "numeratorUom": "Numerator Uom",
+                        "denominator": "Denominator",
+                        "denominatorUom": "Denominator Uom"
+                    }
+                }
+            },
+            "orders": {
+                "error": {
+                    "noOrderResponse": "Your orders currently can't be accessed.",
+                    "noDocument": "This document currently not available."
+                },
+                "filter": {
+                    "fromDate": "Earliest Order Date:",
+                    "toDate": "Latest Order Date:"
+                },
+                "documents": {
+                    "invoiceTitle": "Invoices",
+                    "deliveryTitle": "Deliveries"
+                },
+                "address": {
+                    "types": {
+                        "SOLD_TO": "Order Address",
+                        "BILL_TO": "Billing Address",
+                        "SHIP_TO": "Shipping Address"
+                    },
+                    "changeBillingAddressTitle": "Change billing address (reiff-tp.de)"
+                }
+            }
+        },
+        "checkout": {
+            "additionalFields": {
+                "product": {
+                    "commissionLabel": "Commission text (%commission_number% chars)",
+                    "commissionPlaceholder": "Your order commission text"
+                },
+                "order": {
+                    "commissionLabel": "Commission text (%commission_number% chars)",
+                    "commissionPlaceholder": "Your order commission text",
+                    "completeDeliveryIndicatorLabel": "Complete delivery",
+                    "customOrderReferenceNumberLabel": "Your order number (%orderReference% chars)",
+                    "desiredDeliveryDateHeadline": "Desired delivery date",
+                    "desiredDeliveryDateInfo": "Whenever possible we consider your delivery also to the desired date."
+                }
+            },
+            "cart": {
+                "delivery": {
+                    "deliveryCostsNotComputable": {
+                        "summaryShipping": "plus shipping",
+                        "summaryShippingHint": "Shipping costs on the invoice"
+                    },
+                    "deliveryTime": {
+                        "code1": "available immediately, delivery time 1-3 working days",
+                        "code2": "available soon, delivery time 7-14 working days",
+                        "code3": "delivery time on request",
+                        "code4": "delivery time on request",
+                        "code5": "available soon, delivery time 10-20 working days",
+                        "codeFallback": "Delivery time on request"
+                    }
+                }
+            }
+        },
+        "price": {
+            "error": {
+                "ERROR_SAP": "Your individual prices can't be displayed. They will still be taken into account when placing an order."
+            },
+            "notShownInfo": "The price displayed here may differ from your personal price. This is displayed and used on the product detail page and in the shopping cart."
+        },
+        "contract": {
+            "navItemTitle": "Contracts",
+            "list": {
+                "title": "Contracts",
+                "dateFilter": {
+                    "from": "Earliest contract date",
+                    "to": "Latest contract date",
+                    "placeholder": "No filtering"
+                },
+                "validRangeText": "%from%-%to%",
+                "nothingFound": "No contracts could be found",
+                "somethingWentWrong": "No contracts could be found"
+            },
+            "detail": {
+                "address": {
+                    "type": {
+                        "SOLD_TO": "Order Address",
+                        "BILL_TO": "Billing Address",
+                        "SHIP_TO": "Shipping Address",
+                        "PAYER": "Payer address"
+                    }
+                },
+                "tableHeader": {
+                    "itemNumber": "Product number",
+                    "quantity": "Quantity",
+                    "additionalQuantity": "(used/still open)",
+                    "price": "Price (per piece)",
+                    "statusDescription": "Status",
+                    "contractItemOrderInformation": "Order information",
+                    "orderInformation": {
+                        "orderNumber": "Order number",
+                        "orderPosition": "Position",
+                        "orderDate": "Order date",
+                        "reference": "Order reference",
+                        "quantity": "Order quantity"
+                    }
+                },
+                "createdAt": "Created at",
+                "validRange": "Valid from/to",
+                "validRangeText": "%from% to %to%",
+                "reference": "Reference",
+                "customerInformation": "Customer information",
+                "statusDescription": "Status",
+                "netValue": "Net value",
+                "contractInfo": "Contract number and type"
+            }
+        },
+        "unit": {
+            "divider": "/"
+        }
+    },
+    "checkout": {
+        "custom-order-number-blocked": "The provided custom order number is to long. Please use %characters% characters max.",
+        "custom-delivery-date-blocked": "The selected delivery date is not valid. Please select a date that is at least one day in the future.",
+        "commission-order-blocked": "The provided commission for the order is to long. Please use %characters% characters max.",
+        "commission-product-blocked": "The provided commission for the product is to long. Please use %characters% characters max."
+    },
+    "b2b": {
+        "ReiffIntegrations": {
+            "contract": "Contracts",
+            "contractDescription": "Overview of available contracts"
+        }
+    }
+}

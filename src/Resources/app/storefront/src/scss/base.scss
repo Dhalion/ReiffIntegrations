@@ -1,0 +1,6 @@
+@import "component/k10r-reiff-async-sap-offer";
+@import "page/contract/detail";
+
+.container-main .content--loading {
+    z-index: 1000;
+}

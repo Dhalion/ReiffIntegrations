@@ -1,0 +1,12 @@
+{% sw_extends '@SwagB2bPlatform/storefront/layout/_b2blayout.html.twig' %}
+
+{% block base_main %}
+    {% if nav_items is defined and nav_items is not empty %}
+        {% set nav_items = nav_items|merge([{
+            name: 'ReiffIntegrations.contract',
+            route: 'k10r_reiff_integrations.contracts'
+        }]) %}
+    {% endif %}
+
+    {{ parent() }}
+{% endblock %}

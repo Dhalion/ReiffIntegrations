@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/trunk/src/Core/System/SystemConfig/Schema/config.xsd">
+
+    <card>
+        <title>SAP API Authentication</title>
+        <title lang="de-DE">SAP API Zugangsdaten</title>
+
+        <input-field>
+            <name>apiUserName</name>
+            <copyable>true</copyable>
+            <label>API username</label>
+            <label lang="de-DE">API-Benutzername</label>
+        </input-field>
+
+        <input-field>
+            <name>apiPassword</name>
+            <copyable>true</copyable>
+            <label>API password</label>
+            <label lang="de-DE">API-Passwort</label>
+        </input-field>
+
+        <input-field type="bool">
+            <name>apiIgnoreSsl</name>
+            <label>Ignore HTTPS certificate warnings</label>
+            <label lang="de-DE">Ignoriere HTTPS-Zertifikatswarnungen</label>
+            <helpText>Ignores the ssl settings. Not recommended for production environment.</helpText>
+            <helpText lang="de-DE">Ignoriert die HTTPS-Zertifikatsvalidierung. Nicht für Produktivumgebungen empfohlen.</helpText>
+        </input-field>
+    </card>
+
+    <card>
+        <title>Order Export (Seeburger)</title>
+        <title lang="de-DE">Bestellexport (Seeburger)</title>
+
+        <input-field>
+            <name>orderExportUrl</name>
+            <copyable>true</copyable>
+            <label>Order Export Endpoint</label>
+            <label lang="de-DE">Endpunkt für den Export der Bestellungen</label>
+            <defaultValue>https://edi.reiff.eu/SeeburgerHTTP/HTTPController?MessageType=ORDERS</defaultValue>
+        </input-field>
+
+        <input-field type="int">
+            <name>orderExportMaxAttempts</name>
+            <label>Maximum attempts per order</label>
+            <label lang="de-DE">Maximale Versuche je Bestellung</label>
+            <defaultValue>3</defaultValue>
+            <placeholder>3</placeholder>
+            <helpText>After this amount of tries, the order is skipped and the error is notified</helpText>
+            <helpText lang="de-DE">Nach dieser Anzahl Versuche wird die Bestellung übersprungen und ein Fehler gemeldet</helpText>
+        </input-field>
+
+        <input-field type="int">
+            <name>orderExportMonitoringPeriod</name>
+            <label>Number of days after which hanging orders are notified again</label>
+            <label lang="de-DE">Anzahl der Tage nach denen festhängende Bestellungen erneut gemeldet werden</label>
+            <defaultValue>7</defaultValue>
+            <placeholder>7</placeholder>
+        </input-field>
+
+        <input-field>
+            <name>pathOrderExportArchive</name>
+            <copyable>true</copyable>
+            <label>Path to order export archive</label>
+            <label lang="de-DE">Pfad zum Bestellexport-Archiv</label>
+            <placeholder>/tmp/my-archive</placeholder>
+            <helpText>Export files will be archived to this folder.</helpText>
+            <helpText lang="de-DE">Exportdateien werden hier archiviert.</helpText>
+        </input-field>
+
+        <input-field type="checkbox">
+            <name>exportArchiveActive</name>
+            <label>Activates the archiving of export files</label>
+            <label lang="de-DE">Aktiviert die Archivierung der Export-Dateien</label>
+        </input-field>
+
+        <input-field>
+            <name>pathOrderExportError</name>
+            <copyable>true</copyable>
+            <label>Path to order export error archive</label>
+            <label lang="de-DE">Pfad zum Bestellexport-Fehler-Archiv</label>
+            <placeholder>/tmp/my-error-archive</placeholder>
+            <helpText>Erroneous export files will be archived to this folder.</helpText>
+            <helpText lang="de-DE">Fehlerhafte Exportdateien werden hier archiviert.</helpText>
+        </input-field>
+
+        <input-field>
+            <name>errorRecipient</name>
+            <label lang="de-DE">E-Mail-Empfänger für Anbindungsfehler (mehrere Empfänger werden kommasepariert eingetragen)</label>
+            <label>Email recipient for integration errors (multiple recipients are separated by commas)</label>
+            <helpText>Attention: the error mails are only sent if the maximum number of export attempts has been reached</helpText>
+            <helpText lang="de-DE">Achtung: Die Fehler-Mails werden nur verschickt, wenn die maximale Anzahl der Export-Versuche erreicht ist</helpText>
+        </input-field>
+    </card>
+
+    <card>
+        <title>Import (MeDaPro)</title>
+        <title lang="de-DE">Import (MeDaPro)</title>
+
+        <input-field>
+            <name>pathImportSource</name>
+            <copyable>true</copyable>
+            <label>Path to import files</label>
+            <label lang="de-DE">Pfad zu den Import-Dateien</label>
+            <placeholder>/tmp/imports</placeholder>
+            <helpText>File imports from MeDaPro will be read from this directory.</helpText>
+            <helpText lang="de-DE">Dateiimporte von MeDaPro werden aus diesem Order eingelesen.</helpText>
+        </input-field>
+
+        <input-field>
+            <name>pathImportMedia</name>
+            <copyable>true</copyable>
+            <label>Path to media files</label>
+            <label lang="de-DE">Pfad zu den Import-Medien</label>
+            <placeholder>/tmp/media</placeholder>
+            <helpText>Media files will be read from this directory.</helpText>
+            <helpText lang="de-DE">Medien werden aus diesem Order eingelesen.</helpText>
+        </input-field>
+
+        <input-field>
+            <name>pathImportFileArchive</name>
+            <copyable>true</copyable>
+            <label>Path to import file archive</label>
+            <label lang="de-DE">Pfad zum Import-Dateien Archiv</label>
+            <placeholder>/tmp/import-archive</placeholder>
+            <helpText>Import files will be temporarily moved to this folder while they're imported.</helpText>
+            <helpText lang="de-DE">Importdateien werden hier temporär gehalten, während Importe laufen.</helpText>
+        </input-field>
+
+        <input-field>
+            <name>pathImportError</name>
+            <copyable>true</copyable>
+            <label>Path to import file error archive</label>
+            <label lang="de-DE">Pfad zum Import-Dateien Fehler-Archiv</label>
+            <placeholder>/tmp/import-archive</placeholder>
+            <helpText>Export files with errors will be archived to this folder.</helpText>
+            <helpText lang="de-DE">Exportdateien mit Fehlern werden hier archiviert.</helpText>
+        </input-field>
+
+        <component name="sw-entity-single-select">
+            <name>rootCategory</name>
+            <entity>category</entity>
+            <label>Choose a base category for the catalogs</label>
+            <label lang="de-DE">Wählen Sie eine Basiskategorie für den Katalogimport</label>
+        </component>
+
+        <component name="sw-entity-single-select">
+            <name>mainCategoriesCmsPage</name>
+            <entity>cms_page</entity>
+            <label>Choose a CMS layout for imported categories (applies only to the main categories)</label>
+            <label lang="de-DE">Wählen Sie ein CMS-Layout für importierte Kategorien (gilt nur für die Hauptkategorien)</label>
+        </component>
+
+        <component name="sw-entity-single-select">
+            <name>normalCategoriesCmsPage</name>
+            <entity>cms_page</entity>
+            <label>Choose a CMS layout for imported categories (applies to all normal categories)</label>
+            <label lang="de-DE">Wählen Sie ein CMS-Layout für importierte Kategorien (gilt für alle normalen Kategorien)</label>
+        </component>
+    </card>
+
+    <card>
+        <title>Offers (SAP-API)</title>
+        <title lang="de-DE">Angebotsmanagement (SAP-API)</title>
+
+        <input-field>
+            <name>offerApiUrl</name>
+            <copyable>true</copyable>
+            <label>Offer read endpoint</label>
+            <label lang="de-DE">Endpunkt für das Einlesen der Angebote</label>
+            <helpText>Defines the URL for reading the offers.</helpText>
+            <helpText lang="de-DE">Definiert die URL für das Einlesen der Angebote.</helpText>
+            <defaultValue>https://sapqa2-extern.reiff.eu:9000/sap/bc/srt/rfc/sap/zshop_list_quotation/100/zshop_ws_list_quotation/zshop_bn_list_quotation?sap-client=100</defaultValue>
+        </input-field>
+
+        <input-field>
+            <name>offerPdfApiUrl</name>
+            <copyable>true</copyable>
+            <label>Offer PDF read endpoint</label>
+            <label lang="de-DE">Endpunkt für den Abruf der Angebots-PDFs</label>
+            <helpText>Defines the URL for reading the offer PDFs.</helpText>
+            <helpText lang="de-DE">Definiert die URL für den Abruf der Angebots-PDFs.</helpText>
+            <defaultValue>https://sapqa2-extern.reiff.eu:9000/sap/bc/srt/rfc/sap/zshop_pdf_quotation/100/zshop_ws_pdf_quotation/zshop_bn_pdf_quotation?sap-client=100</defaultValue>
+        </input-field>
+    </card>
+
+    <card>
+        <title>Orders (SAP-API)</title>
+        <title lang="de-DE">Bestellübersicht (SAP-API)</title>
+
+        <input-field>
+            <name>ordersApiUrl</name>
+            <copyable>true</copyable>
+            <label>Orders read endpoint</label>
+            <label lang="de-DE">Endpunkt für den Abruf der Bestell-Liste</label>
+            <helpText>Defines the URL for reading the orders.</helpText>
+            <helpText lang="de-DE">Definiert die URL für den Abruf der Bestell-Liste.</helpText>
+            <defaultValue>https://sapqa2-extern.reiff.eu:9000/sap/bc/srt/rfc/sap/zshop_list_order/100/zshop_list_order_ws_qa2_100/zshop_list_order_bn_qa2_100?sap-client=100</defaultValue>
+        </input-field>
+
+        <input-field>
+            <name>orderDetailsApiUrl</name>
+            <copyable>true</copyable>
+            <label>Order details read endpoint</label>
+            <label lang="de-DE">Endpunkt für den Abruf der Bestell-Details</label>
+            <helpText>Defines the URL for reading the order details.</helpText>
+            <helpText lang="de-DE">Definiert die URL für den Abruf der Bestell-Details.</helpText>
+            <defaultValue>https://sapqa2-extern.reiff.eu:9000/sap/bc/srt/rfc/sap/zshop_order_details/100/zshop_order_details_ws_qa2_100/zshop_order_details_bn_qa2_100?sap-client=100</defaultValue>
+        </input-field>
+
+        <input-field>
+            <name>invoicePdfApiUrl</name>
+            <copyable>true</copyable>
+            <label>Invoice PDF read endpoint</label>
+            <label lang="de-DE">Endpunkt für den Abruf der Rechnungs-PDFs</label>
+            <helpText>Defines the URL for reading the invoice PDFs.</helpText>
+            <helpText lang="de-DE">Definiert die URL für den Abruf der Rechnungs-PDFs.</helpText>
+            <defaultValue>https://rtpsapbcqas.reiff.eu/soap/GetDeliveryPdf</defaultValue>
+        </input-field>
+
+        <input-field>
+            <name>deliveryPdfApiUrl</name>
+            <copyable>true</copyable>
+            <label>Delivery PDF read endpoint</label>
+            <label lang="de-DE">Endpunkt für den Abruf der Lieferschein-PDFs</label>
+            <helpText>Defines the URL for reading the delivery PDFs.</helpText>
+            <helpText lang="de-DE">Definiert die URL für den Abruf der Lieferschein-PDFs.</helpText>
+            <defaultValue>https://rtpsapbcqas.reiff.eu/soap/GetInvoicePdf</defaultValue>
+        </input-field>
+    </card>
+
+    <card>
+        <title>Contracts (SAP-API)</title>
+        <title lang="de-DE">Kontrakte (SAP-API)</title>
+
+        <input-field>
+            <name>contractListApiUrl</name>
+            <copyable>true</copyable>
+            <label>Contract list read endpoint</label>
+            <label lang="de-DE">Endpunkt für den Abruf der Kontrakt-Liste</label>
+            <helpText>Defines the URL for reading the contracts.</helpText>
+            <helpText lang="de-DE">Definiert die URL für den Abruf der Kontrakt-Liste.</helpText>
+            <defaultValue>https://sapqa2-extern.reiff.eu:9000/sap/bc/srt/rfc/sap/zshop_list_contract/100/zshop_list_contract_ws/zshop_list_contract_bn?sap-client=100</defaultValue>
+        </input-field>
+
+        <input-field>
+            <name>contractStatusApiUrl</name>
+            <copyable>true</copyable>
+            <label>Contract status read endpoint</label>
+            <label lang="de-DE">Endpunkt für den Abruf der Kontrakt-Details</label>
+            <helpText>Defines the URL for reading the contract details.</helpText>
+            <helpText lang="de-DE">Definiert die URL für den Abruf der Kontrakt-Details.</helpText>
+            <defaultValue>https://sapqa2-extern.reiff.eu:9000/sap/bc/srt/rfc/sap/zshop_contract_details/100/zshop_contract_details_ws/zshop_contract_details_bn?sap-client=100</defaultValue>
+        </input-field>
+    </card>
+
+    <card>
+        <title>Prices (SAP-API)</title>
+        <title lang="de-DE">Preise (SAP-API)</title>
+
+        <input-field>
+            <name>priceApiUrl</name>
+            <copyable>true</copyable>
+            <label>Price read endpoint</label>
+            <label lang="de-DE">Endpunkt für das Lesen der Preise</label>
+            <helpText>Defines the URL for reading the prices.</helpText>
+            <helpText lang="de-DE">Definiert die URL für das Lesen der Preise.</helpText>
+            <defaultValue>https://rtpsapbcqas.reiff.eu/soap/GetItemScales</defaultValue>
+        </input-field>
+
+        <input-field>
+            <name>cartApiUrl</name>
+            <copyable>true</copyable>
+            <label>Cart simulation endpoint</label>
+            <label lang="de-DE">Endpunkt für das Berechnen eines Warenkorbs</label>
+            <helpText>Defines the URL for simulating a cart.</helpText>
+            <helpText lang="de-DE">Definiert die URL für das Berechnen eines Warenkorbs.</helpText>
+            <defaultValue>https://sapqa2-extern.reiff.eu:9000/sap/bc/srt/rfc/sap/zshop_sales_price_simulate/100/zshop_ws_sales_price_simulate/zshop_bn_sales_price_simulate?sap-client=100</defaultValue>
+        </input-field>
+    </card>
+
+    <card>
+        <title>Availability (SAP-API)</title>
+        <title lang="de-DE">Verfügbarkeit (SAP-API)</title>
+
+        <input-field>
+            <name>availabilityApiUrl</name>
+            <copyable>true</copyable>
+            <label>Endpoint for reading the availability</label>
+            <label lang="de-DE">Endpunkt für das Lesen der Verfügbarkeit</label>
+            <helpText>Defines the URL for reading the availability.</helpText>
+            <helpText lang="de-DE">Definiert die URL für das Lesen der Verfügbarkeit.</helpText>
+            <defaultValue>https://rtpsapbcqas.reiff.eu/soap/GetAvailability</defaultValue>
+        </input-field>
+    </card>
+
+    <card>
+        <title>OrderNumber (SAP-API)</title>
+        <title lang="de-DE">Bestellnummern (SAP-API)</title>
+
+        <input-field>
+            <name>customOrderNumberApiUrl</name>
+            <copyable>true</copyable>
+            <label>OrderNumber endpoint</label>
+            <label lang="de-DE">Endpunkt für den Abruf der Bestellnummern</label>
+            <helpText>Defines the URL for reading the order numbers.</helpText>
+            <helpText lang="de-DE">Definiert die URL für den Abruf der Bestellnummern.</helpText>
+            <defaultValue>https://sapqa2-extern.reiff.eu:9000/sap/bc/srt/rfc/sap/zshop_get_customer_material/100/zshop_get_customer_material_ws/zshop_get_customer_material_bn?sap-client=100</defaultValue>
+        </input-field>
+    </card>
+
+    <card>
+        <title>Delivery dates settings</title>
+        <title lang="de-DE">Lieferdatum Einstellungen</title>
+
+        <input-field type="textarea">
+            <name>disabledDates</name>
+            <label>Blocked dates (e.g. public holidays)</label>
+            <label lang="de-DE">Gesperrte Termine (z. B. Feiertage)</label>
+            <defaultValue>2022-12-25,2022-12-26,2023-01-01,2023-01-06,2023-04-07,2023-04-10,2023-05-01,2023-05-18,2023-05-29,2023-06-08,2023-08-15,2023-10-03,2023-11-01,2023-12-25,2023-12-26</defaultValue>
+        </input-field>
+    </card>
+
+</config>

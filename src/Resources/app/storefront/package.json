@@ -1,0 +1,12 @@
+{
+    "name": "reiff-integrations",
+    "version": "1.0.0",
+    "private": true,
+    "license": "Commercial",
+    "author": "Kellerkinder GmbH",
+    "dependencies": {
+        "jquery": "3.6.1",
+        "datatables.net": "^1.12.1",
+        "datatables.net-dt": "^1.12.1"
+    }
+}

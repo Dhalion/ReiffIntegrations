@@ -1,0 +1,69 @@
+{
+  "name": "reiff/integrations",
+  "description": "Integrations with external systems",
+  "version": "1.0.8",
+  "type": "shopware-platform-plugin",
+  "license": "Commercial",
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "authors": [
+    {
+      "name": "Kellerkinder GmbH",
+      "email": "hallo@kellerkinder.de",
+      "homepage": "https://www.kellerkinder.de/",
+      "role": "Contributor"
+    }
+  ],
+  "require": {
+    "php": "^8.1",
+    "ext-curl": "*",
+    "ext-intl": "*",
+    "ext-simplexml": "*",
+    "shopware/core": "^6.5",
+    "halaxa/json-machine": "^1.1",
+    "store.shopware.com/maxiavariantstable6": "^2.1"
+  },
+  "require-dev": {
+    "k10r/codestyle": "^2.0",
+    "phpstan/phpstan": "^1.5",
+    "phpstan/phpstan-phpunit": "^1.1",
+    "phpunit/phpunit": "^9.5"
+  },
+  "extra": {
+    "shopware-plugin-class": "ReiffIntegrations\\ReiffIntegrations",
+    "copyright": "(c) Kellerkinder GmbH",
+    "label": {
+      "de-DE": "REIFF-Integrationen",
+      "en-GB": "REIFF integrations"
+    },
+    "description": {
+      "de-DE": "Integrationen mit externen Systemen",
+      "en-GB": "Integrations with external systems"
+    },
+    "manufacturerLink": {
+      "de-DE": "https//www.kellerkinder.de",
+      "en-GB": "https//www.kellerkinder.de"
+    },
+    "supportLink": {
+      "de-DE": "https//www.kellerkinder.de",
+      "en-GB": "https//www.kellerkinder.de"
+    }
+  },
+  "autoload": {
+    "psr-4": {
+      "ReiffIntegrations\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "ReiffIntegrations\\Test\\": "tests/"
+    }
+  },
+  "config": {
+    "sort-packages": true
+  },
+  "scripts": {
+    "phpcs": "../../../.ci/vendor/bin/php-cs-fixer fix --config=../../../.ci/.php-cs-fixer.dist.php .",
+    "phpstan": "../../../.ci/vendor/bin/phpstan analyse -c ./../../../.ci/phpstan.neon src"
+  }
+}

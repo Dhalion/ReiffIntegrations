@@ -1,0 +1,32 @@
+{% sw_extends "@Storefront/storefront/plugins/maxia_variants_table/price.html.twig" %}
+
+{% block plugins_maxia_variants_table_price %}
+    {% set listPrice = price.listPrice %}
+    {% set showListPrice = column.config.showListPrices and listPrice.percentage > 0 %}
+    {% set showBasePrice = column.config.showBasePrices and price.referencePrice is not null %}
+    {% set hasRegulationPrice = price.regulationPrice != null and price.regulationPrice.price > 0 %}
+
+    <div class="maxia-variants-table-price{% if showListPrice %} with-list-price{% endif %}{% if hasRegulationPrice %} with-regulation-price{% endif %}">
+        <span class="price-default">
+            {% sw_include '@Storefront/storefront/component/k10r-price/simple-price-placeholder.html.twig' with { productNumber: product.productNumber, price: price.unitPrice } %}
+            {% block order_unit %}
+                <span class="product-price-unit-text">
+                    {% block order_unit_divider %}
+                        {{ 'ReiffIntegrations.unit.divider'|trans }}
+                    {% endblock %}
+                    {% block order_unit_unit %}
+                        {{ product.packUnit }}
+                    {% endblock %}
+                </span>
+            {% endblock %}
+        </span>
+
+        {% if showListPrice %}
+            {{ block('plugins_maxia_variants_table_price_list_price_wrapper') }}
+        {% endif %}
+
+        {{ block('plugins_maxia_variants_table_price_regulation_price') }}
+
+        {{ block('plugins_maxia_variants_table_price_base_price') }}
+    </div>
+{% endblock %}

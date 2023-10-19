@@ -1,0 +1,15 @@
+{% sw_extends '@Storefront/storefront/page/checkout/summary/summary-shipping.html.twig' %}
+
+{% block page_checkout_summary_shippings %}
+    {% if context.hasExtension(constant('ReiffIntegrations\\Sap\\DeliveryInformation\\Struct\\DeliveryCostsNotComputable::NAME')) %}
+        <dt class="col-7 checkout-aside-summary-label">
+            {{ "ReiffIntegrations.checkout.cart.delivery.deliveryCostsNotComputable.summaryShipping"|trans|sw_sanitize }}
+        </dt>
+
+        <dd class="col-5 checkout-aside-summary-value">
+            {{ "ReiffIntegrations.checkout.cart.delivery.deliveryCostsNotComputable.summaryShippingHint"|trans|sw_sanitize }}
+        </dd>
+    {% else %}
+        {{ parent() }}
+    {% endif %}
+{% endblock %}

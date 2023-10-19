@@ -1,0 +1,52 @@
+{% sw_extends '@Storefront/storefront/component/product/card/price-unit.html.twig' %}
+
+{% block component_product_box_price %}
+    <div class="product-price-wrapper">
+        {% set price = real %}
+        {% set isListPrice = price.listPrice.percentage > 0 %}
+        {% set isRegulationPrice = price.regulationPrice != null %}
+
+        <div class="product-cheapest-price{% if isListPrice and price.regulationPrice.price and not displayFrom %} with-list-price{% endif %}{% if isRegulationPrice and displayFrom %} with-regulation-price{% endif %}">
+            {% if cheapest.unitPrice != real.unitPrice %}
+                <div>{{ "listing.cheapestPriceLabel"|trans|sw_sanitize }}<span class="product-cheapest-price-price"> {{ cheapest.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}</span></div>
+            {% endif %}
+        </div>
+
+        {# Wrapped into span #}
+        {% if displayFrom or (product.ReiffProductListingExtension is defined and product.ReiffProductListingExtension.childCount is defined and product.ReiffProductListingExtension.childCount > 1) %}
+            <span>{{ "listing.listingTextFrom"|trans|sw_sanitize }}</span>
+        {% endif %}
+
+        <span class="product-price{% if isListPrice and not displayFrom %} with-list-price{% endif %}">
+            {% if displayFrom or (product.ReiffProductListingExtension is defined and product.ReiffProductListingExtension.childCount is defined and product.ReiffProductListingExtension.childCount > 1) %}
+                {% sw_include '@Storefront/storefront/component/k10r-price/simple-price-placeholder.html.twig' with { productNumber: product.productNumber, price: cheapest.unitPrice, useOriginalPrice: 0 } %}
+            {% else %}
+                {% sw_include '@Storefront/storefront/component/k10r-price/simple-price-placeholder.html.twig' with { productNumber: product.productNumber, price: price.unitPrice, useOriginalPrice: 1 } %}
+            {% endif %}
+
+            {% if isListPrice and not displayFrom %}
+                {% set afterListPriceSnippetExists = "listing.afterListPrice"|trans|length > 0 %}
+                {% set beforeListPriceSnippetExists = "listing.beforeListPrice"|trans|length > 0 %}
+                {% set hideStrikeTrough = beforeListPriceSnippetExists or afterListPriceSnippetExists %}
+
+                <span class="list-price{% if hideStrikeTrough %} list-price-no-line-through{% endif %}">
+                    {% if beforeListPriceSnippetExists %}{{ "listing.beforeListPrice"|trans|trim|sw_sanitize }}{% endif %}
+
+                    <span class="list-price-price">{{ price.listPrice.price|currency }}{{ "general.star"|trans|sw_sanitize }}</span>
+
+                    {% if afterListPriceSnippetExists %}{{ "listing.afterListPrice"|trans|trim|sw_sanitize }}{% endif %}
+
+                    <span class="list-price-percentage">{{ "detail.listPricePercentage"|trans({'%price%': price.listPrice.percentage })|sw_sanitize }}</span>
+                </span>
+            {% endif %}
+        </span>
+
+        {{ block('component_product_box_price_unit_text') }}
+
+        {% if isRegulationPrice %}
+            <span class="product-price with-regulation-price">
+                {% if isListPrice %}<br/>{% endif %}<span class="regulation-price">{{ "general.listPricePreviously"|trans({'%price%': price.regulationPrice.price|currency }) }}{{ "general.star"|trans|sw_sanitize }}</span>
+            </span>
+        {% endif %}
+    </div>
+{% endblock %}

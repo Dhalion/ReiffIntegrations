@@ -1,0 +1,13 @@
+{% sw_extends "@Storefront/storefront/component/checkout/offcanvas-item.html.twig" %}
+
+{% block component_offcanvas_product_total_price %}
+    {{ parent() }}
+
+    {% if lineItem.type == constant('Shopware\\Core\\Checkout\\Cart\\LineItem\\LineItem::PRODUCT_LINE_ITEM_TYPE') and context.customer and not lineItem.hasExtension(constant('Shopware\\Core\\Content\\Product\\Cart\\ProductCartProcessor::CUSTOM_PRICE')) %}
+        <span class="d-none" data-k10r-reiff-price-display-plugin>
+            <span {{ dataBsToggleAttr }}="tooltip" class="price--error" title="{{ 'ReiffIntegrations.price.error.ERROR_SAP' | trans }}">
+            {% sw_icon 'warning' style { size: 'xs' } %}
+            </span>
+        </span>
+    {% endif %}
+{% endblock %}

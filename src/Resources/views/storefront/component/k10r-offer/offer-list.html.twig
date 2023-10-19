@@ -1,0 +1,46 @@
+{% block k10r_account_offer_overview_list %}
+    {% if documents|length > 0 %}
+        {% block k10r_account_offer_overview_list_table %}
+            <table class="data-tables k10r-reiff-integration-account-offer-document-table">
+                <thead>
+                    <tr>
+                        <th class="dtr-control sorting_asc">{{ "ReiffIntegrations.customer.offer.table.document.number"|trans }}</th>
+                        <th>{{ "ReiffIntegrations.customer.offer.table.document.reference"|trans }}</th>
+                        <th>{{ "ReiffIntegrations.customer.offer.table.document.validTo"|trans }}</th>
+                        <th>{{ "ReiffIntegrations.customer.offer.table.document.type"|trans }}</th>
+                        <th>{{ "ReiffIntegrations.customer.offer.table.document.orderFee"|trans }}</th>
+                        <th>{{ "ReiffIntegrations.customer.offer.table.document.additionalCosts"|trans }}</th>
+                        <th>{{ "ReiffIntegrations.customer.offer.table.document.positions"|trans }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {# @var document \ReiffIntegrations\Sap\Struct\OfferDocumentStruct #}
+                    {% for document in documents %}
+                        <tr>
+                            <td>
+                                <a href="{{ url('frontend.k10r_reiff_integrations.account.offer.detail', { offerNumber: document.number }) }}">
+                                    {{ document.number }}
+                                </a>
+                            </td>
+                            <td>{{ document.reference }}</td>
+                            <td>{{ document.validTo ? document.validTo|format_date('short', locale=app.request.locale) : ''}}</td>
+                            <td>{{ document.type }}</td>
+                            <td>{{ document.orderFee|currency(document.currency) }}</td>
+                            <td>{{ document.additionalCosts|currency(document.currency) }}</td>
+                            <td>
+                                <a href="{{ url('frontend.k10r_reiff_integrations.account.offer.detail', { offerNumber: document.number }) }}"
+                                        class="btn btn-sm btn-link">
+                                    {{ "ReiffIntegrations.customer.offer.table.detailLink"|trans }}
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endblock %}
+    {% else %}
+        <p class="font-weight-bold">
+            {{ "ReiffIntegrations.customer.offer.listEmptyMessage"|trans }}
+        </p>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,6 @@
+{% block k10r_account_offer_error_response %}
+    {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+        type: "danger",
+        content: "ReiffIntegrations.customer.offer.errorResponseMessage"|trans|sw_sanitize
+    } %}
+{% endblock %}

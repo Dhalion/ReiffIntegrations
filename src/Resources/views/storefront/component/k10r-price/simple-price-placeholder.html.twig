@@ -1,0 +1,21 @@
+{% block reiff_integrations_k10r_price_price_placeholder %}
+    {% if useOriginalPrice is defined and useOriginalPrice == 1 %}
+        {{ price|currency }}{{ "general.star"|trans|sw_sanitize }}
+        {% if showNotice == 1 and context.customer is defined and context.customer is not empty and context.customer.guest != false %}
+            <span data-k10r-reiff-price-display-plugin>
+                <span {{ dataBsToggleAttr }}="tooltip" class="price-original--info" title="{{ 'ReiffIntegrations.price.notShownInfo'|trans }}">
+                    {% sw_icon 'warning' %}
+                </span>
+            </span>
+        {% endif %}
+    {% else %}
+        {{ constant('ReiffIntegrations\\Sap\\ShopPricing\\SimplePriceHandler::PRICE_FORMATTED_PLACEHOLDER') }}{{ productNumber }}#{{ price | currency }}#{{ "general.star"|trans|sw_sanitize }}
+        {% if context.customer is defined and context.customer is not empty and context.customer.guest != false %}
+            <span data-k10r-reiff-price-display-plugin>
+                <span {{ dataBsToggleAttr }}="tooltip" class="price-original--info" title="{{ 'ReiffIntegrations.price.notShownInfo'|trans }}">
+                    {% sw_icon 'warning' %}
+                </span>
+            </span>
+        {% endif %}
+    {% endif %}
+{% endblock %}
