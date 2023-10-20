@@ -76,7 +76,19 @@ class ImportArchiver
             $lastModified = \DateTimeImmutable::createFromFormat('U', (string) $file->lastModified());
 
             if ($cutoff > $lastModified && !$context->hasState(DryRunState::NAME)) {
-                $this->filesystem->delete(sprintf('%s://%s', FilesystemFactory::FILESYSTEM_PRODUCT_IMPORT_ARCHIVE, $file->path()));
+                $this->filesystem->delete($file->path());
+            }
+        }
+
+        foreach ($this->filesystem->listContents(sprintf('%s://', FilesystemFactory::FILESYSTEM_PRODUCT_IMPORT_ERROR)) as $file) {
+            if ($file->type() !== 'file') {
+                continue;
+            }
+
+            $lastModified = \DateTimeImmutable::createFromFormat('U', (string) $file->lastModified());
+
+            if ($cutoff > $lastModified && !$context->hasState(DryRunState::NAME)) {
+                $this->filesystem->delete($file->path());
             }
         }
     }
