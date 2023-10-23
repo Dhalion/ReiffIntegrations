@@ -149,7 +149,7 @@ class JsonParser
                 foreach ($product['raw'] as $key => $value) {
                     $cleanKey = $this->cleanupAttributeName($key);
 
-                    if ($key === self::CLOSEOUT_IDENTIFIER) {
+                    if ($key === self::CLOSEOUT_FIELD) {
                         $structuredProduct[self::CLOSEOUT_FIELD] = $value === self::CLOSEOUT_FIELD;
                     }
 
