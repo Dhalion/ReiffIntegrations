@@ -15,6 +15,7 @@ class OrderLineItemStruct extends Struct
         private ?string $unit,
         private readonly ?float $quantity,
         private readonly ?float $netTotal,
+        private readonly ?string $productId
     ) {
     }
 
@@ -51,5 +52,10 @@ class OrderLineItemStruct extends Struct
     public function getNetTotal(): ?float
     {
         return $this->netTotal;
+    }
+
+    public function getProductId(): ?string
+    {
+        return $this->getProductId();
     }
 }

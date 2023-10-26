@@ -31,6 +31,7 @@
         <service id="ReiffIntegrations\Sap\Api\Client\Orders\OrderDetailResponseParser">
             <argument type="service" id="ReiffIntegrations\Logger"/>
             <argument type="service" id="country.repository"/>
+            <argument type="service" id="product.repository"/>
         </service>
 
         <service id="ReiffIntegrations\Sap\Api\Client\Orders\OrderDetailApiClient">
