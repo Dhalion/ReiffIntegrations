@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use ReiffIntegrations\MeDaPro\Helper\MediaHelper;
 use ReiffIntegrations\MeDaPro\Message\ManufacturerImportMessage;
+use ReiffIntegrations\MeDaPro\Struct\CatalogMetadata;
 use ReiffIntegrations\MeDaPro\Struct\ProductsStruct;
 use ReiffIntegrations\MeDaPro\Struct\ProductStruct;
 use ReiffIntegrations\Util\Context\DryRunState;
@@ -51,9 +52,14 @@ class ManufacturerImportHandler extends AbstractImportHandler
     /**
      * @param ProductsStruct $struct
      */
-    public function getMessage(Struct $struct, string $archiveFileName, Context $context): ManufacturerImportMessage
+    public function getMessage(
+        Struct $struct,
+        string $archiveFileName,
+        CatalogMetadata $catalogMetadata,
+        Context $context
+    ):  ManufacturerImportMessage
     {
-        return new ManufacturerImportMessage($struct, $archiveFileName, $context);
+        return new ManufacturerImportMessage($struct, $archiveFileName, $catalogMetadata, $context);
     }
 
     public function __invoke(AbstractImportMessage $message): void
@@ -66,10 +72,9 @@ class ManufacturerImportHandler extends AbstractImportHandler
      */
     public function handle(AbstractImportMessage $message): void
     {
-        $this->connection->beginTransaction();
+        $context   = $message->getContext();
+        $products  = $message->getProductsStruct()->getProducts();
 
-        $context                      = $message->getContext();
-        $products                     = $message->getProductsStruct()->getProducts();
         $this->manufacturerBatchCount = 0;
 
         foreach ($products as $mainProduct) {
@@ -78,6 +83,8 @@ class ManufacturerImportHandler extends AbstractImportHandler
             if ($this->manufacturerBatchCount >= self::BATCH_SIZE) {
                 if ($context->hasState(DryRunState::NAME)) {
                     dump($this->entitySyncer->getOperations());
+
+                    $this->entitySyncer->reset();
                 }
 
                 $this->entitySyncer->flush($context);
@@ -88,15 +95,11 @@ class ManufacturerImportHandler extends AbstractImportHandler
         if ($this->manufacturerBatchCount > 0) {
             if ($context->hasState(DryRunState::NAME)) {
                 dump($this->entitySyncer->getOperations());
+
+                $this->entitySyncer->reset();
             }
 
             $this->entitySyncer->flush($context);
-        }
-
-        if ($context->hasState(DryRunState::NAME)) {
-            $this->connection->rollBack();
-        } else {
-            $this->connection->commit();
         }
     }
 

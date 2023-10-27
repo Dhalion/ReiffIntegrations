@@ -7,6 +7,7 @@ namespace ReiffIntegrations\MeDaPro\ImportHandler;
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use ReiffIntegrations\MeDaPro\Message\PropertyImportMessage;
+use ReiffIntegrations\MeDaPro\Struct\CatalogMetadata;
 use ReiffIntegrations\MeDaPro\Struct\ProductsStruct;
 use ReiffIntegrations\Util\Context\DryRunState;
 use ReiffIntegrations\Util\EntitySyncer;
@@ -24,15 +25,12 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class PropertyImportHandler extends AbstractImportHandler
 {
-    public const PROPERTY_GROUP_OPTION_ID_PREFIX = PropertyGroupOptionDefinition::ENTITY_NAME;
-    private const BATCH_SIZE                     = 100;
-    private const PROPERTY_GROUP_ID_PREFIX       = PropertyGroupDefinition::ENTITY_NAME;
     private const DISPLAY_TYPE_DROPDOWN          = 'select'; // Shopware has no constant for this yet in PropertyGroupDefinition
 
+    /** @var string[] */
+    private array $updatedPropertyGroups = [];
     /** @var bool[] */
-    private array $existingPropertyGroupIds = [];
-    /** @var bool[] */
-    private array $existingPropertyGroupOptionIds = [];
+    private array $updatedPropertyGroupOptionIds = [];
 
     public function __construct(
         LoggerInterface $logger,
@@ -40,7 +38,6 @@ class PropertyImportHandler extends AbstractImportHandler
         Mailer $mailer,
         EntitySyncer $entitySyncer,
         Connection $connection,
-        private readonly EntityRepository $propertyGroupRepository,
     ) {
         parent::__construct($logger, $configService, $mailer, $entitySyncer, $connection);
     }
@@ -53,9 +50,14 @@ class PropertyImportHandler extends AbstractImportHandler
     /**
      * @param ProductsStruct $struct
      */
-    public function getMessage(Struct $struct, string $archiveFileName, Context $context): PropertyImportMessage
+    public function getMessage(
+        Struct $struct,
+        string $archiveFileName,
+        CatalogMetadata $catalogMetadata,
+        Context $context
+    ): PropertyImportMessage
     {
-        return new PropertyImportMessage($struct, $archiveFileName, $context);
+        return new PropertyImportMessage($struct, $archiveFileName, $catalogMetadata, $context);
     }
 
     public function __invoke(AbstractImportMessage $message): void
@@ -68,39 +70,21 @@ class PropertyImportHandler extends AbstractImportHandler
      */
     public function handle(AbstractImportMessage $message): void
     {
-        $this->connection->beginTransaction();
+        $context         = $message->getContext();
+        $catalogMetadata = $message->getCatalogMetadata();
+        $properties      = $message->getProductsStruct()->getProperties();
 
-        $context            = $message->getContext();
-        $properties         = $message->getProductsStruct()->getProperties();
-        $propertyBatchCount = 0;
+        foreach ($properties as $property) {
+            $this->updatePropertyGroup($property, $catalogMetadata);
+            $this->updatePropertyGroupOptions($property, $catalogMetadata);
 
-        foreach ($properties as $key => $property) {
-            ++$propertyBatchCount;
-
-            $this->updatePropertyOptions($key, $property['name'], $property['options'], $context);
-
-            if ($propertyBatchCount >= self::BATCH_SIZE) {
-                if ($context->hasState(DryRunState::NAME)) {
-                    dump($this->entitySyncer->getOperations());
-                }
-
-                $this->entitySyncer->flush($context);
-                $propertyBatchCount = 0;
-            }
-        }
-
-        if ($propertyBatchCount > 0) {
             if ($context->hasState(DryRunState::NAME)) {
                 dump($this->entitySyncer->getOperations());
+
+                $this->entitySyncer->reset();
             }
 
             $this->entitySyncer->flush($context);
-        }
-
-        if ($context->hasState(DryRunState::NAME)) {
-            $this->connection->rollBack();
-        } else {
-            $this->connection->commit();
         }
     }
 
@@ -109,77 +93,78 @@ class PropertyImportHandler extends AbstractImportHandler
         return self::class;
     }
 
-    private function updatePropertyOptions(string $propertyKey, string $propertyName, array $options, Context $context): void
+    private function updatePropertyGroupOptions(
+        array $property,
+        CatalogMetadata $catalogMetadata,
+    ): void
     {
-        $optionData = [];
-        foreach ($options as $optionValue) {
-            $optionId = md5(sprintf('%s-%s-%s', self::PROPERTY_GROUP_OPTION_ID_PREFIX, $propertyKey, $optionValue));
+        foreach ($property['options'] as $optionId => $optionValue) {
+            $updateKey = md5(
+                PropertyGroupOptionDefinition::ENTITY_NAME .
+                $optionId .
+                $catalogMetadata->getLanguageCode()
+            );
 
-            if ($this->propertyGroupOptionExists($optionId)) {
+            if (array_key_exists($updateKey, $this->updatedPropertyGroupOptionIds)) {
                 continue;
             }
 
-            $optionData[] = [
+            $upsertData = [
                 'id'           => $optionId,
+                'groupId'      => $property['groupId'],
                 'translations' => [
-                    Defaults::LANGUAGE_SYSTEM => [
+                    $catalogMetadata->getLanguageCode() => [
                         'name'     => mb_substr($optionValue, 0, 255),
                         'position' => 1,
                     ],
                 ],
             ];
 
-            $this->existingPropertyGroupOptionIds[$optionId] = true;
+            $this->entitySyncer->addOperation(
+                PropertyGroupOptionDefinition::ENTITY_NAME,
+                SyncOperation::ACTION_UPSERT,
+                $upsertData
+            );
+
+            $this->updatedPropertyGroupOptionIds[$updateKey] = true;
         }
+    }
 
-        $data = [
-            'id'      => md5(sprintf('%s-%s', self::PROPERTY_GROUP_ID_PREFIX, $propertyKey)),
-            'options' => $optionData,
-        ];
+    private function updatePropertyGroup(
+        array $property,
+        CatalogMetadata $catalogMetadata
+    ): void
+    {
+        $updateKey = md5(
+            PropertyGroupDefinition::ENTITY_NAME .
+            $property['groupId'] .
+            $catalogMetadata->getLanguageCode()
+        );
 
-        if (!$this->propertyGroupExists($data['id'])) {
-            $data = array_merge($data, [
-                'displayType'                => self::DISPLAY_TYPE_DROPDOWN,
-                'sortingType'                => PropertyGroupDefinition::SORTING_TYPE_ALPHANUMERIC,
-                'filterable'                 => PropertyGroupDefinition::FILTERABLE,
-                'visibleOnProductDetailPage' => PropertyGroupDefinition::VISIBLE_ON_PRODUCT_DETAIL_PAGE,
-                'translations'               => [
-                    Defaults::LANGUAGE_SYSTEM => [
-                        'name'     => $propertyName,
-                        'position' => 1,
-                    ],
-                ],
-            ]);
-        }
-
-        if (count($data['options']) === 0) {
+        if (array_key_exists($updateKey, $this->updatedPropertyGroups)) {
             return;
         }
 
-        if ($context->hasState(DryRunState::NAME)) {
-            $this->entitySyncer->addOperation(PropertyGroupDefinition::ENTITY_NAME, SyncOperation::ACTION_UPSERT, $data);
-        } else {
-            $this->propertyGroupRepository->upsert([$data], $context);
-        }
+        $upsertData = [
+            'id' => $property['groupId'],
+            'displayType'                => self::DISPLAY_TYPE_DROPDOWN,
+            'sortingType'                => PropertyGroupDefinition::SORTING_TYPE_ALPHANUMERIC,
+            'filterable'                 => PropertyGroupDefinition::FILTERABLE,
+            'visibleOnProductDetailPage' => PropertyGroupDefinition::VISIBLE_ON_PRODUCT_DETAIL_PAGE,
+            'translations'               => [
+                $catalogMetadata->getLanguageCode() => [
+                    'name'     => $property['name'],
+                    'position' => 1,
+                ],
+            ],
+        ];
 
-        $this->existingPropertyGroupIds[$data['id']] = true;
-    }
+        $this->entitySyncer->addOperation(
+            PropertyGroupDefinition::ENTITY_NAME,
+            SyncOperation::ACTION_UPSERT,
+            $upsertData
+        );
 
-    private function propertyGroupExists(string $propertyGroupId): bool
-    {
-        if (!array_key_exists($propertyGroupId, $this->existingPropertyGroupIds) && $this->connection->fetchOne('SELECT 1 FROM `property_group` WHERE id = UNHEX(:id)', ['id' => $propertyGroupId])) {
-            $this->existingPropertyGroupIds[$propertyGroupId] = true;
-        }
-
-        return array_key_exists($propertyGroupId, $this->existingPropertyGroupIds);
-    }
-
-    private function propertyGroupOptionExists(string $propertyGroupOptionId): bool
-    {
-        if (!array_key_exists($propertyGroupOptionId, $this->existingPropertyGroupOptionIds) && $this->connection->fetchOne('SELECT 1 FROM `property_group_option` WHERE id = UNHEX(:id)', ['id' => $propertyGroupOptionId])) {
-            $this->existingPropertyGroupOptionIds[$propertyGroupOptionId] = true;
-        }
-
-        return array_key_exists($propertyGroupOptionId, $this->existingPropertyGroupOptionIds);
+        $this->updatedPropertyGroups[$updateKey] = true;
     }
 }

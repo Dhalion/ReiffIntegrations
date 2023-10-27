@@ -14,6 +14,10 @@ use ReiffIntegrations\MeDaPro\Struct\CategoryStruct;
 use ReiffIntegrations\MeDaPro\Struct\ProductCollection;
 use ReiffIntegrations\MeDaPro\Struct\ProductsStruct;
 use ReiffIntegrations\MeDaPro\Struct\ProductStruct;
+use ReiffIntegrations\Util\LockHandler;
+use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
+use Shopware\Core\Content\Property\PropertyGroupDefinition;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class JsonParser
 {
@@ -22,14 +26,15 @@ class JsonParser
     private const ATTRIBUTE_IDENTIFIER_OPTION = 'Tabellenattribute';
     private const ATTRIBUTE_IDENTIFIER_LABEL = ' Name';
     private const PRODUCT_FIELD_NUMBER = 'Artikel-Nr';
-    private const ATTRIBUTE_IDENTIFIER_COLOR = 'TradePro Farbe';
-    private const ATTRIBUTE_NAME_COLOR = 'Farbe';
     private const ATTRIBUTE_PREFIX_MANUFACTURER = 'Hersteller';
     private const CLOSEOUT_FIELD = 'Lagerverkauf';
     private const CLOSEOUT_IDENTIFIER = 'Lagerverkauf Name';
     private const ALLOWED_EMPTY_FIELDS = [ // We have to keep these fields in the structs to know if they are empty strings
         'Button CAD',
     ];
+
+    private static array $propertyMapping = [];
+    private static array $propertyCounters = [];
 
     public function getCategories(string $filePath, CatalogMetadata $catalogMetadata): ?CatalogStruct
     {
@@ -66,13 +71,12 @@ class JsonParser
         return new CatalogStruct($catalogId, new CategoryCollection($categories), basename($filePath), $sortimentId);
     }
 
-    public function getProducts(string $filePath): ProductsStruct
+    public function getProducts(string $filePath, CatalogMetadata $catalogMetadata): ProductsStruct
     {
         $rawProducts = [];
         $products = [];
         $catalogNodes = [];
         $properties = [];
-        $catalogMetadata = $this->getCatalogMetadata($filePath);
 
         foreach ($this->getItems($filePath, '/catalogNodes') as $catalogNode) {
             $catalogNodes[$catalogNode['id']] = $catalogNode;
@@ -138,7 +142,7 @@ class JsonParser
                     } elseif (str_contains($key, self::ATTRIBUTE_IDENTIFIER_LABEL)) {
                         if ($attributeType && !empty($value)) {
                             $name = $this->cleanupAttributeName($key);
-                            $attributes[$attributeType][$name]['name'] = $value;
+                            $attributes[$attributeType][$name /* de */]['name'] = $value /* en */;
                         }
 
                         unset($product['attributes'][$key]);
@@ -146,10 +150,11 @@ class JsonParser
                 }
 
                 $attributeType = null;
+
                 foreach ($product['raw'] as $key => $value) {
                     $cleanKey = $this->cleanupAttributeName($key);
 
-                    if ($key === self::CLOSEOUT_FIELD) {
+                    if ($key === self::CLOSEOUT_IDENTIFIER) {
                         $structuredProduct[self::CLOSEOUT_FIELD] = $value === self::CLOSEOUT_FIELD;
                     }
 
@@ -163,10 +168,13 @@ class JsonParser
                         $attributeType = 'table';
                     }
 
-                    if (str_contains($key, self::ATTRIBUTE_IDENTIFIER_PROPERTY) || str_contains(
-                            $key,
-                            self::ATTRIBUTE_IDENTIFIER_OPTION
-                        ) || str_contains($key, self::ATTRIBUTE_IDENTIFIER_LABEL)) {
+                    if (str_contains($key, self::ATTRIBUTE_IDENTIFIER_PROPERTY)) {
+                        continue;
+                    }
+                    if (str_contains($key, self::ATTRIBUTE_IDENTIFIER_OPTION)) {
+                        continue;
+                    }
+                    if (str_contains($key, self::ATTRIBUTE_IDENTIFIER_LABEL)) {
                         continue;
                     }
 
@@ -174,24 +182,32 @@ class JsonParser
                         $structuredProduct[self::ATTRIBUTE_PREFIX_MANUFACTURER] = $value;
                     }
 
-                    if (array_key_exists(
-                            $cleanKey,
-                            $attributes['text']
-                        ) && !empty($value) && $attributeType === 'text') {
+                    if (array_key_exists($cleanKey, $attributes['text']) && !empty($value) && $attributeType === 'text') {
+                        $groupId = md5(sprintf('%s-%s', PropertyGroupDefinition::ENTITY_NAME, $cleanKey));
+                        $optionId = $this->getMappedId($catalogMetadata, $cleanKey, $value);
+
                         $structuredProduct['properties'][$cleanKey]['name'] = $attributes['text'][$cleanKey]['name'];
                         $structuredProduct['properties'][$cleanKey]['value'] = $value;
+                        $structuredProduct['properties'][$cleanKey]['groupId'] = $groupId;
+                        $structuredProduct['properties'][$cleanKey]['optionId'] =  $optionId;
 
                         $properties[$cleanKey]['name'] = $structuredProduct['properties'][$cleanKey]['name'];
-                        $properties[$cleanKey]['options'][$structuredProduct['properties'][$cleanKey]['value']] = $structuredProduct['properties'][$cleanKey]['value'];
-                    } elseif (array_key_exists(
-                            $cleanKey,
-                            $attributes['table']
-                        ) && !empty($value) && $attributeType === 'table') {
+                        $properties[$cleanKey]['options'][$optionId] = $structuredProduct['properties'][$cleanKey]['value'];
+                        $properties[$cleanKey]['groupId'] = $groupId;
+
+                    } elseif (array_key_exists($cleanKey, $attributes['table']) && !empty($value) && $attributeType === 'table') {
+                        $groupId = md5(sprintf('%s-%s', PropertyGroupDefinition::ENTITY_NAME, $cleanKey));
+                        $optionId = $this->getMappedId($catalogMetadata, $cleanKey, $value);
+
                         $structuredProduct['options'][$cleanKey]['name'] = $attributes['table'][$cleanKey]['name'];
                         $structuredProduct['options'][$cleanKey]['value'] = $value;
+                        $structuredProduct['options'][$cleanKey]['groupId'] = $groupId;
+                        $structuredProduct['options'][$cleanKey]['optionId'] =  $optionId;
 
                         $properties[$cleanKey]['name'] = $structuredProduct['options'][$cleanKey]['name'];
-                        $properties[$cleanKey]['options'][$structuredProduct['options'][$cleanKey]['value']] = $structuredProduct['options'][$cleanKey]['value'];
+                        $properties[$cleanKey]['options'][$optionId] = $structuredProduct['options'][$cleanKey]['value'];
+                        $properties[$cleanKey]['groupId'] = $groupId;
+
                     } elseif (!empty($value) || in_array($key, self::ALLOWED_EMPTY_FIELDS)) {
                         if (array_key_exists($key, $structuredProduct)) {
                             throw new \RuntimeException(
@@ -204,14 +220,6 @@ class JsonParser
                         }
 
                         $structuredProduct[$key] = $value;
-                    }
-
-                    if ($key === self::ATTRIBUTE_IDENTIFIER_COLOR && !empty($value)) {
-                        $structuredProduct['properties'][$cleanKey]['name'] = self::ATTRIBUTE_NAME_COLOR;
-                        $structuredProduct['properties'][$cleanKey]['value'] = $value;
-
-                        $properties[$cleanKey]['name'] = $structuredProduct['properties'][$cleanKey]['name'];
-                        $properties[$cleanKey]['options'][$structuredProduct['properties'][$cleanKey]['value']] = $structuredProduct['properties'][$cleanKey]['value'];
                     }
                 }
 
@@ -247,7 +255,7 @@ class JsonParser
         return new ProductsStruct(new ProductCollection($products), $filePath, $properties);
     }
 
-    public function getCatalogMetadata(string $filePath): CatalogMetadata
+    public function getCatalogMetadata(string $filePath, string $systemLanguageCode): CatalogMetadata
     {
         $filename = basename($filePath);
         $matches = [];
@@ -265,7 +273,39 @@ class JsonParser
             $sortimentId = $matches['sortimentId'];
         }
 
-        return new CatalogMetadata($catalogId, $sortimentId);
+        $language = substr($filename, -5);
+
+        return new CatalogMetadata($catalogId, $sortimentId, $language, $systemLanguageCode);
+    }
+
+    private function getMappedId(CatalogMetadata $catalogMetadata, $groupName, $optionValue): string
+    {
+        $mappingKey = md5($catalogMetadata->getCatalogId() . $catalogMetadata->getSortimentId());
+
+        if (!isset(self::$propertyCounters[$mappingKey][$catalogMetadata->getLanguageCode()])) {
+            self::$propertyCounters[$mappingKey][$catalogMetadata->getLanguageCode()] = 0;
+        }
+
+        $count = ++self::$propertyCounters[$mappingKey][$catalogMetadata->getLanguageCode()];
+
+        if ($catalogMetadata->isSystemLanguage()) {
+            $uuid = md5(sprintf(
+                '%s-%s-%s',
+                PropertyGroupOptionDefinition::ENTITY_NAME,
+                $groupName,
+                $optionValue
+            ));
+
+            self::$propertyMapping[$mappingKey][$count] = $uuid;
+        }
+
+        if (empty(self::$propertyMapping[$mappingKey][$count])) {
+            $error = 'Could not find mapping for %s. ImportFile with system default language may be missing';
+
+            throw new \LogicException(sprintf($error, $groupName));
+        }
+
+        return self::$propertyMapping[$mappingKey][$count];
     }
 
     private function cleanupAttributeName(string $name): string
