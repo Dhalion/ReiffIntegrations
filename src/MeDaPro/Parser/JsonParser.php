@@ -154,7 +154,7 @@ class JsonParser
                 foreach ($product['raw'] as $key => $value) {
                     $cleanKey = $this->cleanupAttributeName($key);
 
-                    if ($key === self::CLOSEOUT_IDENTIFIER) {
+                    if ($key === self::CLOSEOUT_FIELD) {
                         $structuredProduct[self::CLOSEOUT_FIELD] = $value === self::CLOSEOUT_FIELD;
                     }
 
@@ -282,8 +282,8 @@ class JsonParser
 
     private function validateMappedData(): void
     {
-        foreach (self::$propertyCounters as $mappingKey => $propertyCounts) {
-            if (array_unique($propertyCounts) > 1) {
+        foreach (self::$propertyCounters as $mappingKey => $languages) {
+            if (count(array_unique($languages)) > 1) {
                 throw new \RuntimeException(sprintf('Property amount for %s is not consistent', $mappingKey));
             }
         }
@@ -291,10 +291,10 @@ class JsonParser
 
     private function getMappedId(CatalogMetadata $catalogMetadata, $groupName, $optionValue): string
     {
-        $mappingKey = implode("_", [
+        $mappingKey = implode("_", array_filter([
             $catalogMetadata->getCatalogId(),
             $catalogMetadata->getSortimentId()
-        ]);
+        ]));
 
         if (!isset(self::$propertyCounters[$mappingKey][$catalogMetadata->getLanguageCode()])) {
             self::$propertyCounters[$mappingKey][$catalogMetadata->getLanguageCode()] = 0;
