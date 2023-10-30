@@ -169,13 +169,15 @@ class CatalogImportCommand extends Command
             ));
 
             // We always import media synchronously to prevent errors for conflicting media access during product import
-            $style->info('Importing media');
-            $this->messageHandler->handle($this->mediaImportHandler->getMessage(
-                $products,
-                $archivedFileName,
-                $catalogMetadata,
-                $importContext->getContext()
-            ));
+            if ($catalogMetadata->isSystemLanguage()) {
+                $style->info('Importing media');
+                $this->messageHandler->handle($this->mediaImportHandler->getMessage(
+                    $products,
+                    $archivedFileName,
+                    $catalogMetadata,
+                    $importContext->getContext()
+                ));
+            }
 
             $style->info('Importing products');
 

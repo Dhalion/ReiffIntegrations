@@ -71,8 +71,6 @@ class Finder
         return $languages[Defaults::LANGUAGE_SYSTEM]['code'];
     }
 
-
-
     /**
      * @param ImportFile[] $importFiles
      */
@@ -85,11 +83,20 @@ class Finder
                 continue;
             }
 
+            $foundFile = false;
+
             foreach ($importFiles as $otherFile) {
-                if ($otherFile->getCatalogMetadata()->getCatalogId() === $catalogMetadata->getCatalogId()) {
+                if ($otherFile->getCatalogMetadata()->getCatalogId() !== $catalogMetadata->getCatalogId()) {
+                    continue;
+                }
+                if ($otherFile->getCatalogMetadata()->getSortimentId() !== $catalogMetadata->getSortimentId()) {
                     continue;
                 }
 
+                $foundFile = true;
+            }
+
+            if (!$foundFile) {
                 throw new \LogicException(sprintf(
                     'The SystemLanguage Catalog (%s) for the file %s is missing',
                     $catalogMetadata->getSystemLanguageCode(),

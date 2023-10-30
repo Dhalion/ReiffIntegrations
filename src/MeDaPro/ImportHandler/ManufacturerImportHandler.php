@@ -16,6 +16,7 @@ use ReiffIntegrations\Util\EntitySyncer;
 use ReiffIntegrations\Util\Handler\AbstractImportHandler;
 use ReiffIntegrations\Util\Mailer;
 use ReiffIntegrations\Util\Message\AbstractImportMessage;
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Context;
@@ -25,7 +26,6 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class ManufacturerImportHandler extends AbstractImportHandler
 {
-    public const MANUFACTURER_ID_PREFIX = ProductManufacturerDefinition::ENTITY_NAME;
     private const BATCH_SIZE            = 100;
 
     /** @var bool[] */
@@ -73,12 +73,14 @@ class ManufacturerImportHandler extends AbstractImportHandler
     public function handle(AbstractImportMessage $message): void
     {
         $context   = $message->getContext();
+        $catalogMetadata = $message->getCatalogMetadata();
+
         $products  = $message->getProductsStruct()->getProducts();
 
         $this->manufacturerBatchCount = 0;
 
         foreach ($products as $mainProduct) {
-            $this->updateManufacturer($mainProduct, $context);
+            $this->updateManufacturer($mainProduct, $catalogMetadata, $context);
 
             if ($this->manufacturerBatchCount >= self::BATCH_SIZE) {
                 if ($context->hasState(DryRunState::NAME)) {
@@ -108,7 +110,11 @@ class ManufacturerImportHandler extends AbstractImportHandler
         return self::class;
     }
 
-    private function updateManufacturer(ProductStruct $mainProductStruct, Context $context): void
+    private function updateManufacturer(
+        ProductStruct $mainProductStruct,
+        CatalogMetadata $catalogMetadata,
+        Context $context
+    ): void
     {
         foreach ($mainProductStruct->getVariants() as $productStruct) {
             $manufacturerName = $productStruct->getDataByKey('Hersteller');
@@ -117,30 +123,43 @@ class ManufacturerImportHandler extends AbstractImportHandler
                 continue;
             }
 
-            $manufacturerId = md5(sprintf('%s-%s', self::MANUFACTURER_ID_PREFIX, $manufacturerName));
+            $updateKey = md5(
+                CategoryDefinition::ENTITY_NAME .
+                $manufacturerName.
+                $catalogMetadata->getLanguageCode()
+            );
 
-            if (array_key_exists($manufacturerId, $this->updatedManufacturerIds)) {
+            if (array_key_exists($updateKey, $this->updatedManufacturerIds)) {
                 continue;
             }
 
-            /** @var string $manufacturerImage */
-            $manufacturerImage = $productStruct->getDataByKey('Web Logo 1');
-
-            $manufacturerMediaId = null;
-
-            if (!empty($manufacturerImage)) {
-                $manufacturerMediaId = $this->mediaHelper->getMediaIdByPath($manufacturerImage, ProductManufacturerDefinition::ENTITY_NAME, $context);
-
-                if (!$manufacturerMediaId) {
-                    $this->addError(new \RuntimeException(sprintf('could not find media at the location: %s', $manufacturerImage)), $context);
-                }
-            }
+            $manufacturerId = md5(sprintf('%s-%s', CategoryDefinition::ENTITY_NAME, $manufacturerName));
 
             $data = [
                 'id'      => $manufacturerId,
-                'name'    => $manufacturerName,
-                'mediaId' => $manufacturerMediaId,
+                'translations' => [
+                    $catalogMetadata->getLanguageCode() => [
+                        'name' => $manufacturerName,
+                    ],
+                ],
             ];
+
+            if ($catalogMetadata->isSystemLanguage()) {
+                /** @var string $manufacturerImage */
+                $manufacturerImage = $productStruct->getDataByKey('Web Logo 1');
+
+                $manufacturerMediaId = null;
+
+                if (!empty($manufacturerImage)) {
+                    $manufacturerMediaId = $this->mediaHelper->getMediaIdByPath($manufacturerImage, ProductManufacturerDefinition::ENTITY_NAME, $context);
+
+                    if (!$manufacturerMediaId) {
+                        $this->addError(new \RuntimeException(sprintf('could not find media at the location: %s', $manufacturerImage)), $context);
+                    }
+                }
+
+                $data['mediaId'] = $manufacturerMediaId;
+            }
 
             if ($context->hasState(DryRunState::NAME)) {
                 $this->entitySyncer->addOperation(ProductManufacturerDefinition::ENTITY_NAME, SyncOperation::ACTION_UPSERT, $data);
@@ -149,7 +168,7 @@ class ManufacturerImportHandler extends AbstractImportHandler
             }
 
             ++$this->manufacturerBatchCount;
-            $this->updatedManufacturerIds[$data['id']] = true;
+            $this->updatedManufacturerIds[$updateKey] = true;
         }
     }
 }

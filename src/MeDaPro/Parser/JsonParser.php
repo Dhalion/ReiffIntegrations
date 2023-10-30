@@ -252,6 +252,8 @@ class JsonParser
         }
         unset($variants);
 
+        $this->validateMappedData();
+
         return new ProductsStruct(new ProductCollection($products), $filePath, $properties);
     }
 
@@ -278,9 +280,21 @@ class JsonParser
         return new CatalogMetadata($catalogId, $sortimentId, $language, $systemLanguageCode);
     }
 
+    private function validateMappedData(): void
+    {
+        foreach (self::$propertyCounters as $mappingKey => $propertyCounts) {
+            if (array_unique($propertyCounts) > 1) {
+                throw new \RuntimeException(sprintf('Property amount for %s is not consistent', $mappingKey));
+            }
+        }
+    }
+
     private function getMappedId(CatalogMetadata $catalogMetadata, $groupName, $optionValue): string
     {
-        $mappingKey = md5($catalogMetadata->getCatalogId() . $catalogMetadata->getSortimentId());
+        $mappingKey = implode("_", [
+            $catalogMetadata->getCatalogId(),
+            $catalogMetadata->getSortimentId()
+        ]);
 
         if (!isset(self::$propertyCounters[$mappingKey][$catalogMetadata->getLanguageCode()])) {
             self::$propertyCounters[$mappingKey][$catalogMetadata->getLanguageCode()] = 0;
