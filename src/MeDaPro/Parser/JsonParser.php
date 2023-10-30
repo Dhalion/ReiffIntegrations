@@ -261,7 +261,7 @@ class JsonParser
     {
         $filename = basename($filePath);
         $matches = [];
-        preg_match('/^((?<sortimentId>\d+)_)?(?<catalogId>\d+)_/', $filename, $matches);
+        preg_match('/^((?<date>\d{8}-\d{6}\.\d+)-)?((?<sortimentId>\d+)_)?(?<catalogId>\d+)_/', $filename, $matches);
 
         $catalogId = null;
 
