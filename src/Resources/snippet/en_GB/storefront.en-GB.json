@@ -52,7 +52,9 @@
                 },
                 "filter": {
                     "fromDate": "Earliest Order Date:",
-                    "toDate": "Latest Order Date:"
+                    "toDate": "Latest Order Date:",
+                    "searchLabel": "Search:",
+                    "searchReset": "Clear"
                 },
                 "documents": {
                     "invoiceTitle": "Invoices",

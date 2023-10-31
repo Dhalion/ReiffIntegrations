@@ -36,28 +36,46 @@
                     </label>
                     <button type="submit" class="btn btn-primary">{{ 'general.formSubmit' | trans | sw_sanitize }}</button>
                 </form>
+
+                {% block reiff_order_search %}
+{#                    {% if page.orders.count > 0 %}#}
+                        <form class="b2b-order-search-form mt-2">
+                            <label>
+                                {{ 'ReiffIntegrations.customer.orders.filter.searchLabel' | trans | sw_sanitize }}
+                                <input type="text" class="b2b-order-search-input form-control" value="" />
+                            </label>
+                            <button type="reset"
+                                    class="btn btn-secondary b2b-order-search-reset">
+                                {{ 'ReiffIntegrations.customer.orders.filter.searchReset' | trans | sw_sanitize }}
+                            </button>
+                        </form>
+{#                    {% endif %}#}
+                {% endblock %}
+
             {% endblock %}
+
             {% block reiff_order_list %}
                 {% if page.orders.count == 0 %}
                     {% block reiff_order_list_empty %}
-                        {% if page.success %}
-                            {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
-                                type: "warning",
-                                content: "account.ordersInfoEmpty" | trans | sw_sanitize
-                            } %}
-                        {% else %}
-                            {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
-                                type: "danger",
-                                content: "ReiffIntegrations.customer.orders.error.noOrderResponse" | trans | sw_sanitize
-                            } %}
-                        {% endif %}
+                        <div class="py-2">
+                            {% if page.success %}
+                                {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                                    type: "warning",
+                                    content: "account.ordersInfoEmpty" | trans | sw_sanitize
+                                } %}
+                            {% else %}
+                                {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                                    type: "danger",
+                                    content: "ReiffIntegrations.customer.orders.error.noOrderResponse" | trans | sw_sanitize
+                                } %}
+                            {% endif %}
+                        </div>
                     {% endblock %}
                 {% else %}
                     {% for order in page.orders %}
                         {% block reiff_order_list_row %}
                             <div class="b2b-accordion">
                                 <div class="b2b-accordion__title ajax-panel-link" data-bs-target="reiff-order-detail-{{ order.number }}" data-target="reiff-order-detail-{{ order.number }}" data-href="{{ path('frontend.b2b.orders.detail', { orderNumber: order.number }) }}">
-                                    {% sw_icon 'arrow-right' style { pack: 'solid' } %}
                                     {% block reiff_order_list_row_overview %}
                                         <span>
                                             {{ order.number }}
@@ -68,6 +86,7 @@
                                             {{ order.orderDate|format_date('medium', locale=app.request.locale) }}
                                         </span>
                                     {% endblock %}
+                                    {% sw_icon 'arrow-right' style { pack: 'solid' } %}
                                 </div>
                                 <div class="b2b-accordion__body">
                                     <div
