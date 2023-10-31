@@ -68,6 +68,13 @@
                         "SHIP_TO": "Lieferadresse"
                     },
                     "changeBillingAddressTitle": "Änderung der Rechnungsadresse (reiff-tp.de)"
+                },
+                "sorting": {
+                    "orderDate": "Datum",
+                    "orderNumber": "Auftragsnummer",
+                    "orderStatus": "Status",
+                    "orderTotal": "Gesamtsumme",
+                    "refNumber": "Bestellnummer"
                 }
             }
         },

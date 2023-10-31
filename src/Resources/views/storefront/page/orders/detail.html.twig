@@ -15,13 +15,15 @@
                 <div>
                     {% for address in order.addresses %}
                         {% block reiff_order_detail_address %}
-                            <h5>{{ ('ReiffIntegrations.customer.orders.address.types.' ~ address.type) | trans }}</h5>
-                            <p>
-                                {{ address.name }}<br>
-                                {{ address.street }}<br>
-                                {{ address.zip }} {{ address.city }}<br>
-                                {{ address.country }}
-                            </p>
+                            {% if address == 'SHIP_TO' %}
+                                <h5>{{ ('ReiffIntegrations.customer.orders.address.types.' ~ address.type) | trans }}</h5>
+                                <p>
+                                    {{ address.name }}<br>
+                                    {{ address.street }}<br>
+                                    {{ address.zip }} {{ address.city }}<br>
+                                    {{ address.country }}
+                                </p>
+                            {% endif %}
                         {% endblock %}
                     {% endfor %}
                 </div>
