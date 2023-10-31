@@ -52,7 +52,9 @@
                 },
                 "filter": {
                     "fromDate": "Frühestes Auftragsdatum:",
-                    "toDate": "Spätestes Auftragsdatum:"
+                    "toDate": "Spätestes Auftragsdatum:",
+                    "searchLabel": "Suchen:",
+                    "searchReset": "Zurücksetzen"
                 },
                 "documents": {
                     "invoiceTitle": "Rechnungen",
