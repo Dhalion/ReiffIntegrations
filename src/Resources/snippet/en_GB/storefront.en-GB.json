@@ -67,6 +67,13 @@
                         "SHIP_TO": "Shipping Address"
                     },
                     "changeBillingAddressTitle": "Change billing address (reiff-tp.de)"
+                },
+                "sorting": {
+                    "orderDate": "Date",
+                    "orderNumber": "Order number",
+                    "orderStatus": "Status",
+                    "orderTotal": "Total price",
+                    "refNumber": "Reference number"
                 }
             }
         },
