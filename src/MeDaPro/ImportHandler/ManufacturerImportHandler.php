@@ -124,7 +124,7 @@ class ManufacturerImportHandler extends AbstractImportHandler
             }
 
             $updateKey = md5(
-                CategoryDefinition::ENTITY_NAME .
+                ProductManufacturerDefinition::ENTITY_NAME .
                 $manufacturerName.
                 $catalogMetadata->getLanguageCode()
             );
@@ -133,7 +133,7 @@ class ManufacturerImportHandler extends AbstractImportHandler
                 continue;
             }
 
-            $manufacturerId = md5(sprintf('%s-%s', CategoryDefinition::ENTITY_NAME, $manufacturerName));
+            $manufacturerId = md5(sprintf('%s-%s', ProductManufacturerDefinition::ENTITY_NAME, $manufacturerName));
 
             $data = [
                 'id'      => $manufacturerId,
