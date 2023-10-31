@@ -8,13 +8,13 @@ use Shopware\Core\Framework\Struct\Struct;
 
 class CatalogMetadata extends Struct
 {
-    private string $catalogId;
-    private ?string $sortimentId = null;
-    private string $languageCode;
-    private string $systemLanguageCode;
+    protected string $catalogId;
+    protected ?string $sortimentId = null;
+    protected string $languageCode;
+    protected string $systemLanguageCode;
 
     public function __construct(
-        ?string $catalogId,
+        string $catalogId,
         ?string $sortimentId,
         string $languageCode,
         string $systemLanguageCode

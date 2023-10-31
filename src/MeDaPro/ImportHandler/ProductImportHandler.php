@@ -13,7 +13,6 @@ use ReiffIntegrations\MeDaPro\Helper\MediaHelper;
 use ReiffIntegrations\MeDaPro\Message\ProductImportMessage;
 use ReiffIntegrations\MeDaPro\Struct\CatalogMetadata;
 use ReiffIntegrations\MeDaPro\Struct\ProductCollection;
-use ReiffIntegrations\MeDaPro\Struct\ProductsStruct;
 use ReiffIntegrations\MeDaPro\Struct\ProductStruct;
 use ReiffIntegrations\Util\Context\DryRunState;
 use ReiffIntegrations\Util\EntitySyncer;
@@ -22,6 +21,7 @@ use ReiffIntegrations\Util\Mailer;
 use ReiffIntegrations\Util\Message\AbstractImportMessage;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexingMessage;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -450,7 +450,7 @@ class ProductImportHandler extends AbstractImportHandler
         $manufacturerName = $productStruct->getDataByKey('Hersteller');
 
         if (!empty($manufacturerName) && is_string($manufacturerName)) {
-            $data['manufacturerId'] = md5(sprintf('%s-%s', ManufacturerImportHandler::MANUFACTURER_ID_PREFIX, $manufacturerName));
+            $data['manufacturerId'] = md5(sprintf('%s-%s', ProductManufacturerDefinition::ENTITY_NAME, $manufacturerName));
         }
 
         return $data;
@@ -503,17 +503,27 @@ class ProductImportHandler extends AbstractImportHandler
     private function getCrossSellings(ProductStruct $productStruct, CatalogMetadata $catalogMetadata): array
     {
         $crossSellings = [];
-        $position      = 0;
+        $position      = null;
+
         foreach ($productStruct->getCrossSellingGroups() as $group => $productNumbers) {
             $productIds = $this->getProductIdsByNumbers($productNumbers);
+
+            $position = $position ?? 0;
 
             if (empty($productIds)) {
                 // Products not yet in system, try again next run
                 continue;
             }
 
+            $id = md5(sprintf(
+                '%s-%s-%s',
+                self::CROSSSELLING_ID_PREFIX,
+                $productStruct->getProductNumber(),
+                $position
+            ));
+
             $crossSelling = [
-                'id'           => md5(sprintf('%s-%s-%s', self::CROSSSELLING_ID_PREFIX, $productStruct->getProductNumber(), $group)),
+                'id'           => $id,
                 'type'         => ProductCrossSellingDefinition::TYPE_PRODUCT_LIST,
                 'active'       => true,
                 'position'     => $position,
@@ -527,7 +537,6 @@ class ProductImportHandler extends AbstractImportHandler
             if ($catalogMetadata->isSystemLanguage()) {
                 foreach (array_values($productIds) as $productPosition => $productId) {
                     $crossSelling['assignedProducts'][] = [
-                        'id'        => md5(sprintf('%s-%s-%s-%s', self::CROSSSELLING_PRODUCT_ID_PREFIX, $productStruct->getProductNumber(), $group, $productId)),
                         'productId' => $productId,
                         'position'  => $productPosition,
                     ];
@@ -535,7 +544,6 @@ class ProductImportHandler extends AbstractImportHandler
             }
 
             $crossSellings[] = $crossSelling;
-            ++$position;
         }
 
         return $crossSellings;
