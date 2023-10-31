@@ -72,32 +72,34 @@
                         </div>
                     {% endblock %}
                 {% else %}
-                    {% for order in page.orders %}
-                        {% block reiff_order_list_row %}
-                            <div class="b2b-accordion">
-                                <div class="b2b-accordion__title ajax-panel-link" data-bs-target="reiff-order-detail-{{ order.number }}" data-target="reiff-order-detail-{{ order.number }}" data-href="{{ path('frontend.b2b.orders.detail', { orderNumber: order.number }) }}">
-                                    {% block reiff_order_list_row_overview %}
-                                        <span>
-                                            {{ order.number }}
-                                            {% if order.reference %}
-                                                ({{ order.reference }})
-                                            {% endif %}
-                                            -
-                                            {{ order.orderDate|format_date('medium', locale=app.request.locale) }}
-                                        </span>
-                                    {% endblock %}
-                                    {% sw_icon 'arrow-right' style { pack: 'solid' } %}
+                    <div class="b2b-order-search-results" data-b2b-order-list="true">
+                        {% for order in page.orders %}
+                            {% block reiff_order_list_row %}
+                                <div class="b2b-accordion">
+                                    <div class="b2b-accordion__title ajax-panel-link" data-bs-target="reiff-order-detail-{{ order.number }}" data-target="reiff-order-detail-{{ order.number }}" data-href="{{ path('frontend.b2b.orders.detail', { orderNumber: order.number }) }}">
+                                        {% block reiff_order_list_row_overview %}
+                                            <span>
+                                                {{ order.number }}
+                                                {% if order.reference %}
+                                                    ({{ order.reference }})
+                                                {% endif %}
+                                                -
+                                                {{ order.orderDate|format_date('medium', locale=app.request.locale) }}
+                                            </span>
+                                        {% endblock %}
+                                        {% sw_icon 'arrow-right' style { pack: 'solid' } %}
+                                    </div>
+                                    <div class="b2b-accordion__body">
+                                        <div
+                                            class="b2b--ajax-panel"
+                                            data-id="reiff-order-detail-{{ order.number }}"
+                                            data-url=""
+                                        ></div>
+                                    </div>
                                 </div>
-                                <div class="b2b-accordion__body">
-                                    <div
-                                        class="b2b--ajax-panel"
-                                        data-id="reiff-order-detail-{{ order.number }}"
-                                        data-url=""
-                                    ></div>
-                                </div>
-                            </div>
-                        {% endblock %}
-                    {% endfor %}
+                            {% endblock %}
+                        {% endfor %}
+                    </div>
                 {% endif %}
             {% endblock %}
         {% endblock %}
