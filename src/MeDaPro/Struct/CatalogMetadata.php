@@ -14,7 +14,7 @@ class CatalogMetadata extends Struct
     private string $systemLanguageCode;
 
     public function __construct(
-        string $catalogId,
+        ?string $catalogId,
         ?string $sortimentId,
         string $languageCode,
         string $systemLanguageCode
