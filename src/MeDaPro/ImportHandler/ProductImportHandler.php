@@ -508,7 +508,11 @@ class ProductImportHandler extends AbstractImportHandler
         foreach ($productStruct->getCrossSellingGroups() as $group => $productNumbers) {
             $productIds = $this->getProductIdsByNumbers($productNumbers);
 
-            $position = $position ?? 0;
+            if ($position === null) {
+                $position = 0;
+            } else {
+                $position++;
+            }
 
             if (empty($productIds)) {
                 // Products not yet in system, try again next run
