@@ -12,12 +12,18 @@ export default class AgiqonB2bOrderListPlugin extends Plugin {
      * @type {{accordionBodySel: string, accordionTitleSel: string, searchResetSel: string, accordionSel: string, searchInputSel: string}}
      */
     static options = {
+
+        // search selectors
         searchInputSel: '.b2b-order-search-input',
         searchResetSel: '.b2b-order-search-reset',
+
+        // sorting and accordion selectors
+        accordionContSel: '.b2b-order-search-results',
         accordionSel: '.b2b-accordion',
         accordionTitleSel: '.b2b-accordion__title',
         accordionBodySel: '.b2b-accordion__body',
-        btnSortSel: '.btn-sort'
+        btnSortSel: '.btn-sort',
+        btnSortActiveCls: 'active-sorting'
     };
 
     /**
@@ -25,21 +31,22 @@ export default class AgiqonB2bOrderListPlugin extends Plugin {
      */
     init() {
         try {
+
+            // search elements
             this.searchInput = DomAccess.querySelector(
                 document,
                 this.options.searchInputSel
             );
-
             this.searchReset = DomAccess.querySelector(
                 document,
                 this.options.searchResetSel
             );
 
+            // sorting elements
             this.accordionItems = DomAccess.querySelectorAll(
                 document,
                 this.options.accordionSel
             );
-
             this.sortingButtons = DomAccess.querySelectorAll(
                 document,
                 this.options.btnSortSel
@@ -60,8 +67,9 @@ export default class AgiqonB2bOrderListPlugin extends Plugin {
 
         this.searchInput.addEventListener('input', this._onSearchOrder.bind(this));
         this.searchReset.addEventListener(clickEvent, this._onSearchReset.bind(this));
+
         this.sortingButtons.forEach((item) => {
-            item.addEventListener(clickEvent, this._sortByOderNumber.bind(this));
+            item.addEventListener(clickEvent, this._sortBy.bind(this));
         });
     }
 
@@ -69,22 +77,41 @@ export default class AgiqonB2bOrderListPlugin extends Plugin {
      * Do sorting by event target
      * @private
      */
-    _sortByOderNumber() {
-        const container = document.querySelector('.b2b-order-search-results');
+    _sortBy() {
+        let container,
+            sortingType;
+
+        try {
+            container = DomAccess.querySelector(
+                document,
+                this.options.accordionContSel
+            );
+        } catch (e) {
+            return;
+        }
+
+        // get accordion elements
         const elements = Array.from(container.children);
-        let sortingType;
 
+        // set sort button active class
         this.sortingButtons.forEach((item) => {
-            item.classList.remove('active-sorting');
+            if (event.currentTarget.dataset.sortingType !== item.dataset.sortingType) {
+                item.classList.remove(this.options.btnSortActiveCls);
+                item.setAttribute('data-sorting-direction', 'default');
+            }
         });
-        event.currentTarget.classList.add('active-sorting');
+        event.currentTarget.classList.add(this.options.btnSortActiveCls);
 
+        // update sorting button sorting direction
         if (event.currentTarget.dataset.sortingDirection === 'default') {
-            event.currentTarget.setAttribute('data-sorting', 'asc')
+            event.currentTarget.setAttribute('data-sorting-direction', 'asc');
         } else if (event.currentTarget.dataset.sortingDirection === 'asc') {
-            event.currentTarget.setAttribute('data-sorting', 'desc')
+            event.currentTarget.setAttribute('data-sorting-direction', 'desc');
         } else {
-            event.currentTarget.setAttribute('data-sorting', 'default')
+            this.sortingButtons.forEach((item) => {
+                item.setAttribute('data-sorting-direction', 'default');
+            });
+
             let sorted = elements.sort((a, b) => {
                 let dateA = new Date(a.dataset.sortByDate);
                 let dateB = new Date(b.dataset.sortByDate);
@@ -97,47 +124,41 @@ export default class AgiqonB2bOrderListPlugin extends Plugin {
             return;
         }
 
-
-        // data-sort-by-order-number="{{ order.number }}"
-        // data-sort-by-reference="{{ order.reference?: '-' }}"
-        // data-sort-by-date="{{ order.orderDate|format_date('medium', locale=app.request.locale) }}"
-        // data-sort-by-status="{{ order.status }}"
-        // data-sort-by-total="{{ order.netTotal }}">
-
-
-        // console.log(event.currentTarget.dataset.sortingType)
-
+        // get sorting type and sort accordion elements
         sortingType = event.currentTarget.dataset.sortingType;
-
         let sorted = elements.sort((a, b) => {
             if (event.currentTarget.dataset.sortingDirection === 'asc') {
                 if (sortingType === 'by-order-number') {
-                    return +a.dataset.sortByOrderNumber - +b.dataset.sortByOrderNumber
+                    return a.dataset.sortByOrderNumber - b.dataset.sortByOrderNumber
                 } else if (sortingType === 'by-reference') {
-                    return +a.dataset.sortByReference - +b.dataset.sortByReference
+                    return a.dataset.sortByReference - b.dataset.sortByReference
                 } else if (sortingType === 'by-date') {
                     let dateA = new Date(a.dataset.sortByDate);
                     let dateB = new Date(b.dataset.sortByDate);
                     return dateA - dateB;
                 } else if (sortingType === 'by-status') {
-                    return +a.dataset.sortByStatus - +b.dataset.sortByStatus
+                    return a.dataset.sortByStatus - b.dataset.sortByStatus
                 } else if (sortingType === 'by-total') {
-                    return +a.dataset.sortByTotal - +b.dataset.sortByTotal
+                    return a.dataset.sortByTotal - b.dataset.sortByTotal
                 }
-            } else {
+            } else if (event.currentTarget.dataset.sortingDirection === 'desc') {
                 if (sortingType === 'by-order-number') {
-                    return +b.dataset.sortByOrderNumber - +a.dataset.sortByOrderNumber
+                    return b.dataset.sortByOrderNumber - a.dataset.sortByOrderNumber
                 } else if (sortingType === 'by-reference') {
-                    return +b.dataset.sortByReference - +a.dataset.sortByReference
+                    return b.dataset.sortByReference - a.dataset.sortByReference
                 } else if (sortingType === 'by-date') {
                     let dateA = new Date(a.dataset.sortByDate);
                     let dateB = new Date(b.dataset.sortByDate);
                     return dateB - dateA;
                 } else if (sortingType === 'by-status') {
-                    return +b.dataset.sortByStatus - +a.dataset.sortByStatus
+                    return b.dataset.sortByStatus - a.dataset.sortByStatus
                 } else if (sortingType === 'by-total') {
-                    return +b.dataset.sortByTotal - +a.dataset.sortByTotal
+                    return b.dataset.sortByTotal - a.dataset.sortByTotal
                 }
+            } else {
+                let dateA = new Date(a.dataset.sortByDate);
+                let dateB = new Date(b.dataset.sortByDate);
+                return dateB - dateA;
             }
         });
 

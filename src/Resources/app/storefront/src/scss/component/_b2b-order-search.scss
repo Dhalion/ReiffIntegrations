@@ -42,15 +42,17 @@
         }
       }
 
-      &[data-sorting="asc"] {
-        .icon-arrow-down-long-solid {
-          color: $sw-color-brand-primary;
+      &.active-sorting {
+        &[data-sorting-direction="asc"] {
+          .icon-arrow-down-long-solid {
+            color: $sw-color-brand-primary;
+          }
         }
-      }
 
-      &[data-sorting="desc"] {
-        .icon-arrow-up-long-solid {
-          color: $sw-color-brand-primary;
+        &[data-sorting-direction="desc"] {
+          .icon-arrow-up-long-solid {
+            color: $sw-color-brand-primary;
+          }
         }
       }
     }
