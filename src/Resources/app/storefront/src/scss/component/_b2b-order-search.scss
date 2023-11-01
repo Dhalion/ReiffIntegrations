@@ -21,6 +21,16 @@
         border-right: 1px solid $sw-border-color;
         padding: 1.25rem 1rem;
         white-space: nowrap;
+
+        &:last-child {
+          justify-content: center;
+
+          .icon {
+            svg {
+              top: 0;
+            }
+          }
+        }
       }
     }
 
@@ -85,4 +95,40 @@
       transform: rotate(180deg);
     }
   }
+
+  .b2b-accordion__title {
+    font-size: $font-size-base;
+    padding: 16px 0;
+
+    .icon {
+      svg {
+        top: 0;
+      }
+    }
+
+    [class*="col"] {
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+
+      &:last-child {
+        display: flex;
+        justify-content: center;
+      }
+
+      &:nth-last-child(2) {
+        .icon {
+          margin-left: 8px;
+
+          &.icon-basket {
+            margin-left: auto;
+          }
+        }
+      }
+    }
+  }
+}
+
+.b2b-accordion--open .b2b-accordion__title {
+  font-weight: $font-weight-bold;
 }

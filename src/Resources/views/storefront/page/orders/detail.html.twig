@@ -4,11 +4,7 @@
     {% block reiff_order_detail_container %}
         <div>
             {% block reiff_order_detail_overview %}
-                <h3>{{ order.netTotal|currency(order.currency) }}</h3>
-                <h4>{{ order.status }}</h4>
-                <p>
-                    {{ order.customer }}<br>
-                </p>
+                <h3><strong>{{ order.customer }}</h3>
             {% endblock %}
 
             {% block reiff_order_detail_addresses %}
