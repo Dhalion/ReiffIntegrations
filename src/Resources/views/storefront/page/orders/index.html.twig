@@ -139,38 +139,39 @@
 {#                                    </div>#}
 {#                                </div>#}
 {#                            {% endblock %}#}
-{#                        </div>#}
 
-{#                        #}{# Results accordion #}
-{#                        <div class="b2b-order-search-results" data-b2b-order-list="true">#}
-{#                            {% sw_include '@Storefront/storefront/page/orders/index-testing.html.twig' with {#}
-{#                                orderNumber: '0013022533',#}
-{#                                orderReference: 'shop3000302/TEST6',#}
-{#                                orderDate: "now"|date("d M Y H:i", "Australia/Melbourne"),#}
-{#                                orderStatus: 'In Bearbeitung',#}
-{#                                orderTotal: '800.09'#}
-{#                            } %}#}
-{#                            {% sw_include '@Storefront/storefront/page/orders/index-testing.html.twig' with {#}
-{#                                orderNumber: '0013022537',#}
-{#                                orderReference: 'shop3000302/TEST3',#}
-{#                                orderDate: "now"|date("d M Y H:i", "Asia/Hong_Kong"),#}
-{#                                orderStatus: 'In Bearbeitung',#}
-{#                                orderTotal: '200.09'#}
-{#                            } %}#}
-{#                            {% sw_include '@Storefront/storefront/page/orders/index-testing.html.twig' with {#}
-{#                                orderNumber: '0013022536',#}
-{#                                orderReference: 'shop3000302/MANO',#}
-{#                                orderDate: "now"|date("d M Y H:i", "Asia/Hong_Kong"),#}
-{#                                orderStatus: 'In Bearbeitung',#}
-{#                                orderTotal: '1800.09'#}
-{#                            } %}#}
-{#                            {% sw_include '@Storefront/storefront/page/orders/index-testing.html.twig' with {#}
-{#                                orderNumber: '0013022534',#}
-{#                                orderReference: 'shop3000302/TEST4',#}
-{#                                orderDate: "now"|date("d M Y H:i", "America/New_York"),#}
-{#                                orderStatus: 'In Bearbeitung',#}
-{#                                orderTotal: '600.09'#}
-{#                            } %}#}
+{#                            #}{# Results accordion #}
+{#                            <div class="b2b-order-search-results" data-b2b-order-list="true">#}
+{#                                {% sw_include '@Storefront/storefront/page/orders/index-testing.html.twig' with {#}
+{#                                    orderNumber: '0013022533',#}
+{#                                    orderReference: 'shop3000302/TEST6',#}
+{#                                    orderDate: "now"|date("d M Y H:i", "Australia/Melbourne"),#}
+{#                                    orderStatus: 'In Bearbeitung',#}
+{#                                    orderTotal: '800.09'#}
+{#                                } %}#}
+{#                                {% sw_include '@Storefront/storefront/page/orders/index-testing.html.twig' with {#}
+{#                                    orderNumber: '0013022537',#}
+{#                                    orderReference: 'shop3000302/TEST3',#}
+{#                                    orderDate: "now"|date("d M Y H:i", "Asia/Hong_Kong"),#}
+{#                                    orderStatus: 'In Bearbeitung',#}
+{#                                    orderTotal: '200.09'#}
+{#                                } %}#}
+{#                                {% sw_include '@Storefront/storefront/page/orders/index-testing.html.twig' with {#}
+{#                                    orderNumber: '0013022536',#}
+{#                                    orderReference: 'shop3000302/MANO',#}
+{#                                    orderDate: "now"|date("d M Y H:i", "Asia/Hong_Kong"),#}
+{#                                    orderStatus: 'In Bearbeitung',#}
+{#                                    orderTotal: '1800.09'#}
+{#                                } %}#}
+{#                                {% sw_include '@Storefront/storefront/page/orders/index-testing.html.twig' with {#}
+{#                                    orderNumber: '0013022534',#}
+{#                                    orderReference: 'shop3000302/TEST4',#}
+{#                                    orderDate: "now"|date("d M Y H:i", "America/New_York"),#}
+{#                                    orderStatus: 'In Bearbeitung',#}
+{#                                    orderTotal: '600.09'#}
+{#                                } %}#}
+{#                            </div>#}
+
 {#                        </div>#}
 {#                    {% endblock %}#}
 
@@ -241,65 +242,69 @@
                                     </div>
                                 </div>
                             {% endblock %}
+
+                            {% block reiff_order_search_results  %}
+                                <div class="b2b-order-search-results" data-b2b-order-list="false">
+                                    {% for order in page.orders %}
+                                        {% block reiff_order_list_row %}
+                                            <div class="b2b-accordion"
+                                                 data-sort-by-order-number="{{ order.number }}"
+                                                 data-sort-by-reference="{{ order.reference?: '-' }}"
+                                                 data-sort-by-date="{{ order.orderDate|format_date('medium', locale=app.request.locale) }}"
+                                                 data-sort-by-status="{{ order.status }}"
+                                                 data-sort-by-total="{{ order.netTotal }}">
+                                                <div class="b2b-accordion__title ajax-panel-link"
+                                                     data-bs-target="reiff-order-detail-{{ order.number }}"
+                                                     data-href="{{ path('frontend.b2b.orders.detail', { orderNumber: order.number }) }}">
+                                                    {% block reiff_order_list_row_overview %}
+                                                        <div class="container">
+                                                            <div class="row">
+                                                                <div class="col">
+                                                                    <span>{{ order.number }}</span>
+                                                                </div>
+                                                                <div class="col">
+                                                                    <span>{{ order.reference?: '-' }}</span>
+                                                                </div>
+                                                                <div class="col">
+                                                                    <span>{{ order.orderDate|format_date('medium', locale=app.request.locale) }}</span>
+                                                                </div>
+                                                                <div class="col">
+                                                                    <span>{{ order.status }}</span>
+                                                                </div>
+                                                                <div class="col">
+                                                                    <span>{{ order.netTotal|currency(decimals=decimals) }}</span>
+                                                                    {% sw_icon 'basket' style {
+                                                                        'namespace': 'ReiffTheme'
+                                                                    } %}
+                                                                    {% sw_icon 'box-solid' style {
+                                                                        'namespace': 'ReiffIntegrations'
+                                                                    } %}
+                                                                </div>
+                                                                <div class="col-1">
+                                                                    {% sw_icon 'arrow-head-down' style {
+                                                                        size: 'xs'
+                                                                    } %}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    {% endblock %}
+                                                </div>
+                                                <div class="b2b-accordion__body">
+                                                    <div
+                                                        class="b2b--ajax-panel"
+                                                        data-id="reiff-order-detail-{{ order.number }}"
+                                                        data-url=""
+                                                    ></div>
+                                                </div>
+                                            </div>
+                                        {% endblock %}
+                                    {% endfor %}
+                                </div>
+                            {% endblock %}
+
                         </div>
                     {% endblock %}
 
-                    {% block reiff_order_search_results  %}
-                        <div class="b2b-order-search-results" data-b2b-order-list="false">
-                            {% for order in page.orders %}
-                                {% block reiff_order_list_row %}
-                                    <div class="b2b-accordion"
-                                         data-sort-by-order-number="{{ order.number }}"
-                                         data-sort-by-reference="{{ order.reference?: '-' }}"
-                                         data-sort-by-date="{{ order.orderDate|format_date('medium', locale=app.request.locale) }}"
-                                         data-sort-by-status="{{ order.status }}"
-                                         data-sort-by-total="{{ order.netTotal }}">
-                                        <div class="b2b-accordion__title ajax-panel-link"
-                                             data-bs-target="reiff-order-detail-{{ order.number }}"
-                                             data-href="{{ path('frontend.b2b.orders.detail', { orderNumber: order.number }) }}">
-                                            {% block reiff_order_list_row_overview %}
-                                                <div class="container">
-                                                    <div class="row">
-                                                        <div class="col">
-                                                            <span>{{ order.number }}</span>
-                                                        </div>
-                                                        <div class="col">
-                                                            <span>{{ order.reference?: '-' }}</span>
-                                                        </div>
-                                                        <div class="col">
-                                                            <span>{{ order.orderDate|format_date('medium', locale=app.request.locale) }}</span>
-                                                        </div>
-                                                        <div class="col">
-                                                            <span>{{ order.status }}</span>
-                                                        </div>
-                                                        <div class="col">
-                                                            <span>{{ order.netTotal|currency(decimals=decimals) }}</span>
-                                                            {% sw_icon 'basket' style {
-                                                                'namespace': 'ReiffTheme'
-                                                            } %}
-                                                            {% sw_icon 'box-solid' style {
-                                                                'namespace': 'ReiffIntegrations'
-                                                            } %}
-                                                        </div>
-                                                        <div class="col-1">
-                                                            {% sw_icon 'arrow-head-down' %}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            {% endblock %}
-                                        </div>
-                                        <div class="b2b-accordion__body">
-                                            <div
-                                                class="b2b--ajax-panel"
-                                                data-id="reiff-order-detail-{{ order.number }}"
-                                                data-url=""
-                                            ></div>
-                                        </div>
-                                    </div>
-                                {% endblock %}
-                            {% endfor %}
-                        </div>
-                    {% endblock %}
                 {% endif %}
             {% endblock %}
         {% endblock %}
