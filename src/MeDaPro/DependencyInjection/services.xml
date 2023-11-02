@@ -16,6 +16,8 @@
             <argument type="service" id="ReiffIntegrations\MeDaPro\ImportHandler\MediaImportHandler"/>
             <argument type="service" id="ReiffIntegrations\Util\Mailer"/>
             <argument type="service" id="ReiffIntegrations\Util\ImportArchiver"/>
+            <argument type="service" id="ReiffIntegrations\MeDaPro\Finder\Finder"/>
+
             <tag name="console.command"/>
         </service>
 
@@ -26,13 +28,21 @@
             <argument type="service" id="ReiffIntegrations\Util\ImportArchiver"/>
             <argument type="service" id="ReiffIntegrations\MeDaPro\Cleaner\ProductActivator"/>
             <argument type="service" id="ReiffIntegrations\MeDaPro\Cleaner\CategoryActivator"/>
-            <argument type="service" id="ReiffIntegrations\MeDaPro\Cleaner\PropertiesDeleter"/>
             <argument type="service" id="ReiffIntegrations\MeDaPro\Cleaner\SortmentRemoval"/>
             <argument type="service" id="ReiffIntegrations\MeDaPro\DataProvider\RuleProvider"/>
+            <argument type="service" id="ReiffIntegrations\MeDaPro\Finder\Finder"/>
+
             <tag name="console.command"/>
         </service>
 
-        <service id="ReiffIntegrations\MeDaPro\Parser\JsonParser" />
+        <service id="ReiffIntegrations\MeDaPro\Finder\Finder">
+            <argument type="service" id="Shopware\Core\System\Language\LanguageLoader"/>
+            <argument type="service" id="ReiffIntegrations\MeDaPro\Parser\JsonParser"/>
+        </service>
+
+        <service id="ReiffIntegrations\MeDaPro\Parser\JsonParser">
+            <argument type="service" id="ReiffIntegrations\Util\LockHandler"/>
+        </service>
 
         <service id="ReiffIntegrations\MeDaPro\DataAbstractionLayer\CategoryExtension">
             <tag name="shopware.entity.extension"/>

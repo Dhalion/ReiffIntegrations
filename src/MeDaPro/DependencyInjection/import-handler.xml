@@ -41,7 +41,6 @@
             <argument type="service" id="ReiffIntegrations\Util\Mailer"/>
             <argument type="service" id="ReiffIntegrations\Util\EntitySyncer"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="property_group.repository"/>
 
             <tag name="reiff_integrations.import_handler"/>
         </service>

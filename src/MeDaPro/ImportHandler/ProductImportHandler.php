@@ -11,6 +11,7 @@ use ReiffIntegrations\MeDaPro\DataAbstractionLayer\CategoryExtension;
 use ReiffIntegrations\MeDaPro\DataProvider\RuleProvider;
 use ReiffIntegrations\MeDaPro\Helper\MediaHelper;
 use ReiffIntegrations\MeDaPro\Message\ProductImportMessage;
+use ReiffIntegrations\MeDaPro\Struct\CatalogMetadata;
 use ReiffIntegrations\MeDaPro\Struct\ProductCollection;
 use ReiffIntegrations\MeDaPro\Struct\ProductStruct;
 use ReiffIntegrations\Util\Context\DryRunState;
@@ -20,6 +21,7 @@ use ReiffIntegrations\Util\Mailer;
 use ReiffIntegrations\Util\Message\AbstractImportMessage;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexingMessage;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -142,9 +144,14 @@ class ProductImportHandler extends AbstractImportHandler
     /**
      * @param ProductStruct $struct
      */
-    public function getMessage(Struct $struct, string $archiveFileName, Context $context): ProductImportMessage
+    public function getMessage(
+        Struct $struct,
+        string $archiveFileName,
+        CatalogMetadata $catalogMetadata,
+        Context $context
+    ): ProductImportMessage
     {
-        return new ProductImportMessage($struct, $archiveFileName, $context);
+        return new ProductImportMessage($struct, $archiveFileName, $catalogMetadata, $context);
     }
 
     public function __invoke(AbstractImportMessage $message): void
@@ -161,14 +168,15 @@ class ProductImportHandler extends AbstractImportHandler
         $context->addState(EntityIndexerRegistry::USE_INDEXING_QUEUE);
 
         $productStruct = $message->getProduct();
+        $catalogMetadata = $message->getCatalogMetadata();
 
-        $mainProduct   = $this->getMainProductData($productStruct, $context);
+        $mainProduct   = $this->getMainProductData($productStruct, $catalogMetadata, $context);
 
         if ($productStruct->getSortimentId()) {
             $allVariantsInDefaultSortiment = true;
             $variants                      = [];
             foreach ($productStruct->getVariants() as $variantStruct) {
-                $variant = $this->getBaseProductData($variantStruct, $context);
+                $variant = $this->getBaseProductData($variantStruct, $catalogMetadata, $context);
 
                 if (!$this->isInDefaultSortiment($variant)) {
                     $allVariantsInDefaultSortiment = false;
@@ -208,7 +216,7 @@ class ProductImportHandler extends AbstractImportHandler
         /** @var string $mainCover */
         $mainCover = $productStruct->getDataByKey('Web Groß Hauptbild');
 
-        if (!empty($mainCover)) {
+        if (!empty($mainCover) && $catalogMetadata->isSystemLanguage()) {
             $mainCoverMediaId = $this->mediaHelper->getMediaIdByPath($mainCover, ProductDefinition::ENTITY_NAME, $context);
 
             if ($mainCoverMediaId) {
@@ -220,45 +228,54 @@ class ProductImportHandler extends AbstractImportHandler
             }
         }
 
-        $this->addUnits($mainProduct, $productStruct, $context);
-        $this->cleanupMainProduct($mainProduct['id'], array_column($mainProduct['configuratorSettings'], 'id'));
+        if ($catalogMetadata->isSystemLanguage()) {
+            $this->addUnits($mainProduct, $productStruct, $context);
+
+            $this->cleanupMainProduct($mainProduct['id'], array_column($mainProduct['configuratorSettings'], 'id'));
+        }
 
         $variants = [];
 
         foreach ($productStruct->getVariants() as $variantStruct) {
             $variant = array_merge(
-                $this->getBaseProductData($variantStruct, $context),
+                $this->getBaseProductData($variantStruct, $catalogMetadata, $context),
                 [
                     'parentId' => $mainProduct['id'],
                 ]
             );
 
-            $this->cleanupProduct($variant['id']);
-            $this->handleMainProductChange($mainProduct['id'], $variant['id'], $context);
+            if ($catalogMetadata->isSystemLanguage()) {
+                $this->cleanupProduct($variant['id']);
+                $this->handleMainProductChange($mainProduct['id'], $variant['id'], $context);
 
-            $variant['manufacturerNumber'] = $variantStruct->getDataByKey('Herstellerartikelnummer');
-            $variant['ean']                = $variantStruct->getDataByKey('EAN');
+                $variant['manufacturerNumber'] = $variantStruct->getDataByKey('Herstellerartikelnummer');
+                $variant['ean']                = $variantStruct->getDataByKey('EAN');
 
-            $minPurchase = $variantStruct->getDataByKey('Mindestbestellmenge');
+                $minPurchase = $variantStruct->getDataByKey('Mindestbestellmenge');
 
-            if ($productStruct->getCatalogId() === '1600') {
-                $minPurchase = self::DEFAULT_CONTENT_QUANTITY;
+                if ($productStruct->getCatalogId() === '1600') {
+                    $minPurchase = self::DEFAULT_CONTENT_QUANTITY;
+                }
+
+                $variant['minPurchase']   = ((int) $minPurchase > 0) ? (int) $minPurchase : 1;
+                $variant['purchaseSteps'] = $variant['minPurchase'];
             }
 
-            $variant['minPurchase']   = ((int) $minPurchase > 0) ? (int) $minPurchase : 1;
-            $variant['purchaseSteps'] = $variant['minPurchase'];
-            $variant['crossSellings'] = $this->getCrossSellings($variantStruct);
+            $variant['crossSellings'] = $this->getCrossSellings($variantStruct, $catalogMetadata);
 
-            if (is_array($variantStruct->getDataByKey('properties'))) {
-                $this->addProperties($variant, $variantStruct, $context);
+            if ($catalogMetadata->isSystemLanguage()) {
+                if (is_array($variantStruct->getDataByKey('properties'))) {
+                    $this->addProperties($variant, $variantStruct, $context);
+                }
+
+                if (is_array($variantStruct->getDataByKey('options'))) {
+                    $this->addOptions($mainProduct, $variant, $variantStruct, $context);
+                }
+
+                $this->addMedia($variant, $variantStruct, $context);
+
+                $this->addUnits($variant, $variantStruct, $context);
             }
-
-            if (is_array($variantStruct->getDataByKey('options'))) {
-                $this->addOptions($mainProduct, $variant, $variantStruct, $context);
-            }
-
-            $this->addMedia($variant, $variantStruct, $context);
-            $this->addUnits($variant, $variantStruct, $context);
 
             $variants[] = $variant;
         }
@@ -324,7 +341,7 @@ class ProductImportHandler extends AbstractImportHandler
         ];
     }
 
-    private function getProductTranslations(ProductStruct $productStruct): array
+    private function getProductTranslations(ProductStruct $productStruct, CatalogMetadata $catalogMetadata): array
     {
         /** @var string[] $keywords */
         $keywords = array_filter([
@@ -340,7 +357,7 @@ class ProductImportHandler extends AbstractImportHandler
         ]);
 
         return [
-            Defaults::LANGUAGE_SYSTEM => [
+            $catalogMetadata->getLanguageCode() => [
                 'name'         => $productStruct->getDataByKey('Bezeichnung'),
                 'description'  => $productStruct->getDataByKey('Beschreibung'),
                 'keywords'     => implode('; ', $keywords),
@@ -391,7 +408,11 @@ class ProductImportHandler extends AbstractImportHandler
         return $this->categoryIds[$uId];
     }
 
-    private function getBaseProductData(ProductStruct $productStruct, Context $context): array
+    private function getBaseProductData(
+        ProductStruct $productStruct,
+        CatalogMetadata $catalogMetadata,
+        Context $context
+    ): array
     {
         $sortimentId = $productStruct->getSortimentId();
         $isCloseout = $this->getIsCloseout($productStruct);
@@ -412,7 +433,7 @@ class ProductImportHandler extends AbstractImportHandler
             'active'                 => true,
             'properties'             => [],
             'options'                => [],
-            'translations'           => $this->getProductTranslations($productStruct),
+            'translations'           => $this->getProductTranslations($productStruct, $catalogMetadata),
             'swagDynamicAccessRules' => $this->getDynamicAccessRules($sortimentId, $context),
         ];
 
@@ -429,18 +450,18 @@ class ProductImportHandler extends AbstractImportHandler
         $manufacturerName = $productStruct->getDataByKey('Hersteller');
 
         if (!empty($manufacturerName) && is_string($manufacturerName)) {
-            $data['manufacturerId'] = md5(sprintf('%s-%s', ManufacturerImportHandler::MANUFACTURER_ID_PREFIX, $manufacturerName));
+            $data['manufacturerId'] = md5(sprintf('%s-%s', ProductManufacturerDefinition::ENTITY_NAME, $manufacturerName));
         }
 
         return $data;
     }
 
-    private function getMainProductData(ProductStruct $productStruct, Context $context): array
+    private function getMainProductData(ProductStruct $productStruct, CatalogMetadata $catalogMetadata, Context $context): array
     {
         /** @var string $categoryUid */
         $categoryUid = $productStruct->getDataByKey('category');
 
-        $baseProduct = $this->getBaseProductData($productStruct, $context);
+        $baseProduct = $this->getBaseProductData($productStruct, $catalogMetadata, $context);
 
         return array_merge(
             $baseProduct,
@@ -455,14 +476,9 @@ class ProductImportHandler extends AbstractImportHandler
                 'categories' => [
                     ['id' => $this->getCategoryByUid($categoryUid, $context)],
                 ],
-                'configuratorSettings' => $this->getRemainingConfiguratorOptions($baseProduct['id'], $productStruct->getVariants(), $context),
+                'configuratorSettings' => $this->getRemainingConfiguratorOptions($baseProduct['id'], $productStruct->getVariants(), $catalogMetadata, $context),
             ]
         );
-    }
-
-    private function getPropertyOptionId(string $propertyKey, string $propertyName, string $optionValue, Context $context): string
-    {
-        return md5(sprintf('%s-%s-%s', PropertyImportHandler::PROPERTY_GROUP_OPTION_ID_PREFIX, $propertyKey, $optionValue));
     }
 
     /**
@@ -484,40 +500,54 @@ class ProductImportHandler extends AbstractImportHandler
         }
     }
 
-    private function getCrossSellings(ProductStruct $productStruct): array
+    private function getCrossSellings(ProductStruct $productStruct, CatalogMetadata $catalogMetadata): array
     {
         $crossSellings = [];
-        $position      = 0;
+        $position      = null;
+
         foreach ($productStruct->getCrossSellingGroups() as $group => $productNumbers) {
             $productIds = $this->getProductIdsByNumbers($productNumbers);
+
+            if ($position === null) {
+                $position = 0;
+            } else {
+                $position++;
+            }
 
             if (empty($productIds)) {
                 // Products not yet in system, try again next run
                 continue;
             }
 
+            $id = md5(sprintf(
+                '%s-%s-%s',
+                self::CROSSSELLING_ID_PREFIX,
+                $productStruct->getProductNumber(),
+                $position
+            ));
+
             $crossSelling = [
-                'id'           => md5(sprintf('%s-%s-%s', self::CROSSSELLING_ID_PREFIX, $productStruct->getProductNumber(), $group)),
+                'id'           => $id,
                 'type'         => ProductCrossSellingDefinition::TYPE_PRODUCT_LIST,
                 'active'       => true,
                 'position'     => $position,
                 'translations' => [
-                    Defaults::LANGUAGE_SYSTEM => [
+                    $catalogMetadata->getLanguageCode() => [
                         'name' => $group,
                     ],
                 ],
             ];
 
-            foreach (array_values($productIds) as $productPosition => $productId) {
-                $crossSelling['assignedProducts'][] = [
-                    'id'        => md5(sprintf('%s-%s-%s-%s', self::CROSSSELLING_PRODUCT_ID_PREFIX, $productStruct->getProductNumber(), $group, $productId)),
-                    'productId' => $productId,
-                    'position'  => $productPosition,
-                ];
+            if ($catalogMetadata->isSystemLanguage()) {
+                foreach (array_values($productIds) as $productPosition => $productId) {
+                    $crossSelling['assignedProducts'][] = [
+                        'productId' => $productId,
+                        'position'  => $productPosition,
+                    ];
+                }
             }
 
             $crossSellings[] = $crossSelling;
-            ++$position;
         }
 
         return $crossSellings;
@@ -573,10 +603,9 @@ class ProductImportHandler extends AbstractImportHandler
             return;
         }
 
-        foreach ($properties as $key => $property) {
-            $optionId                = $this->getPropertyOptionId($key, $property['name'], $property['value'], $context);
+        foreach ($properties as $property) {
             $product['properties'][] = [
-                'id' => $optionId,
+                'id' => $property['optionId'],
             ];
         }
     }
@@ -589,14 +618,14 @@ class ProductImportHandler extends AbstractImportHandler
             return;
         }
 
-        foreach ($options as $key => $property) {
-            $optionId             = $this->getPropertyOptionId($key, $property['name'], $property['value'], $context);
+        foreach ($options as $property) {
             $variant['options'][] = [
-                'id' => $optionId,
+                'id' => $property['optionId'],
             ];
+
             $mainProduct['configuratorSettings'][] = [
-                'id'       => md5(sprintf('%s-%s-%s', self::CONFIGURATOR_ID_PREFIX, $mainProduct['id'], $optionId)),
-                'optionId' => $optionId,
+                'id'       => md5(sprintf('%s-%s-%s', self::CONFIGURATOR_ID_PREFIX, $mainProduct['id'], $property['optionId'])),
+                'optionId' => $property['optionId'],
             ];
         }
     }
@@ -786,7 +815,7 @@ class ProductImportHandler extends AbstractImportHandler
         $this->indexingMessages = [];
     }
 
-    private function getRemainingConfiguratorOptions(string $mainProductId, ProductCollection $variants, Context $context): array
+    private function getRemainingConfiguratorOptions(string $mainProductId, ProductCollection $variants, CatalogMetadata $catalogMetadata, Context $context): array
     {
         $configuratorSettings = $this->connection->fetchAllAssociative(
             '
@@ -797,8 +826,8 @@ class ProductImportHandler extends AbstractImportHandler
             [
                 'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
                 'productId' => Uuid::fromHexToBytes($mainProductId),
-                'childIds'  => Uuid::fromHexToBytesList(array_column(array_map(function (ProductStruct $variantStruct) use ($context) {
-                    return $this->getBaseProductData($variantStruct, $context);
+                'childIds'  => Uuid::fromHexToBytesList(array_column(array_map(function (ProductStruct $variantStruct) use ($catalogMetadata, $context) {
+                    return $this->getBaseProductData($variantStruct, $catalogMetadata, $context);
                 }, $variants->getElements()), 'id')),
             ],
             [

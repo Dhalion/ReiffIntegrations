@@ -6,9 +6,9 @@ namespace ReiffIntegrations\MeDaPro\Command;
 
 use ReiffIntegrations\MeDaPro\Cleaner\CategoryActivator;
 use ReiffIntegrations\MeDaPro\Cleaner\ProductActivator;
-use ReiffIntegrations\MeDaPro\Cleaner\PropertiesDeleter;
 use ReiffIntegrations\MeDaPro\Command\Context\ImportCommandContext;
 use ReiffIntegrations\MeDaPro\DataProvider\RuleProvider;
+use ReiffIntegrations\MeDaPro\Finder\Finder;
 use ReiffIntegrations\MeDaPro\Parser\JsonParser;
 use ReiffIntegrations\Util\Configuration;
 use ReiffIntegrations\Util\Context\DebugState;
@@ -22,9 +22,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\Finder\Finder;
-use Symfony\Component\Finder\SplFileInfo;
 use ReiffIntegrations\MeDaPro\Cleaner\SortmentRemoval;
+use Symfony\Component\Finder\SplFileInfo;
 
 class CatalogImportCleanupCommand extends Command
 {
@@ -37,9 +36,9 @@ class CatalogImportCleanupCommand extends Command
         private readonly ImportArchiver $archiver,
         private readonly ProductActivator $productActivator,
         private readonly CategoryActivator $categoryActivator,
-        private readonly PropertiesDeleter $propertiesDeleter,
         private readonly SortmentRemoval $sortmentRemoval,
-        private readonly RuleProvider $ruleProvider
+        private readonly RuleProvider $ruleProvider,
+        private readonly Finder $finder,
 
     ) {
         parent::__construct();
@@ -70,23 +69,27 @@ class CatalogImportCleanupCommand extends Command
             $importContext->getContext()->addState(DebugState::NAME);
         }
 
-        $basePath = $this->systemConfigService->getString(Configuration::CONFIG_KEY_FILE_IMPORT_SOURCE_PATH);
+        $importBasePath = $this->systemConfigService->getString(Configuration::CONFIG_KEY_FILE_IMPORT_SOURCE_PATH);
+        $importFiles = $this->finder->fetchImportFiles($importBasePath);
 
-        $finder = new Finder();
-        $finder->files()->in($basePath);
-
-        if ($finder->hasResults() === false) {
-            $style->info(sprintf('No file found to import at %s', $basePath));
+        if (empty($importFiles)) {
+            $style->info(sprintf('No file found to import at %s', $importBasePath));
 
             return Command::FAILURE;
         }
 
-        foreach ($finder as $file) {
+        foreach ($importFiles as $importFile) {
+            $file = $importFile->getFile();
+            $catalogMetadata = $importFile->getCatalogMetadata();
+
+            if (!$catalogMetadata->isSystemLanguage()) {
+                continue;
+            }
+
             $style->info(sprintf('Importing file [%s]', $file->getFilename()));
             $this->removeTrailingComma($file);
 
             $style->info('Parsing categories');
-            $catalogMetadata = $this->jsonParser->getCatalogMetadata($file->getRealPath());
             $categoryData = $this->jsonParser->getCategories($file->getRealPath(), $catalogMetadata);
 
             if ($categoryData === null) {
@@ -100,7 +103,7 @@ class CatalogImportCleanupCommand extends Command
 
             try {
                 $style->info('Parsing products');
-                $products = $this->jsonParser->getProducts($file->getRealPath());
+                $products = $this->jsonParser->getProducts($file->getRealPath(), $catalogMetadata);
             } catch (\Throwable $t) {
                 $style->error($t->getMessage());
                 $this->mailer->sendErrorMail([$t], $file->getFilename(), $importContext->getContext());

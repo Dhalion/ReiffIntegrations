@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace ReiffIntegrations\MeDaPro\Command;
 
 use ReiffIntegrations\MeDaPro\Command\Context\ImportCommandContext;
+use ReiffIntegrations\MeDaPro\Finder\Finder;
 use ReiffIntegrations\MeDaPro\ImportHandler\CategoryImportHandler;
 use ReiffIntegrations\MeDaPro\ImportHandler\ManufacturerImportHandler;
 use ReiffIntegrations\MeDaPro\ImportHandler\MediaImportHandler;
 use ReiffIntegrations\MeDaPro\ImportHandler\ProductImportHandler;
 use ReiffIntegrations\MeDaPro\ImportHandler\PropertyImportHandler;
 use ReiffIntegrations\MeDaPro\Parser\JsonParser;
+use ReiffIntegrations\MeDaPro\Struct\ImportFile;
 use ReiffIntegrations\MeDaPro\Struct\ProductStruct;
 use ReiffIntegrations\Util\Configuration;
 use ReiffIntegrations\Util\Context\DebugState;
@@ -26,7 +28,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -46,8 +47,8 @@ class CatalogImportCommand extends Command
         private readonly ManufacturerImportHandler $manufacturerImportHandler,
         private readonly MediaImportHandler $mediaImportHandler,
         private readonly Mailer $mailer,
-        private readonly ImportArchiver $archiver
-
+        private readonly ImportArchiver $archiver,
+        private readonly Finder $finder
     ) {
         parent::__construct();
     }
@@ -83,18 +84,26 @@ class CatalogImportCommand extends Command
         $style->info('Cleanup temporary archive');
         $this->archiver->cleanup($context);
 
-        $basePath = $this->systemConfigService->getString(Configuration::CONFIG_KEY_FILE_IMPORT_SOURCE_PATH);
+        $importBasePath = $this->systemConfigService->getString(Configuration::CONFIG_KEY_FILE_IMPORT_SOURCE_PATH);
 
-        $finder = new Finder();
-        $finder->files()->in($basePath);
-
-        if ($finder->hasResults() === false) {
-            $style->info(sprintf('No file found to import at %s', $basePath));
+        try {
+            $importFiles = $this->finder->fetchImportFiles($importBasePath);
+        } catch (\Throwable $exception) {
+            $style->error($exception->getMessage());
 
             return Command::FAILURE;
         }
 
-        foreach ($finder as $file) {
+        if (empty($importFiles)) {
+            $style->info(sprintf('No file found to import at %s', $importBasePath));
+
+            return Command::FAILURE;
+        }
+
+        foreach ($importFiles as $importFile) {
+            $file = $importFile->getFile();
+            $catalogMetadata = $importFile->getCatalogMetadata();
+
             $style->info(sprintf('Importing file [%s]', $file->getFilename()));
 
             if ($this->lockHandler->hasFileLock($file, $importContext)) {
@@ -107,7 +116,6 @@ class CatalogImportCommand extends Command
             $this->removeTrailingComma($file);
 
             $style->info('Parsing categories');
-            $catalogMetadata = $this->jsonParser->getCatalogMetadata($file->getRealPath());
             $categoryData = $this->jsonParser->getCategories($file->getRealPath(), $catalogMetadata);
 
             if ($categoryData === null) {
@@ -121,7 +129,7 @@ class CatalogImportCommand extends Command
 
             try {
                 $style->info('Parsing products');
-                $products = $this->jsonParser->getProducts($file->getRealPath());
+                $products = $this->jsonParser->getProducts($file->getRealPath(), $catalogMetadata);
             } catch (\Throwable $t) {
                 $style->error($t->getMessage());
                 $archivedFileName = $this->archiver->error($file->getFilename(), $context);
@@ -133,29 +141,54 @@ class CatalogImportCommand extends Command
 
             $archivedFileName = $this->archiver->archive($file->getFilename(), $context);
 
-            $categoryImportMessage = $this->categoryImportHandler->getMessage($categoryData, $archivedFileName, $importContext->getContext());
-
             // We always import categories synchronously to prevent errors for missing categories during product import
             $style->info('Importing categories');
-            $this->messageHandler->handle($categoryImportMessage);
+            $this->messageHandler->handle($this->categoryImportHandler->getMessage(
+                $categoryData,
+                $archivedFileName,
+                $catalogMetadata,
+                $importContext->getContext()
+            ));
 
             // We always import properties synchronously to prevent errors for duplicate property IDs during product import
             $style->info('Importing properties');
-            $this->messageHandler->handle($this->propertyImportHandler->getMessage($products, $archivedFileName, $importContext->getContext()));
+            $this->messageHandler->handle($this->propertyImportHandler->getMessage(
+                $products,
+                $archivedFileName,
+                $catalogMetadata,
+                $importContext->getContext()
+            ));
 
             // We always import manufacturers synchronously to prevent errors for duplicate manufacturer IDs during product import
             $style->info('Importing manufacturers');
-            $this->messageHandler->handle($this->manufacturerImportHandler->getMessage($products, $archivedFileName, $importContext->getContext()));
+            $this->messageHandler->handle($this->manufacturerImportHandler->getMessage(
+                $products,
+                $archivedFileName,
+                $catalogMetadata,
+                $importContext->getContext()
+            ));
 
             // We always import media synchronously to prevent errors for conflicting media access during product import
-            $style->info('Importing media');
-            $this->messageHandler->handle($this->mediaImportHandler->getMessage($products, $archivedFileName, $importContext->getContext()));
+            if ($catalogMetadata->isSystemLanguage()) {
+                $style->info('Importing media');
+                $this->messageHandler->handle($this->mediaImportHandler->getMessage(
+                    $products,
+                    $archivedFileName,
+                    $catalogMetadata,
+                    $importContext->getContext()
+                ));
+            }
 
             $style->info('Importing products');
 
             /** @var ProductStruct $product */
             foreach ($style->progressIterate($products->getProducts()) as $product) {
-                $productImportMessage = $this->productImportHandler->getMessage($product, $archivedFileName, $importContext->getContext());
+                $productImportMessage = $this->productImportHandler->getMessage(
+                    $product,
+                    $archivedFileName,
+                    $catalogMetadata,
+                    $importContext->getContext()
+                );
 
                 if ($importContext->isDebug()) {
                     $this->messageHandler->handle($productImportMessage);

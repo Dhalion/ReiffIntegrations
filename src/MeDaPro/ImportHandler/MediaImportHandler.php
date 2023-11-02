@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use ReiffIntegrations\MeDaPro\Helper\MediaHelper;
 use ReiffIntegrations\MeDaPro\Message\MediaImportMessage;
+use ReiffIntegrations\MeDaPro\Struct\CatalogMetadata;
 use ReiffIntegrations\MeDaPro\Struct\ProductsStruct;
 use ReiffIntegrations\MeDaPro\Struct\ProductStruct;
 use ReiffIntegrations\Util\Context\DryRunState;
@@ -45,9 +46,14 @@ class MediaImportHandler extends AbstractImportHandler
     /**
      * @param ProductsStruct $struct
      */
-    public function getMessage(Struct $struct, string $archiveFileName, Context $context): MediaImportMessage
+    public function getMessage(
+        Struct $struct,
+        string $archiveFileName,
+        CatalogMetadata $catalogMetadata,
+        Context $context
+    ):  MediaImportMessage
     {
-        return new MediaImportMessage($struct, $archiveFileName, $context);
+        return new MediaImportMessage($struct, $archiveFileName, $catalogMetadata, $context);
     }
 
     public function __invoke(AbstractImportMessage $message): void
@@ -60,8 +66,6 @@ class MediaImportHandler extends AbstractImportHandler
      */
     public function handle(AbstractImportMessage $message): void
     {
-        $this->connection->beginTransaction();
-
         $context               = $message->getContext();
         $this->mediaBatchCount = 0;
 
@@ -71,6 +75,8 @@ class MediaImportHandler extends AbstractImportHandler
             if ($this->mediaBatchCount >= self::BATCH_SIZE) {
                 if ($context->hasState(DryRunState::NAME)) {
                     dump($this->entitySyncer->getOperations());
+
+                    $this->entitySyncer->reset();
                 }
 
                 $this->entitySyncer->flush($context);
@@ -81,15 +87,11 @@ class MediaImportHandler extends AbstractImportHandler
         if ($this->mediaBatchCount > 0) {
             if ($context->hasState(DryRunState::NAME)) {
                 dump($this->entitySyncer->getOperations());
+
+                $this->entitySyncer->reset();
             }
 
             $this->entitySyncer->flush($context);
-        }
-
-        if ($context->hasState(DryRunState::NAME)) {
-            $this->connection->rollBack();
-        } else {
-            $this->connection->commit();
         }
     }
 

@@ -10,7 +10,9 @@ use ReiffIntegrations\MeDaPro\DataAbstractionLayer\CategoryExtension;
 use ReiffIntegrations\MeDaPro\DataProvider\RuleProvider;
 use ReiffIntegrations\MeDaPro\Helper\MediaHelper;
 use ReiffIntegrations\MeDaPro\Message\CategoryImportMessage;
+use ReiffIntegrations\MeDaPro\Struct\CatalogMetadata;
 use ReiffIntegrations\MeDaPro\Struct\CatalogStruct;
+use ReiffIntegrations\MeDaPro\Struct\ProductsStruct;
 use ReiffIntegrations\Util\Configuration;
 use ReiffIntegrations\Util\Context\DryRunState;
 use ReiffIntegrations\Util\EntitySyncer;
@@ -19,6 +21,7 @@ use ReiffIntegrations\Util\Mailer;
 use ReiffIntegrations\Util\Message\AbstractImportMessage;
 use ReiffTheme\ReiffTheme;
 use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -57,9 +60,14 @@ class CategoryImportHandler extends AbstractImportHandler
     /**
      * @param CatalogStruct $struct
      */
-    public function getMessage(Struct $struct, string $archiveFileName, Context $context): CategoryImportMessage
+    public function getMessage(
+        Struct $struct,
+        string $archiveFileName,
+        CatalogMetadata $catalogMetadata,
+        Context $context
+    ): CategoryImportMessage
     {
-        return new CategoryImportMessage($struct, $archiveFileName, $context);
+        return new CategoryImportMessage($struct, $archiveFileName, $catalogMetadata, $context);
     }
 
     public function __invoke(AbstractImportMessage $message): void
@@ -73,9 +81,12 @@ class CategoryImportHandler extends AbstractImportHandler
     public function handle(AbstractImportMessage $message): void
     {
         $context        = $message->getContext();
+        $catalogMetadata = $message->getCatalogMetadata();
+
         $catalogId      = $message->getCatalogStruct()->getId();
         $sortimentId    = $message->getCatalogStruct()->getSortimentId();
         $rawCategories  = $message->getCatalogStruct()->getCategories();
+
         $rootCategoryId = $this->configService->getString(Configuration::CONFIG_KEY_ROOT_CATEGORY);
 
         $categoryIdSw6IdMapping = [];
@@ -90,7 +101,13 @@ class CategoryImportHandler extends AbstractImportHandler
                 'swagDynamicAccessRules' => $this->getDynamicAccessRules($sortimentId, $context),
             ];
 
-            if (!array_key_exists($categoryData['id'], $this->updatedCategoryIds)) {
+            $updateKey = md5(
+                CategoryDefinition::ENTITY_NAME .
+                $categoryData['id'].
+                $catalogMetadata->getLanguageCode()
+            );
+
+            if (!array_key_exists($updateKey, $this->updatedCategoryIds)) {
                 $parentId = $rootCategoryId;
 
                 if ($rawCategory->getParentId() !== null) {
@@ -99,7 +116,6 @@ class CategoryImportHandler extends AbstractImportHandler
 
                 $categoryData = array_merge($categoryData, [
                     'parentId'  => $parentId,
-                    'name'      => $rawCategory->getName(),
                     'active'    => true,
                     'cmsPageId' => $parentId === $rootCategoryId
                         ? $this->configService->getString(Configuration::CONFIG_KEY_CATEGORY_MAIN_CMS_PAGE)
@@ -108,17 +124,24 @@ class CategoryImportHandler extends AbstractImportHandler
                         'catalogId' => $catalogId,
                         'uId'       => $rawCategory->getUId(),
                     ],
+                    'translations' => [
+                        $catalogMetadata->getLanguageCode() => [
+                            'name' => $rawCategory->getName(),
+                        ],
+                    ],
                 ]);
 
-                $categoryMediaPath = $rawCategory->getMediaPaths()['Web Kataloggruppen Hauptbild'] ?? [];
+                if ($catalogMetadata->isSystemLanguage()) {
+                    $categoryMediaPath = $rawCategory->getMediaPaths()['Web Kataloggruppen Hauptbild'] ?? [];
 
-                if (!empty($categoryMediaPath) && array_key_exists('Web Kataloggruppen Hauptbild', $rawCategory->getMediaPaths())) {
-                    $mediaId = $this->mediaHelper->getMediaIdByPath($categoryMediaPath, CategoryDefinition::ENTITY_NAME, $context);
+                    if (!empty($categoryMediaPath) && array_key_exists('Web Kataloggruppen Hauptbild', $rawCategory->getMediaPaths())) {
+                        $mediaId = $this->mediaHelper->getMediaIdByPath($categoryMediaPath, CategoryDefinition::ENTITY_NAME, $context);
 
-                    if ($mediaId) {
-                        $categoryData['customFields'] = [ReiffTheme::THEME_CUSTOM_FIELD_CATEGORY_ICON => $mediaId];
-                    } else {
-                        $this->addError(new \RuntimeException(sprintf('could not find category media at the location: %s', $categoryMediaPath)), $context);
+                        if ($mediaId) {
+                            $categoryData['customFields'] = [ReiffTheme::THEME_CUSTOM_FIELD_CATEGORY_ICON => $mediaId];
+                        } else {
+                            $this->addError(new \RuntimeException(sprintf('could not find category media at the location: %s', $categoryMediaPath)), $context);
+                        }
                     }
                 }
             }
@@ -130,15 +153,16 @@ class CategoryImportHandler extends AbstractImportHandler
             );
 
             ++$preparedCategoryCount;
-            $this->updatedCategoryIds[$categoryData['id']] = true;
+            $this->updatedCategoryIds[$updateKey] = true;
 
             if ($preparedCategoryCount >= self::BATCH_SIZE) {
                 if ($context->hasState(DryRunState::NAME)) {
                     dump($this->entitySyncer->getOperations());
-                } else {
-                    $this->entitySyncer->flush($context);
+
+                    $this->entitySyncer->reset();
                 }
 
+                $this->entitySyncer->flush($context);
                 $preparedCategoryCount = 0;
             }
         }
@@ -146,9 +170,12 @@ class CategoryImportHandler extends AbstractImportHandler
         if ($preparedCategoryCount > 0) {
             if ($context->hasState(DryRunState::NAME)) {
                 dump($this->entitySyncer->getOperations());
-            } else {
-                $this->entitySyncer->flush($context);
+
+                $this->entitySyncer->reset();
             }
+
+            $this->entitySyncer->flush($context);
+            $preparedCategoryCount = 0;
         }
     }
 
