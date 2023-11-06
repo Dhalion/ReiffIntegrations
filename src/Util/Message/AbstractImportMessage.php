@@ -11,7 +11,7 @@ abstract class AbstractImportMessage
 {
     public function __construct(
         private readonly string $archiveFileName,
-        private readonly CatalogMetadata $catalogMetadata,
+        private readonly ?CatalogMetadata $catalogMetadata,
         private readonly Context $context,
     ) {
     }
@@ -26,7 +26,7 @@ abstract class AbstractImportMessage
         return $this->archiveFileName;
     }
 
-    public function getCatalogMetadata(): CatalogMetadata
+    public function getCatalogMetadata(): ?CatalogMetadata
     {
         return $this->catalogMetadata;
     }
