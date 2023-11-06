@@ -257,6 +257,20 @@
                                                      data-bs-target="reiff-order-detail-{{ order.number }}"
                                                      data-href="{{ path('frontend.b2b.orders.detail', { orderNumber: order.number }) }}">
                                                     {% block reiff_order_list_row_overview %}
+
+                                                        {# Set order status ampel #}
+                                                        {% set orderStatusIndicator = 'cl-black' %}
+                                                        {% set orderStatusOpen = ['in Bearbeitung'] %}
+                                                        {% set orderStatusInProcess = ['teilweise abgeschlossen','teilweise bearbeitet'] %}
+                                                        {% set orderStatusClosed = ['abgeschlossen','vollständig bearbeitet'] %}
+                                                        {% if order.status in orderStatusOpen %}
+                                                            {% set orderStatusIndicator = 'cl-black' %}
+                                                        {% elseif order.status in orderStatusInProcess %}
+                                                            {% set orderStatusIndicator = 'cl-yellow' %}
+                                                        {% elseif order.status in orderStatusClosed %}
+                                                            {% set orderStatusIndicator = 'cl-green' %}
+                                                        {% endif %}
+
                                                         <div class="container">
                                                             <div class="row">
                                                                 <div class="col">
@@ -269,16 +283,20 @@
                                                                     <span>{{ order.orderDate|format_date('medium', locale=app.request.locale) }}</span>
                                                                 </div>
                                                                 <div class="col">
-                                                                    <span>{{ order.status }}</span>
+                                                                    <span class="{{ orderStatusIndicator }}">{{ order.status }}</span>
                                                                 </div>
                                                                 <div class="col">
                                                                     <span>{{ order.netTotal|currency(decimals=decimals) }}</span>
-                                                                    {% sw_icon 'basket' style {
-                                                                        'namespace': 'ReiffTheme'
-                                                                    } %}
-                                                                    {% sw_icon 'box-solid' style {
-                                                                        'namespace': 'ReiffIntegrations'
-                                                                    } %}
+
+                                                                    {# TODO: add whole order to cart #}
+{#                                                                    {% sw_icon 'basket' style {#}
+{#                                                                        'namespace': 'ReiffTheme'#}
+{#                                                                    } %}#}
+
+                                                                    {# TODO: add shipping tracking link #}
+{#                                                                    {% sw_icon 'box-solid' style {#}
+{#                                                                        'namespace': 'ReiffIntegrations'#}
+{#                                                                    } %}#}
                                                                 </div>
                                                                 <div class="col-1">
                                                                     {% sw_icon 'arrow-head-down' style {

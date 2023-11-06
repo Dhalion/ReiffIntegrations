@@ -129,6 +129,40 @@
   }
 }
 
-.b2b-accordion--open .b2b-accordion__title {
-  font-weight: $font-weight-bold;
+.b2b-accordion--open {
+  .b2b-accordion__title {
+    background: darken(#f7f7f7, 2%);
+    border-top: 1px solid $sw-color-brand-primary;
+    font-weight: $font-weight-bold;
+  }
+
+  .b2b-accordion__body {
+    background: darken(#f7f7f7, 2%);
+    border-bottom: 1px solid $sw-color-brand-primary;
+    font-weight: $font-weight-normal;
+  }
+}
+
+.cl-green {
+  color: #028B51;
+}
+.cl-orange {
+  color: orange;
+}
+.cl-yellow {
+  color: yellow;
+}
+
+.order-positions-table {
+  .btn {
+    background: none;
+    border: none;
+    line-height: 1;
+    min-height: unset;
+    padding: 0;
+
+    svg {
+      top: 0;
+    }
+  }
 }
