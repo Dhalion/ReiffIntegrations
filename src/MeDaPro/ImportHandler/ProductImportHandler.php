@@ -170,6 +170,10 @@ class ProductImportHandler extends AbstractImportHandler
         $productStruct = $message->getProduct();
         $catalogMetadata = $message->getCatalogMetadata();
 
+        if ($catalogMetadata === null) {
+            throw new \LogicException('catalogMetadata is null');
+        }
+
         $mainProduct   = $this->getMainProductData($productStruct, $catalogMetadata, $context);
 
         if ($productStruct->getSortimentId()) {

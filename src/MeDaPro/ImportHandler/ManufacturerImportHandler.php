@@ -75,6 +75,10 @@ class ManufacturerImportHandler extends AbstractImportHandler
         $context   = $message->getContext();
         $catalogMetadata = $message->getCatalogMetadata();
 
+        if ($catalogMetadata === null) {
+            throw new \LogicException('catalogMetadata is null');
+        }
+
         $products  = $message->getProductsStruct()->getProducts();
 
         $this->manufacturerBatchCount = 0;

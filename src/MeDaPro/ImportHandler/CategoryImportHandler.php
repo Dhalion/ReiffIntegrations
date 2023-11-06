@@ -83,6 +83,10 @@ class CategoryImportHandler extends AbstractImportHandler
         $context        = $message->getContext();
         $catalogMetadata = $message->getCatalogMetadata();
 
+        if ($catalogMetadata === null) {
+            throw new \LogicException('catalogMetadata is null');
+        }
+
         $catalogId      = $message->getCatalogStruct()->getId();
         $sortimentId    = $message->getCatalogStruct()->getSortimentId();
         $rawCategories  = $message->getCatalogStruct()->getCategories();

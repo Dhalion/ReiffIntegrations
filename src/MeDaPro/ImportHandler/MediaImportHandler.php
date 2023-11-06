@@ -66,6 +66,10 @@ class MediaImportHandler extends AbstractImportHandler
      */
     public function handle(AbstractImportMessage $message): void
     {
+        if ($message->getCatalogMetadata() === null) {
+            throw new \LogicException('catalogMetadata is null');
+        }
+
         $context               = $message->getContext();
         $this->mediaBatchCount = 0;
 

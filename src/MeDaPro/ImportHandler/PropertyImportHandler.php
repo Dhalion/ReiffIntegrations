@@ -72,6 +72,11 @@ class PropertyImportHandler extends AbstractImportHandler
     {
         $context         = $message->getContext();
         $catalogMetadata = $message->getCatalogMetadata();
+
+        if ($catalogMetadata === null) {
+            throw new \LogicException('catalogMetadata is null');
+        }
+
         $properties      = $message->getProductsStruct()->getProperties();
 
         foreach ($properties as $property) {
