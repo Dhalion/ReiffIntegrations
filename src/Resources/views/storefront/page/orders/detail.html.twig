@@ -9,9 +9,9 @@
 
             {% block reiff_order_detail_addresses %}
                 <div>
-                    {% for address in order.addresses %}
+                    {% for address in order.addresses.elements %}
                         {% block reiff_order_detail_address %}
-                            {% if address == 'SHIP_TO' %}
+                            {% if address.type == 'SHIP_TO' %}
                                 <h5>{{ ('ReiffIntegrations.customer.orders.address.types.' ~ address.type) | trans }}</h5>
                                 <p>
                                     {{ address.name }}<br>
@@ -68,12 +68,13 @@
             {% endblock %}
             {% block reiff_order_detail_items %}
                 <div>
-                    <table class="table">
+                    <table class="table order-positions-table">
                         <thead>
                             <th>{{ 'account.orderItemColumnName' | trans }}</th>
                             <th>{{ 'account.orderItemColumnNumber' | trans }}</th>
                             <th>{{ 'account.orderItemColumnQuantity' | trans }}</th>
                             <th>{{ 'account.orderItemColumnTotal' | trans }}</th>
+                            <th></th>
                         </thead>
                         <tbody>
                             {% for lineItem in order.lineItems %}
@@ -94,6 +95,37 @@
                                         </td>
                                         <td>
                                             {{ lineItem.netTotal|currency(order.currency) }}
+                                        </td>
+                                        <td>
+                                            {% block component_product_box_action_buy %}
+                                                <form action="{{ path('frontend.fastorder.addproduct')}}"
+                                                      method="post"
+                                                      class="buy-widget"
+                                                      data-add-to-cart="true">
+
+                                                    {% block component_product_box_action_form %}
+                                                        {% block page_product_detail_buy_product_buy_info %}
+                                                            <input type="hidden"
+                                                                   name="number"
+                                                                   value="{{ lineItem.productNumber }}">
+                                                            <input type="hidden"
+                                                                   name="quantity"
+                                                                   value="{{ lineItem.quantity }}">
+                                                        {% endblock %}
+
+                                                        {% block page_product_detail_product_buy_button %}
+                                                            <div class="d-grid">
+                                                                <button class="btn btn-buy"
+                                                                        title="{{ "listing.boxAddProduct"|trans|striptags }}">
+                                                                    {% sw_icon 'basket' style {
+                                                                        'namespace': 'ReiffTheme'
+                                                                    } %}
+                                                                </button>
+                                                            </div>
+                                                        {% endblock %}
+                                                    {% endblock %}
+                                                </form>
+                                            {% endblock %}
                                         </td>
                                     </tr>
                                 {% endblock %}
