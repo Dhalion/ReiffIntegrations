@@ -266,7 +266,7 @@
                                                         {% if order.status in orderStatusOpen %}
                                                             {% set orderStatusIndicator = 'cl-black' %}
                                                         {% elseif order.status in orderStatusInProcess %}
-                                                            {% set orderStatusIndicator = 'cl-yellow' %}
+                                                            {% set orderStatusIndicator = 'cl-black' %}
                                                         {% elseif order.status in orderStatusClosed %}
                                                             {% set orderStatusIndicator = 'cl-green' %}
                                                         {% endif %}
