@@ -131,13 +131,13 @@
 
 .b2b-accordion--open {
   .b2b-accordion__title {
-    background: darken(#f7f7f7, 2%);
+    background: $color-white;
     border-top: 1px solid $sw-color-brand-primary;
     font-weight: $font-weight-bold;
   }
 
   .b2b-accordion__body {
-    background: darken(#f7f7f7, 2%);
+    background: $color-white;
     border-bottom: 1px solid $sw-color-brand-primary;
     font-weight: $font-weight-normal;
   }
@@ -153,20 +153,41 @@
   color: yellow;
 }
 
+.order-main-info {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-gap: 20px;
+}
+
 .order-positions-table {
   tr {
     vertical-align: middle;
   }
 
   .btn {
-    background: none;
-    border: none;
     line-height: 1;
-    min-height: unset;
     padding: 0;
+
+    .icon {
+      color: $color-white;
+      width: 16px;
+      height: 16px;
+    }
 
     svg {
       top: 0;
+    }
+
+    &.table-buy-btn.loading {
+      opacity: .5;
+    }
+  }
+}
+
+.buy-widget-by-number {
+  &.loading {
+    .table-buy-btn {
+      opacity: .5;
     }
   }
 }

@@ -250,7 +250,7 @@
                                             <div class="b2b-accordion"
                                                  data-sort-by-order-number="{{ order.number }}"
                                                  data-sort-by-reference="{{ order.reference?: '-' }}"
-                                                 data-sort-by-date="{{ order.orderDate|format_date('medium', locale=app.request.locale) }}"
+                                                 data-sort-by-date="{{ order.orderDate|format_date() }}"
                                                  data-sort-by-status="{{ order.status }}"
                                                  data-sort-by-total="{{ order.netTotal }}">
                                                 <div class="b2b-accordion__title ajax-panel-link"
@@ -258,7 +258,7 @@
                                                      data-href="{{ path('frontend.b2b.orders.detail', { orderNumber: order.number }) }}">
                                                     {% block reiff_order_list_row_overview %}
 
-                                                        {# Set order status ampel #}
+                                                        {# Set order status ampel for multilingual use #}
                                                         {% set orderStatusIndicator = 'cl-black' %}
                                                         {% set orderStatusOpen = ['in Bearbeitung'] %}
                                                         {% set orderStatusInProcess = ['teilweise abgeschlossen','teilweise bearbeitet'] %}
@@ -266,7 +266,7 @@
                                                         {% if order.status in orderStatusOpen %}
                                                             {% set orderStatusIndicator = 'cl-black' %}
                                                         {% elseif order.status in orderStatusInProcess %}
-                                                            {% set orderStatusIndicator = 'cl-black' %}
+                                                            {% set orderStatusIndicator = 'cl-orange' %}
                                                         {% elseif order.status in orderStatusClosed %}
                                                             {% set orderStatusIndicator = 'cl-green' %}
                                                         {% endif %}

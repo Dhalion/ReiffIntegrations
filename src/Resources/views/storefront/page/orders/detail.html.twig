@@ -7,65 +7,69 @@
                 <h3>{{ order.customer }}</h3>
             {% endblock %}
 
-            {% block reiff_order_detail_addresses %}
-                <div>
-                    {% for address in order.addresses.elements %}
-                        {% block reiff_order_detail_address %}
-                            {% if address.type == 'SHIP_TO' %}
-                                <h5>{{ ('ReiffIntegrations.customer.orders.address.types.' ~ address.type) | trans }}</h5>
-                                <p>
-                                    {{ address.name }}<br>
-                                    {{ address.street }}<br>
-                                    {{ address.zip }} {{ address.city }}<br>
-                                    {{ address.country }}
-                                </p>
+            <div class="order-main-info">
+                {% block reiff_order_detail_addresses %}
+                    <div>
+                        {% for address in order.addresses.elements %}
+                            {% block reiff_order_detail_address %}
+                                {% if address.type == 'SHIP_TO' %}
+                                    <h5>{{ ('ReiffIntegrations.customer.orders.address.types.' ~ address.type) | trans }}</h5>
+                                    <p>
+                                        {{ address.name }}<br>
+                                        {{ address.street }}<br>
+                                        {{ address.zip }} {{ address.city }}<br>
+                                        {{ address.country }}
+                                    </p>
+                                {% endif %}
+                            {% endblock %}
+                        {% endfor %}
+                    </div>
+                {% endblock %}
+                {% block reiff_order_detail_documents %}
+                    <div>
+                        {% block reiff_order_detail_documents_invoices %}
+                            {% set invoiceDocuments = order.documents.filterByType(constant('ReiffIntegrations\\Sap\\Struct\\OrderDocumentCollection::DOCUMENT_TYPE_INVOICE')) %}
+                            {% if invoiceDocuments.count > 0 %}
+                                <h5>{{ 'ReiffIntegrations.customer.orders.documents.invoiceTitle' | trans }}</h5>
+
+                                <ul>
+                                    {% for invoice in invoiceDocuments %}
+                                        {% block reiff_order_detail_documents_invoice %}
+                                            <li><a class="ignore--b2b-ajax-panel" href="{{ url('frontend.b2b.orders.detail.invoice', { orderNumber: order.number, documentType: constant('ReiffIntegrations\\Sap\\Controller\\Storefront\\OrdersController::DOCUMENT_TYPE_INVOICE'), documentNumber: invoice.documentNumber }) }}">{{ invoice.documentNumber }}</a> ({{ invoice.documentDate|format_date('medium', locale=app.request.locale) }})</li>
+                                        {% endblock %}
+                                    {% endfor %}
+                                </ul>
                             {% endif %}
                         {% endblock %}
-                    {% endfor %}
-                </div>
-            {% endblock %}
-            {% block reiff_order_detail_documents %}
-                <div>
-                    {% block reiff_order_detail_documents_invoices %}
-                        {% set invoiceDocuments = order.documents.filterByType(constant('ReiffIntegrations\\Sap\\Struct\\OrderDocumentCollection::DOCUMENT_TYPE_INVOICE')) %}
-                        {% if invoiceDocuments.count > 0 %}
-                            <h5>{{ 'ReiffIntegrations.customer.orders.documents.invoiceTitle' | trans }}</h5>
+                    </div>
+                    <div>
+                        {% block reiff_order_detail_documents_deliveries %}
+                            {% set deliveryDocuments = order.documents.filterByType(constant('ReiffIntegrations\\Sap\\Struct\\OrderDocumentCollection::DOCUMENT_TYPE_DELIVERY')) %}
+                            {% if deliveryDocuments.count > 0 %}
+                                <h5>{{ 'ReiffIntegrations.customer.orders.documents.deliveryTitle' | trans }}</h5>
 
-                            <ul>
-                                {% for invoice in invoiceDocuments %}
-                                    {% block reiff_order_detail_documents_invoice %}
-                                        <li><a class="ignore--b2b-ajax-panel" href="{{ url('frontend.b2b.orders.detail.invoice', { orderNumber: order.number, documentType: constant('ReiffIntegrations\\Sap\\Controller\\Storefront\\OrdersController::DOCUMENT_TYPE_INVOICE'), documentNumber: invoice.documentNumber }) }}">{{ invoice.documentNumber }}</a> ({{ invoice.documentDate|format_date('medium', locale=app.request.locale) }})</li>
-                                    {% endblock %}
-                                {% endfor %}
-                            </ul>
-                        {% endif %}
-                    {% endblock %}
+                                <ul>
+                                    {% for delivery in deliveryDocuments %}
+                                        {% block reiff_order_detail_documents_delivery %}
+                                            <li>
+                                                <a class="ignore--b2b-ajax-panel" href="{{ url('frontend.b2b.orders.detail.invoice', { orderNumber: order.number, documentType: constant('ReiffIntegrations\\Sap\\Controller\\Storefront\\OrdersController::DOCUMENT_TYPE_DELIVERY'), documentNumber: delivery.documentNumber }) }}">{{ delivery.documentNumber }}</a> ({{ delivery.documentDate|format_date('medium', locale=app.request.locale) }})
+                                                {% if delivery.urls|length > 0 %}
+                                                    <ul>
+                                                        {% for trackingUrl in delivery.urls %}
+                                                        <li><a class="ignore--b2b-ajax-panel" target="_blank" href="{{ trackingUrl }}">{{ 'ReiffIntegrations.customer.orders.documents.trackingLabel' | trans }}</a></li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                {% endif %}
+                                            </li>
+                                        {% endblock %}
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </div>
 
-                    {% block reiff_order_detail_documents_deliveries %}
-                        {% set deliveryDocuments = order.documents.filterByType(constant('ReiffIntegrations\\Sap\\Struct\\OrderDocumentCollection::DOCUMENT_TYPE_DELIVERY')) %}
-                        {% if deliveryDocuments.count > 0 %}
-                            <h5>{{ 'ReiffIntegrations.customer.orders.documents.deliveryTitle' | trans }}</h5>
-
-                            <ul>
-                                {% for delivery in deliveryDocuments %}
-                                    {% block reiff_order_detail_documents_delivery %}
-                                        <li>
-                                            <a class="ignore--b2b-ajax-panel" href="{{ url('frontend.b2b.orders.detail.invoice', { orderNumber: order.number, documentType: constant('ReiffIntegrations\\Sap\\Controller\\Storefront\\OrdersController::DOCUMENT_TYPE_DELIVERY'), documentNumber: delivery.documentNumber }) }}">{{ delivery.documentNumber }}</a> ({{ delivery.documentDate|format_date('medium', locale=app.request.locale) }})
-                                            {% if delivery.urls|length > 0 %}
-                                                <ul>
-                                                    {% for trackingUrl in delivery.urls %}
-                                                    <li><a class="ignore--b2b-ajax-panel" target="_blank" href="{{ trackingUrl }}">{{ 'ReiffIntegrations.customer.orders.documents.trackingLabel' | trans }}</a></li>
-                                                    {% endfor %}
-                                                </ul>
-                                            {% endif %}
-                                        </li>
-                                    {% endblock %}
-                                {% endfor %}
-                            </ul>
-                        {% endif %}
-                    {% endblock %}
-                </div>
-            {% endblock %}
             {% block reiff_order_detail_items %}
                 <div>
                     <table class="table order-positions-table">
@@ -100,7 +104,7 @@
                                             {% block component_product_box_action_buy %}
                                                 <form action="{{ path('frontend.fastorder.addproduct')}}"
                                                       method="post"
-                                                      class="buy-widget"
+                                                      class="buy-widget buy-widget-by-number"
                                                       data-add-to-cart="true">
 
                                                     {% block component_product_box_action_form %}
@@ -114,10 +118,10 @@
                                                         {% endblock %}
 
                                                         {% block page_product_detail_product_buy_button %}
-                                                            <div class="d-grid">
-                                                                <button class="btn btn-buy"
+                                                            <div class="d-grid b2b-remote-list">
+                                                                <button class="btn btn-primary btn-block table-buy-btn"
                                                                         title="{{ "listing.boxAddProduct"|trans|striptags }}">
-                                                                    {% sw_icon 'basket' style {
+                                                                    {% sw_icon 'add-to-basket' style {
                                                                         'namespace': 'ReiffTheme'
                                                                     } %}
                                                                 </button>
