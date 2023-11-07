@@ -118,14 +118,16 @@
                                                         {% endblock %}
 
                                                         {% block page_product_detail_product_buy_button %}
-                                                            <div class="d-grid b2b-remote-list">
-                                                                <button class="btn btn-primary btn-block table-buy-btn"
-                                                                        title="{{ "listing.boxAddProduct"|trans|striptags }}">
-                                                                    {% sw_icon 'add-to-basket' style {
-                                                                        'namespace': 'ReiffTheme'
-                                                                    } %}
-                                                                </button>
-                                                            </div>
+                                                            {% if lineItem.productId is not empty %}
+                                                                <div class="d-grid b2b-remote-list">
+                                                                    <button class="btn btn-primary btn-block table-buy-btn"
+                                                                            title="{{ "listing.boxAddProduct"|trans|striptags }}">
+                                                                        {% sw_icon 'add-to-basket' style {
+                                                                            'namespace': 'ReiffTheme'
+                                                                        } %}
+                                                                    </button>
+                                                                </div>
+                                                            {% endif %}
                                                         {% endblock %}
                                                     {% endblock %}
                                                 </form>
