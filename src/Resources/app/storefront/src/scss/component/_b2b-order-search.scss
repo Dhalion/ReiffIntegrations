@@ -157,6 +157,12 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-gap: 20px;
+
+  ul {
+    list-style-position: inside;
+    margin-left: 0;
+    padding-left: 0;
+  }
 }
 
 .order-positions-table {
@@ -179,14 +185,6 @@
     }
 
     &.table-buy-btn.loading {
-      opacity: .5;
-    }
-  }
-}
-
-.buy-widget-by-number {
-  &.loading {
-    .table-buy-btn {
       opacity: .5;
     }
   }
