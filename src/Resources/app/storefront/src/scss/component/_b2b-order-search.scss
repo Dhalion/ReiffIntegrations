@@ -10,6 +10,10 @@
   border: 1px solid $sw-border-color;
 
   .sorting-buttons {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+
     > .row {
       border-bottom: 5px solid $sw-color-brand-primary;
 
