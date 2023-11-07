@@ -154,6 +154,10 @@
 }
 
 .order-positions-table {
+  tr {
+    vertical-align: middle;
+  }
+
   .btn {
     background: none;
     border: none;
