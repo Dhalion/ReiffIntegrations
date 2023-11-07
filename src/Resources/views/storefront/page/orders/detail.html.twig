@@ -33,7 +33,7 @@
                                 <h5>{{ 'ReiffIntegrations.customer.orders.documents.invoiceTitle' | trans }}</h5>
 
                                 <ul>
-                                    {% for invoice in invoiceDocuments %}
+                                    {% for invoice in invoiceDocuments|reverse %}
                                         {% block reiff_order_detail_documents_invoice %}
                                             <li><a class="ignore--b2b-ajax-panel" href="{{ url('frontend.b2b.orders.detail.invoice', { orderNumber: order.number, documentType: constant('ReiffIntegrations\\Sap\\Controller\\Storefront\\OrdersController::DOCUMENT_TYPE_INVOICE'), documentNumber: invoice.documentNumber }) }}">{{ invoice.documentNumber }}</a> ({{ invoice.documentDate|format_date('medium', locale=app.request.locale) }})</li>
                                         {% endblock %}
@@ -49,7 +49,7 @@
                                 <h5>{{ 'ReiffIntegrations.customer.orders.documents.deliveryTitle' | trans }}</h5>
 
                                 <ul>
-                                    {% for delivery in deliveryDocuments %}
+                                    {% for delivery in deliveryDocuments|reverse %}
                                         {% block reiff_order_detail_documents_delivery %}
                                             <li>
                                                 <a class="ignore--b2b-ajax-panel" href="{{ url('frontend.b2b.orders.detail.invoice', { orderNumber: order.number, documentType: constant('ReiffIntegrations\\Sap\\Controller\\Storefront\\OrdersController::DOCUMENT_TYPE_DELIVERY'), documentNumber: delivery.documentNumber }) }}">{{ delivery.documentNumber }}</a> ({{ delivery.documentDate|format_date('medium', locale=app.request.locale) }})
