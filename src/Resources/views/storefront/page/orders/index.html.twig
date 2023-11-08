@@ -250,7 +250,7 @@
                                             <div class="b2b-accordion"
                                                  data-sort-by-order-number="{{ order.number }}"
                                                  data-sort-by-reference="{{ order.reference?: '-' }}"
-                                                 data-sort-by-date="{{ order.orderDate|format_date() }}"
+                                                 data-sort-by-date="{{ order.orderDate|format_date(pattern="y-M-d") }}"
                                                  data-sort-by-status="{{ order.status }}"
                                                  data-sort-by-total="{{ order.netTotal }}">
                                                 <div class="b2b-accordion__title ajax-panel-link"
@@ -280,7 +280,7 @@
                                                                     <span>{{ order.reference?: '-' }}</span>
                                                                 </div>
                                                                 <div class="col">
-                                                                    <span>{{ order.orderDate|format_date(pattern="Y-m-d") }}</span>
+                                                                    <span>{{ order.orderDate|format_date('medium', locale=app.request.locale) }}</span>
                                                                 </div>
                                                                 <div class="col">
                                                                     <span class="{{ orderStatusIndicator }}">{{ order.status }}</span>
