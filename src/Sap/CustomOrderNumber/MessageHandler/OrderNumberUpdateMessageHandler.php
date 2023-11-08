@@ -41,7 +41,6 @@ class OrderNumberUpdateMessageHandler
     {
         $context      = $message->getContext();
         $updateStruct = $message->getUpdateStruct();
-        $debtorNumber = $updateStruct->getDebtorNumber();
         $customerId   = $updateStruct->getCustomerId();
 
         try {
@@ -54,19 +53,25 @@ class OrderNumberUpdateMessageHandler
             return;
         }
 
-        $crudData = $this->getCrudData($debtorNumber);
+        $crudData = $this->getCrudData($updateStruct);
         $this->executeCrudOperation($crudData, $debtorIdentity->getOwnershipContext(), $context);
     }
 
+    /**
+     * @param OrderNumberUpdateStruct $struct
+     */
     public function getMessage(Struct $struct, Context $context): OrderNumberUpdateMessage
     {
         return new OrderNumberUpdateMessage($struct, '', $context);
     }
 
-    private function getCrudData(string $debtorNumber): array
+    private function getCrudData(OrderNumberUpdateStruct $updateStruct): array
     {
+        $debtorNumber = $updateStruct->getDebtorNumber();
+        $salesOrganisation = $updateStruct->getSalesOrganisation();
+
         try {
-            $response = $this->orderNumberApiClient->readOrderNumbers($debtorNumber);
+            $response = $this->orderNumberApiClient->readOrderNumbers($debtorNumber, $salesOrganisation);
         } catch (\Throwable $t) {
             $this->logger->error(self::class . '::getCrudData => something went horribly wrong during read of order numbers', [
                 'message' => $t->getMessage(),

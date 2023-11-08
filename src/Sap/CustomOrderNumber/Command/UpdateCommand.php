@@ -75,16 +75,23 @@ class UpdateCommand extends Command
                 continue;
             }
 
-            $messageStruct = new OrderNumberUpdateStruct($customer->getDebtorNumber(), $customer->getCustomerId());
-            $message       = $this->messageHandler->getMessage($messageStruct, $context);
+            $updateStruct = new OrderNumberUpdateStruct(
+                $customer->getDebtorNumber(),
+                $customer->getSalesOrganisation(),
+                $customer->getCustomerId(),
+            );
+
+            $message = $this->messageHandler->getMessage($updateStruct, $context);
 
             if ($context->hasState(DebugState::NAME)) {
                 $this->messageHandler->__invoke($message);
             } else {
                 $this->messageBus->dispatch($message);
             }
+
             $progressBar->advance();
         }
+
         $progressBar->finish();
 
         return Command::SUCCESS;

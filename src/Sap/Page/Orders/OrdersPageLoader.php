@@ -74,7 +74,12 @@ class OrdersPageLoader
             }
         }
 
-        $orderResult = $this->orderListClient->getOrders((string) $customerData->getDebtorNumber(), $page->getFromDate(), $page->getToDate());
+        $orderResult = $this->orderListClient->getOrders(
+            $customerData,
+            $page->getFromDate(),
+            $page->getToDate()
+        );
+
         $page->setSuccess($orderResult->isSuccess());
         $page->setOrders($orderResult->getOrders());
 

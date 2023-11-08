@@ -6,6 +6,7 @@ namespace ReiffIntegrations\Sap\Offer\ApiClient;
 
 use Psr\Log\LoggerInterface;
 use ReiffIntegrations\Api\Client\AbstractApiClient;
+use ReiffIntegrations\Sap\DataAbstractionLayer\ReiffCustomerEntity;
 use ReiffIntegrations\Util\Configuration;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
@@ -29,29 +30,32 @@ class OfferReadApiClient extends AbstractApiClient
         $this->responseParser      = $responseParser;
     }
 
-    public function readOffers(string $customerNumber): OfferReadApiResponse
+    public function readOffers(ReiffCustomerEntity $customer): OfferReadApiResponse
     {
-        if (empty($customerNumber)) {
+        if (empty($customer->getDebtorNumber())) {
             return $this->responseParser->parseResponse(false, '');
         }
 
+        $template = '
+            <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:sap-com:document:sap:rfc:functions">
+                <soapenv:Header/>
+                <soapenv:Body>
+                    <urn:ZSHOP_LIST_QUOTATION>
+                        <IS_QUOTATION_LIST_INPUT>
+                            <CUSTOMER>%s</CUSTOMER>
+                            <SALES_ORGANISATION>%s</SALES_ORGANISATION>
+                            <DISTRIBUTION_CHANNEL>10</DISTRIBUTION_CHANNEL>
+                            <DIVISION>00</DIVISION>
+                        </IS_QUOTATION_LIST_INPUT>
+                    </urn:ZSHOP_LIST_QUOTATION>
+                </soapenv:Body>
+            </soapenv:Envelope>
+        ';
+
         $postData = sprintf(
-            '<soapenv:Envelope
-                                xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
-                                xmlns:urn="urn:sap-com:document:sap:rfc:functions">
-                        <soapenv:Header/>
-                            <soapenv:Body>
-                                <urn:ZSHOP_LIST_QUOTATION>
-                                    <IS_QUOTATION_LIST_INPUT>
-                                        <CUSTOMER>%s</CUSTOMER>
-                                        <SALES_ORGANISATION>1004</SALES_ORGANISATION>
-                                        <DISTRIBUTION_CHANNEL>10</DISTRIBUTION_CHANNEL>
-                                        <DIVISION>00</DIVISION>
-                                    </IS_QUOTATION_LIST_INPUT>
-                                </urn:ZSHOP_LIST_QUOTATION>
-                            </soapenv:Body>
-                        </soapenv:Envelope>',
-            $customerNumber
+            $template,
+            $customer->getDebtorNumber(),
+            $customer->getSalesOrganisation()
         );
 
         $method    = self::METHOD_POST;

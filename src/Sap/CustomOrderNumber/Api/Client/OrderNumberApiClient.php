@@ -29,28 +29,31 @@ class OrderNumberApiClient extends AbstractApiClient
         $this->responseParser      = $responseParser;
     }
 
-    public function readOrderNumbers(string $debtorNumber): OrderNumberApiResponse
+    public function readOrderNumbers(string $debtorNumber, string $salesOrganisation): OrderNumberApiResponse
     {
         if (empty($debtorNumber)) {
             return $this->responseParser->parseResponse(false, '');
         }
 
-        $postData = sprintf(
-            '<soapenv:Envelope
-                                xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
-                                xmlns:urn="urn:sap-com:document:sap:rfc:functions">
-                        <soapenv:Header/>
-                            <soapenv:Body>
-                                <urn:ZSHOP_GET_CUSTOMER_MATERIAL>
-                                    <I_CUSTOMER>%s</I_CUSTOMER>
-                                    <DISTRIBUTION_CHANNEL>10</DISTRIBUTION_CHANNEL>
-                                    <I_SALES_ORGANISATION>1004</I_SALES_ORGANISATION>
-                                    <I_LANGUAGE>DE</I_LANGUAGE>
-                                </urn:ZSHOP_GET_CUSTOMER_MATERIAL>
-                            </soapenv:Body>
-                        </soapenv:Envelope>',
-            $debtorNumber
-        );
+        $template = '
+            <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:sap-com:document:sap:rfc:functions">
+                <soapenv:Header/>
+                <soapenv:Body>
+                    <urn:ZSHOP_GET_CUSTOMER_MATERIAL>
+                        <I_CUSTOMER>%s</I_CUSTOMER>
+                        <DISTRIBUTION_CHANNEL>10</DISTRIBUTION_CHANNEL>
+                        <I_SALES_ORGANISATION>%s</I_SALES_ORGANISATION>
+                        <I_LANGUAGE>DE</I_LANGUAGE>
+                    </urn:ZSHOP_GET_CUSTOMER_MATERIAL>
+                </soapenv:Body>
+            </soapenv:Envelope>
+            ';
+
+        $postData = trim(sprintf(
+            $template,
+            $debtorNumber,
+            $salesOrganisation
+        ));
 
         $method    = self::METHOD_POST;
         $ignoreSsl = $this->systemConfigService->getBool(Configuration::CONFIG_KEY_API_IGNORE_SSL);

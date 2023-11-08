@@ -6,6 +6,7 @@ namespace ReiffIntegrations\Sap\Contract\ApiClient;
 
 use Psr\Log\LoggerInterface;
 use ReiffIntegrations\Api\Client\AbstractApiClient;
+use ReiffIntegrations\Sap\DataAbstractionLayer\ReiffCustomerEntity;
 use ReiffIntegrations\Util\Configuration;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
@@ -21,26 +22,34 @@ class ContractListClient extends AbstractApiClient
     ) {
     }
 
-    public function getContracts(string $customerNumber, ?\DateTimeInterface $fromDate, ?\DateTimeInterface $toDate): ContractListResponse
+    public function getContracts(ReiffCustomerEntity $customer, ?\DateTimeInterface $fromDate, ?\DateTimeInterface $toDate): ContractListResponse
     {
-        $postData = sprintf('<soapenv:Envelope
-                                xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
-                                xmlns:urn="urn:sap-com:document:sap:rfc:functions">
-                       <soapenv:Header />
-                       <soapenv:Body>
-                          <urn:ZSHOP_LIST_CONTRACT>
-                             <IS_CONTRACT_LIST_INPUT>
-                                <CUSTOMER>%s</CUSTOMER>
-                                <SALES_ORGANISATION>1004</SALES_ORGANISATION>
-                                <DISTRIBUTION_CHANNEL>10</DISTRIBUTION_CHANNEL>
-                                <DIVISION>00</DIVISION>
-                                <DATE_FROM>%s</DATE_FROM>
-                                <DATE_TO>%s</DATE_TO>
-                                <LANGUAGE>DE</LANGUAGE>
-                             </IS_CONTRACT_LIST_INPUT>
-                          </urn:ZSHOP_LIST_CONTRACT>
-                       </soapenv:Body>
-                    </soapenv:Envelope>', $customerNumber, $fromDate ? $fromDate->format('Y-m-d') : '', $toDate ? $toDate->format('Y-m-d') : '');
+        $template = '
+            <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:sap-com:document:sap:rfc:functions">
+                <soapenv:Header />
+                <soapenv:Body>
+                  <urn:ZSHOP_LIST_CONTRACT>
+                     <IS_CONTRACT_LIST_INPUT>
+                        <CUSTOMER>%s</CUSTOMER>
+                        <SALES_ORGANISATION>%s</SALES_ORGANISATION>
+                        <DISTRIBUTION_CHANNEL>10</DISTRIBUTION_CHANNEL>
+                        <DIVISION>00</DIVISION>
+                        <DATE_FROM>%s</DATE_FROM>
+                        <DATE_TO>%s</DATE_TO>
+                        <LANGUAGE>DE</LANGUAGE>
+                     </IS_CONTRACT_LIST_INPUT>
+                  </urn:ZSHOP_LIST_CONTRACT>
+                </soapenv:Body>
+            </soapenv:Envelope>
+        ';
+
+        $postData = trim(sprintf(
+            $template,
+            $customer->getDebtorNumber(),
+            $customer->getSalesOrganisation(),
+            $fromDate ? $fromDate->format('Y-m-d') : '',
+            $toDate ? $toDate->format('Y-m-d') : ''
+        ));
 
         $method = self::METHOD_POST;
 

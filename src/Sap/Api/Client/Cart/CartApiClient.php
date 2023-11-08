@@ -7,6 +7,7 @@ namespace ReiffIntegrations\Sap\Api\Client\Cart;
 use Psr\Log\LoggerInterface;
 use ReiffIntegrations\Api\Client\AbstractApiClient;
 use ReiffIntegrations\Sap\Cart\PriceCartProcessor;
+use ReiffIntegrations\Sap\DataAbstractionLayer\ReiffCustomerEntity;
 use ReiffIntegrations\Sap\Exception\TimeoutException;
 use ReiffIntegrations\Sap\Struct\Price\ItemCollection;
 use ReiffIntegrations\Sap\Struct\Price\ItemStruct;
@@ -28,19 +29,28 @@ class CartApiClient extends AbstractApiClient
     /**
      * @throws TimeoutException
      */
-    public function getPrices(Cart $cart, string $debtorNumber): ItemCollection
+    public function getPrices(Cart $cart, ReiffCustomerEntity $customer): ItemCollection
     {
-        $postData = sprintf('<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:sap-com:document:sap:rfc:functions">
-   <soapenv:Header/>
-   <soapenv:Body>
-      <urn:ZSHOP_SALES_PRICE_SIMULATE>
-         <IT_ITEMS>
-             %s
-         </IT_ITEMS>
-         <IV_SESSION_LANGUAGE>D</IV_SESSION_LANGUAGE>
-      </urn:ZSHOP_SALES_PRICE_SIMULATE>
-   </soapenv:Body>
-</soapenv:Envelope>', $this->getItems($cart, $debtorNumber));
+        $template = '
+            <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:sap-com:document:sap:rfc:functions">
+               <soapenv:Header/>
+               <soapenv:Body>
+                  <urn:ZSHOP_SALES_PRICE_SIMULATE>
+                     <IT_ITEMS>
+                         %s
+                     </IT_ITEMS>
+                     <IV_SESSION_LANGUAGE>D</IV_SESSION_LANGUAGE>
+                     <IV_SALES_ORGANISATION>%s</IV_SALES_ORGANISATION>
+                  </urn:ZSHOP_SALES_PRICE_SIMULATE>
+               </soapenv:Body>
+            </soapenv:Envelope>
+        ';
+
+        $postData = trim(sprintf(
+            $template,
+            $this->getItems($cart, $customer->getDebtorNumber()),
+            $customer->getSalesOrganisation()
+        ));
 
         $method = self::METHOD_POST;
 
@@ -86,17 +96,21 @@ class CartApiClient extends AbstractApiClient
         $requests = [];
 
         foreach ($cart->getLineItems()->filterType(LineItem::PRODUCT_LINE_ITEM_TYPE) as $lineItem) {
-            $requests[] = sprintf(
-                '<item>
-               <KUNNR>%s</KUNNR>
-               <MATNR>%s</MATNR>
-               <MGAME>%d</MGAME>
-               <VRKME></VRKME>
-            </item>',
+            $template = '
+                <item>
+                   <KUNNR>%s</KUNNR>
+                   <MATNR>%s</MATNR>
+                   <MGAME>%d</MGAME>
+                   <VRKME></VRKME>
+                </item>
+            ';
+
+            $requests[] = trim(sprintf(
+                $template,
                 $debtorNumber,
                 $lineItem->getPayloadValue('productNumber'),
                 $lineItem->getQuantity()
-            );
+            ));
         }
 
         return implode("\n", $requests);

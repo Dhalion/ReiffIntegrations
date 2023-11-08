@@ -43,7 +43,7 @@ class OfferDetailPageLoader
                 return $page;
             }
 
-            $apiResponse = $this->apiClient->readOffers((string) $customerData->getDebtorNumber());
+            $apiResponse = $this->apiClient->readOffers($customerData);
         } catch (\Throwable $throwable) {
             // TODO: discuss about direct information to REIFF
             $this->logger->error(

@@ -64,7 +64,12 @@ class ContractListingPageLoader
             }
         }
 
-        $contractResult = $this->contractListClient->getContracts((string) $customerData->getDebtorNumber(), $page->getFromDate(), $page->getToDate());
+        $contractResult = $this->contractListClient->getContracts(
+            $customerData,
+            $page->getFromDate(),
+            $page->getToDate()
+        );
+
         $page->setSuccess($contractResult->isSuccess());
         $page->setContracts($contractResult->getContracts());
 
