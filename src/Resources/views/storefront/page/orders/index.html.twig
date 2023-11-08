@@ -280,7 +280,7 @@
                                                                     <span>{{ order.reference?: '-' }}</span>
                                                                 </div>
                                                                 <div class="col">
-                                                                    <span>{{ order.orderDate|format_date('medium', locale=app.request.locale) }}</span>
+                                                                    <span>{{ order.orderDate|format_date(pattern="Y-m-d") }}</span>
                                                                 </div>
                                                                 <div class="col">
                                                                     <span class="{{ orderStatusIndicator }}">{{ order.status }}</span>
