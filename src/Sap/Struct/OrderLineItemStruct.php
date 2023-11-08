@@ -56,6 +56,6 @@ class OrderLineItemStruct extends Struct
 
     public function getProductId(): ?string
     {
-        return $this->getProductId();
+        return $this->productId;
     }
 }
