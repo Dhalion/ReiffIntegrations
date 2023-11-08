@@ -124,7 +124,7 @@ class OrderIdocConverter
 
     private function addPaymentHeader(IdocRowCollection $idoc, OrderEntity $order): void
     {
-        $identifier = 'E1EDK18';
+        $identifier = 'E2EDK18';
 
         $orderTransactions = $order->getTransactions();
 
