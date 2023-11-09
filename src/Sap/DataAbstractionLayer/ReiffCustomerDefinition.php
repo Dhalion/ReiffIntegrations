@@ -39,6 +39,7 @@ class ReiffCustomerDefinition extends EntityDefinition
             new OneToOneAssociationField('customer', 'customer_id', 'id', CustomerDefinition::class, false),
             (new StringField('debtor_number', 'debtorNumber'))->addFlags(new ApiAware()),
             (new FkField('customer_id', 'customerId', CustomerDefinition::class))->addFlags(new Required(), new PrimaryKey()),
+            (new StringField('sales_organization', 'salesOrganization'))->addFlags(new ApiAware()),
         ]);
     }
 }

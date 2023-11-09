@@ -9,9 +9,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 
 class ReiffCustomerEntity extends Entity
 {
-    protected ?CustomerEntity $customer = null;
-    protected ?string $customerId       = null;
-    protected ?string $debtorNumber     = null;
+    protected ?CustomerEntity $customer  = null;
+    protected ?string $customerId        = null;
+    protected ?string $debtorNumber      = null;
+    protected ?string $salesOrganization = null;
 
     public function getCustomer(): ?CustomerEntity
     {
@@ -41,5 +42,15 @@ class ReiffCustomerEntity extends Entity
     public function setDebtorNumber(?string $debtorNumber): void
     {
         $this->debtorNumber = $debtorNumber;
+    }
+
+    public function getSalesOrganization(): ?string
+    {
+        return $this->salesOrganization;
+    }
+
+    public function setSalesOrganization(?string $salesOrganization): void
+    {
+        $this->salesOrganization = $salesOrganization;
     }
 }
