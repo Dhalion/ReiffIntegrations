@@ -79,7 +79,7 @@
 
             {% block reiff_order_detail_items %}
                 <div>
-                    <table class="table order-positions-table">
+                    <table class="table order-positions-table" data-b2b-add-to-cart="true">
                         <thead>
                         <tr>
                             <th>{{ 'account.orderItemColumnName' | trans }}</th>
@@ -91,44 +91,35 @@
                                     {% set formAction = path('frontend.checkout.line-item.add') %}
                                     {% set displayBtn = false %}
 
-                                    <form action="{{ formAction }}"
-                                          method="post"
-                                          class="buy-widget buy-widget-by-number ignore--b2b-ajax-panel"
-                                          data-add-to-cart="true">
+                                    {% block component_product_box_action_form_all %}
+                                        <form action="{{ formAction }}"
+                                              method="post"
+                                              class="buy-widget buy-widget-by-number ignore--b2b-ajax-panel"
+                                              data-add-to-cart="true">
+                                            {% for lineItem in order.lineItems %}
+                                                {% if lineItem.productId %}
+                                                    {% set displayBtn = true %}
 
-                                        <input type="hidden" name="redirectTo" value="frontend.cart.offcanvas">
-                                        <input type="hidden" name="redirectParameters" data-redirect-parameters="false" disabled>
-
-                                        {% block component_product_box_action_form_all %}
-                                            {% block page_product_detail_buy_product_buy_info_all %}
-                                                {% for lineItem in order.lineItems %}
-                                                    {% if lineItem.productId %}
-                                                        {% set displayBtn = true %}
-
-                                                        <input type="hidden" name="lineItems[{{ lineItem.productId }}][quantity]" value="1" maxlength="7">
-                                                        <input type="hidden" name="lineItems[{{ lineItem.productId }}][id]" value="{{ lineItem.productId }}">
-                                                        <input type="hidden" name="lineItems[{{ lineItem.productId }}][type]" value="product">
-                                                        <input type="hidden" name="lineItems[{{ lineItem.productId }}][referencedId]" value="{{ lineItem.productId }}">
-                                                        <input type="hidden" name="lineItems[{{ lineItem.productId }}][stackable]" value="1">
-                                                        <input type="hidden" name="lineItems[{{ lineItem.productId }}][removable]" value="1">
-                                                    {% endif %}
-                                                {% endfor %}
-                                            {% endblock %}
-
-                                            {% block page_product_detail_product_buy_button_all %}
-                                                {% if displayBtn == true %}
-                                                    <button type="submit"
-                                                            class="btn btn-primary btn-block btn-buy table-buy-btn ignore--b2b-ajax-panel"
-                                                            title="{{ "ReiffIntegrations.customer.orders.addAll"|trans|sw_sanitize }}"
-                                                            aria-label="{{ "listing.boxAddProduct"|trans|striptags }}">
-                                                        {% sw_icon 'basket' style {
-                                                            'namespace': 'ReiffTheme'
-                                                        } %}
-                                                    </button>
+                                                    <input type="hidden" name="lineItems[{{ lineItem.productId }}][quantity]" value="1" maxlength="7">
+                                                    <input type="hidden" name="lineItems[{{ lineItem.productId }}][id]" value="{{ lineItem.productId }}">
+                                                    <input type="hidden" name="lineItems[{{ lineItem.productId }}][type]" value="product">
+                                                    <input type="hidden" name="lineItems[{{ lineItem.productId }}][referencedId]" value="{{ lineItem.productId }}">
+                                                    <input type="hidden" name="lineItems[{{ lineItem.productId }}][stackable]" value="1">
+                                                    <input type="hidden" name="lineItems[{{ lineItem.productId }}][removable]" value="1">
                                                 {% endif %}
-                                            {% endblock %}
-                                        {% endblock %}
-                                    </form>
+                                            {% endfor %}
+                                        </form>
+                                    {% endblock %}
+
+                                    {% block page_product_detail_product_buy_button %}
+                                        <a href="#" class="btn btn-primary btn-block btn-buy table-buy-btn table-buy-btn-all ignore--b2b-ajax-panel"
+                                           title="{{ "ReiffIntegrations.customer.orders.addAll"|trans|sw_sanitize }}"
+                                           aria-label="{{ "ReiffIntegrations.customer.orders.addAll"|trans|sw_sanitize }}" data-b2b-add-to-cart="true">
+                                            {% sw_icon 'basket' style {
+                                                'namespace': 'ReiffTheme'
+                                            } %}
+                                        </a>
+                                    {% endblock %}
                                 {% endblock %}
                             </th>
                         </tr>
@@ -158,46 +149,23 @@
                                             {% if lineItem.productId %}
                                                 {% set formAction = path('frontend.checkout.line-item.add') %}
 
-                                                <form action="{{ formAction }}"
-                                                      method="post"
-                                                      class="buy-widget buy-widget-by-number"
-                                                      data-add-to-cart="false">
-
-                                                    <input type="hidden" name="redirectTo" value="frontend.cart.offcanvas">
-                                                    <input type="hidden"
-                                                           name="redirectParameters"
-                                                           data-redirect-parameters="true"
-                                                           value='{"productId": "{{ product.id }}"}'>
-
-                                                    {% block component_product_box_action_form %}
-                                                        {% block page_product_detail_buy_product_buy_info %}
-                                                            <input type="hidden" name="lineItems[{{ lineItem.productId }}][quantity]" value="{{ lineItem.quantity }}">
-                                                            <input type="hidden" name="lineItems[{{ lineItem.productId }}][id]" value="{{ lineItem.productId }}">
-                                                            <input type="hidden" name="lineItems[{{ lineItem.productId }}][type]" value="product">
-                                                            <input type="hidden" name="lineItems[{{ lineItem.productId }}][referencedId]" value="{{ lineItem.productId }}">
-                                                            <input type="hidden" name="lineItems[{{ lineItem.productId }}][stackable]" value="1">
-                                                            <input type="hidden" name="lineItems[{{ lineItem.productId }}][removable]" value="1">
-                                                        {% endblock %}
-
-{#                                                            {% block page_product_detail_product_buy_button %}#}
-{#                                                                <button type="submit"#}
-{#                                                                        class="btn btn-primary btn-block btn-buy table-buy-btn"#}
-{#                                                                        title="{{ "listing.boxAddProduct"|trans|striptags }}"#}
-{#                                                                        aria-label="{{ "listing.boxAddProduct"|trans|striptags }}">#}
-
-{#                                                                    {% sw_icon 'add-to-basket' style {#}
-{#                                                                        'namespace': 'ReiffTheme'#}
-{#                                                                    } %}#}
-{#                                                                </button>#}
-{#                                                            {% endblock %}#}
-                                                    {% endblock %}
-                                                </form>
+                                                {% block component_product_box_action_form %}
+                                                    <form id="addToCart" action="{{ formAction }}"
+                                                          method="post"
+                                                          class="buy-widget buy-widget-by-number ignore--b2b-ajax-panel">
+                                                        <input type="hidden" name="lineItems[{{ lineItem.productId }}][quantity]" value="{{ lineItem.quantity }}">
+                                                        <input type="hidden" name="lineItems[{{ lineItem.productId }}][id]" value="{{ lineItem.productId }}">
+                                                        <input type="hidden" name="lineItems[{{ lineItem.productId }}][type]" value="product">
+                                                        <input type="hidden" name="lineItems[{{ lineItem.productId }}][referencedId]" value="{{ lineItem.productId }}">
+                                                        <input type="hidden" name="lineItems[{{ lineItem.productId }}][stackable]" value="1">
+                                                        <input type="hidden" name="lineItems[{{ lineItem.productId }}][removable]" value="1">
+                                                    </form>
+                                                {% endblock %}
 
                                                 {% block page_product_detail_product_buy_button %}
-                                                    <a href="#" class="btn btn-primary btn-block btn-buy table-buy-btn"
+                                                    <a href="#" class="btn btn-primary btn-block btn-buy table-buy-btn ignore--b2b-ajax-panel"
                                                        title="{{ "listing.boxAddProduct"|trans|striptags }}"
                                                        aria-label="{{ "listing.boxAddProduct"|trans|striptags }}" data-b2b-add-to-cart="true">
-
                                                         {% sw_icon 'add-to-basket' style {
                                                             'namespace': 'ReiffTheme'
                                                         } %}
