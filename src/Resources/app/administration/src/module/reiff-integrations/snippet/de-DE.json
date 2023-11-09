@@ -25,12 +25,15 @@
                     "debtorNumberLabel": "Debitorennummer",
                     "doubleOptInRegistrationLabel": "Abgeschlossener Double-Opt-In",
                     "isOciCustomerLabel": "Ist ein OCI-Kunde",
-                    "company": "Firma inkl. Firmierung"
+                    "company": "Firma inkl. Firmierung",
+                    "salesOrganizationLabel": "Verkaufsorganisation"
                 }
             },
             "detail": {
                 "debtorNumberLabel": "Debitorennummer des Kunden",
-                "debtorNumberPlaceholder": "-"
+                "debtorNumberPlaceholder": "-",
+                "salesOrganizationLabel": "Verkaufsorganisation des Kunden",
+                "salesOrganizationPlaceholder": "---"
             }
         },
         "rule": {
