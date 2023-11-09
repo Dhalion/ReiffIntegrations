@@ -207,22 +207,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      min-width: 42px;
-    }
-  }
-}
-
-.table-buy-btn-all {
-  background: none;
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 42px;
-
-  .icon {
-    svg {
-      top: 0;
+      width: 42px;
     }
   }
 }
