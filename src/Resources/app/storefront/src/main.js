@@ -1,7 +1,7 @@
 import K10rReiffAsyncSapOfferPlugin from './plugin/k10r-reiff-async-sap-offer.plugin';
 import K10rReiffAvailabilityDisplayPlugin from './plugin/k10r-reiff-availability-display.plugin';
 import K10rReiffPriceDisplayPlugin from './plugin/k10r-reiff-price-display.plugin';
-import AgiqonB2bAddToCartPlugin from './plugin/agiqon-b2b-add-to-cart';
+import AgiqonB2bAddToCartPlugin from './plugin/agiqon-b2b-add-to-cart/agiqon-b2b-add-to-cart.plugin';
 import AgiqonB2bOrderListPlugin from './plugin/agiqon-b2b-order-list/agiqon-b2b-order-list.plugin';
 
 const { PluginManager } = window;
