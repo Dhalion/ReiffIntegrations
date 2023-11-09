@@ -28,17 +28,17 @@ class ContractListClient extends AbstractApiClient
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:sap-com:document:sap:rfc:functions">
                 <soapenv:Header />
                 <soapenv:Body>
-                  <urn:ZSHOP_LIST_CONTRACT>
-                     <IS_CONTRACT_LIST_INPUT>
-                        <CUSTOMER>%s</CUSTOMER>
-                        <SALES_ORGANISATION>%s</SALES_ORGANISATION>
-                        <DISTRIBUTION_CHANNEL>10</DISTRIBUTION_CHANNEL>
-                        <DIVISION>00</DIVISION>
-                        <DATE_FROM>%s</DATE_FROM>
-                        <DATE_TO>%s</DATE_TO>
-                        <LANGUAGE>DE</LANGUAGE>
-                     </IS_CONTRACT_LIST_INPUT>
-                  </urn:ZSHOP_LIST_CONTRACT>
+                    <urn:ZSHOP_LIST_CONTRACT>
+                        <IS_CONTRACT_LIST_INPUT>
+                            <CUSTOMER>%s</CUSTOMER>
+                            <SALES_ORGANISATION>%s</SALES_ORGANISATION>
+                            <DISTRIBUTION_CHANNEL>10</DISTRIBUTION_CHANNEL>
+                            <DIVISION>00</DIVISION>
+                            <DATE_FROM>%s</DATE_FROM>
+                            <DATE_TO>%s</DATE_TO>
+                            <LANGUAGE>DE</LANGUAGE>
+                        </IS_CONTRACT_LIST_INPUT>
+                    </urn:ZSHOP_LIST_CONTRACT>
                 </soapenv:Body>
             </soapenv:Envelope>
         ';

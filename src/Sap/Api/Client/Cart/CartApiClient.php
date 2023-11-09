@@ -39,7 +39,7 @@ class CartApiClient extends AbstractApiClient
                      <IT_ITEMS>
                          %s
                      </IT_ITEMS>
-                     <IV_SESSION_LANGUAGE>D</IV_SESSION_LANGUAGE>
+                     <IV_SESSION_LANGUAGE>DE</IV_SESSION_LANGUAGE>
                      <IV_SALES_ORGANISATION>%s</IV_SALES_ORGANISATION>
                   </urn:ZSHOP_SALES_PRICE_SIMULATE>
                </soapenv:Body>
