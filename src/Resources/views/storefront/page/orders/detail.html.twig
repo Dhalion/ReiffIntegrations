@@ -56,7 +56,14 @@
                                                 {% if delivery.urls|length > 0 %}
                                                     <ul>
                                                         {% for trackingUrl in delivery.urls %}
-                                                        <li><a class="ignore--b2b-ajax-panel" target="_blank" href="{{ trackingUrl }}">{{ 'ReiffIntegrations.customer.orders.documents.trackingLabel' | trans }}</a></li>
+                                                        <li>
+                                                            <a class="ignore--b2b-ajax-panel" target="_blank" href="{{ trackingUrl }}">
+                                                                {% sw_icon 'box-solid' style {
+                                                                    'namespace': 'ReiffIntegrations'
+                                                                } %}
+                                                                {{ 'ReiffIntegrations.customer.orders.documents.trackingLabel' | trans }}
+                                                            </a>
+                                                        </li>
                                                         {% endfor %}
                                                     </ul>
                                                 {% endif %}
@@ -104,7 +111,7 @@
                                             {% block component_product_box_action_buy %}
                                                 <form action="{{ path('frontend.fastorder.addproduct')}}"
                                                       method="post"
-                                                      class="buy-widget buy-widget-by-number"
+                                                      class="buy-widget buy-widget-by-number ignore--b2b-ajax-panel"
                                                       data-add-to-cart="true">
 
                                                     {% block component_product_box_action_form %}
