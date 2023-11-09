@@ -114,6 +114,8 @@
                                                       class="buy-widget buy-widget-by-number ignore--b2b-ajax-panel"
                                                       data-add-to-cart="true">
 
+                                                    <input type="hidden" name="redirectParameters" data-redirect-parameters="false" disabled>
+
                                                     {% block component_product_box_action_form %}
                                                         {% block page_product_detail_buy_product_buy_info %}
                                                             <input type="hidden"
@@ -127,8 +129,9 @@
                                                         {% block page_product_detail_product_buy_button %}
                                                             {% if lineItem.productId %}
                                                                 <div class="d-grid">
-                                                                    <button class="btn btn-primary btn-block table-buy-btn ignore--b2b-ajax-panel"
-                                                                            title="{{ "listing.boxAddProduct"|trans|striptags }}">
+                                                                    <button class="btn btn-primary btn-block btn-buy table-buy-btn ignore--b2b-ajax-panel"
+                                                                            title="{{ "listing.boxAddProduct"|trans|striptags }}"
+                                                                            aria-label="{{ "listing.boxAddProduct"|trans|striptags }}">
                                                                         {% sw_icon 'add-to-basket' style {
                                                                             'namespace': 'ReiffTheme'
                                                                         } %}
