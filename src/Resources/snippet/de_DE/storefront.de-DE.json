@@ -46,6 +46,7 @@
                 }
             },
             "orders": {
+                "addAll": "Alle hinzufügen",
                 "error": {
                     "noOrderResponse": "Ihre Bestellungen können aktuell nicht abgerufen werden.",
                     "noDocument": "Das angefragte Dokument ist aktuell nicht verfügbar."
