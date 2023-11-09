@@ -6,28 +6,15 @@ namespace ReiffIntegrations;
 
 use Doctrine\DBAL\Connection;
 use ReiffIntegrations\Installer\CustomFieldInstaller;
-use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 use Shopware\Core\Framework\Plugin\Context\InstallContext;
 use Shopware\Core\Framework\Plugin\Context\UninstallContext;
 use Shopware\Core\Framework\Plugin\Context\UpdateContext;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 class ReiffIntegrations extends Plugin
 {
-    public function build(ContainerBuilder $container): void
-    {
-        parent::build($container);
-
-        if (!EnvironmentHelper::hasVariable('MESSENGER_TRANSPORT_DSN')) {
-            $container->setParameter('messenger_import_dsn', $container->getParameter('messenger_import_default_dsn'));
-            $container->setParameter('messenger_export_dsn', $container->getParameter('messenger_export_default_dsn'));
-            $container->setParameter('messenger_default_dsn', $container->getParameter('messenger_default_default_dsn'));
-        }
-    }
-
     public function install(InstallContext $installContext): void
     {
         parent::install($installContext);
