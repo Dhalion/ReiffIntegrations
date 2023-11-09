@@ -117,6 +117,7 @@
                                                           class="buy-widget buy-widget-by-number ignore--b2b-ajax-panel"
                                                           data-add-to-cart="true">
 
+                                                        <input type="hidden" name="redirectTo" value="frontend.cart.offcanvas">
                                                         <input type="hidden" name="redirectParameters" data-redirect-parameters="false" disabled>
 
                                                         {% block component_product_box_action_form %}
@@ -130,15 +131,13 @@
                                                             {% endblock %}
 
                                                             {% block page_product_detail_product_buy_button %}
-                                                                <div class="d-grid">
-                                                                    <button class="btn btn-primary btn-block btn-buy table-buy-btn ignore--b2b-ajax-panel"
-                                                                            title="{{ "listing.boxAddProduct"|trans|striptags }}"
-                                                                            aria-label="{{ "listing.boxAddProduct"|trans|striptags }}">
-                                                                        {% sw_icon 'add-to-basket' style {
-                                                                            'namespace': 'ReiffTheme'
-                                                                        } %}
-                                                                    </button>
-                                                                </div>
+                                                                <button class="btn btn-primary btn-block btn-buy table-buy-btn"
+                                                                        title="{{ "listing.boxAddProduct"|trans|striptags }}"
+                                                                        aria-label="{{ "listing.boxAddProduct"|trans|striptags }}">
+                                                                    {% sw_icon 'add-to-basket' style {
+                                                                        'namespace': 'ReiffTheme'
+                                                                    } %}
+                                                                </button>
                                                             {% endblock %}
                                                         {% endblock %}
                                                     </form>
