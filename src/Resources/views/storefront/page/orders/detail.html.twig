@@ -118,7 +118,8 @@
 
                                                     {% block page_product_detail_product_buy_button_all %}
                                                         {% if displayBtn == true %}
-                                                            <button class="btn btn-primary btn-block btn-buy table-buy-btn"
+                                                            <button type="submit"
+                                                                    class="btn btn-primary btn-block btn-buy table-buy-btn ignore--b2b-ajax-panel"
                                                                     title="{{ "ReiffIntegrations.customer.orders.addAll"|trans|sw_sanitize }}"
                                                                     aria-label="{{ "listing.boxAddProduct"|trans|striptags }}">
                                                                 {% sw_icon 'basket' style {
@@ -179,7 +180,8 @@
                                                             {% endblock %}
 
                                                             {% block page_product_detail_product_buy_button %}
-                                                                <button class="btn btn-primary btn-block btn-buy table-buy-btn"
+                                                                <button type="submit"
+                                                                        class="btn btn-primary btn-block btn-buy table-buy-btn ignore--b2b-ajax-panel"
                                                                         title="{{ "listing.boxAddProduct"|trans|striptags }}"
                                                                         aria-label="{{ "listing.boxAddProduct"|trans|striptags }}">
                                                                     {% sw_icon 'add-to-basket' style {
