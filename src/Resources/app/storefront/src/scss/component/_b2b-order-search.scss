@@ -163,9 +163,24 @@
   grid-gap: 20px;
 
   ul {
-    list-style-position: inside;
+    list-style: none;
     margin-left: 0;
     padding-left: 0;
+
+    li {
+      list-style: none;
+    }
+
+    ul {
+      margin-left: 16px;
+      margin-bottom: 8px;
+    }
+  }
+
+  .icon {
+    color: $sw-color-brand-primary;
+    width: 16px;
+    height: 16px;
   }
 }
 
