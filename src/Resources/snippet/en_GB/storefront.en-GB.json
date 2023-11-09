@@ -46,6 +46,7 @@
                 }
             },
             "orders": {
+                "addAll": "Add all",
                 "error": {
                     "noOrderResponse": "Your orders currently can't be accessed.",
                     "noDocument": "This document currently not available."

@@ -203,11 +203,26 @@
       top: 0;
     }
 
-    .table-buy-btn {
+    &.table-buy-btn {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 100%;
+      min-width: 42px;
+    }
+  }
+}
+
+.table-buy-btn-all {
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+
+  .icon {
+    margin-right: 8px;
+
+    svg {
+      top: 0;
     }
   }
 }
