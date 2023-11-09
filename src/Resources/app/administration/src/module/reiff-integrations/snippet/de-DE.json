@@ -33,7 +33,7 @@
                 "debtorNumberLabel": "Debitorennummer des Kunden",
                 "debtorNumberPlaceholder": "-",
                 "salesOrganizationLabel": "Verkaufsorganisation des Kunden",
-                "salesOrganizationPlaceholder": "---"
+                "salesOrganizationPlaceholder": "-"
             }
         },
         "rule": {
