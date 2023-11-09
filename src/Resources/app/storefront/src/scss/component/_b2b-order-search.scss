@@ -217,10 +217,10 @@
   border: none;
   display: flex;
   align-items: center;
+  justify-content: center;
+  min-width: 42px;
 
   .icon {
-    margin-right: 8px;
-
     svg {
       top: 0;
     }
