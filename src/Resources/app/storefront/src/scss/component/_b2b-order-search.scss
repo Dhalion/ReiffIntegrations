@@ -107,6 +107,7 @@
   .b2b-accordion__title {
     font-size: $font-size-base;
     padding: 16px 0;
+    white-space: nowrap;
 
     .icon {
       svg {
