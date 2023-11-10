@@ -56,6 +56,7 @@ export default class AgiqonB2bOrderListPlugin extends Plugin {
         }
 
         this._registerEventListeners();
+        this._runObserver();
     }
 
     /**
@@ -71,6 +72,14 @@ export default class AgiqonB2bOrderListPlugin extends Plugin {
         this.sortingButtons.forEach((item) => {
             item.addEventListener(clickEvent, this._sortBy.bind(this));
         });
+    }
+
+    /**
+     * Re-initialize plugins
+     * @private
+     */
+    _initPlugins() {
+        window.PluginManager.initializePlugins();
     }
 
     /**
@@ -216,5 +225,42 @@ export default class AgiqonB2bOrderListPlugin extends Plugin {
         this.accordionItems.forEach((item) => {
             item.style.display = "";
         })
+    }
+
+    /**
+     * Observer
+     * @private
+     */
+    _runObserver() {
+        // Options for the observer (which mutations to observe)
+        const config = { attributes: true, childList: true, subtree: true };
+
+        // Callback function to execute when mutations are observed
+        const callback = (mutationList, observer) => {
+            for (const mutation of mutationList) {
+
+                console.info(mutation.type)
+
+                if (mutation.type === 'attributes') {
+                    this.openAccordion = DomAccess.querySelector(
+                        this.el,
+                        '.b2b-accordion--open'
+                    );
+                    if (this.openAccordion) {
+                        this._initPlugins();
+                    }
+                }
+            }
+        };
+
+        // Create an observer instance linked to the callback function
+        const observer = new MutationObserver(callback);
+
+        // Start observing the target node for configured mutations
+        // observer.observe(this.companyTabContainer, config);
+        observer.observe(this.el, config);
+
+        // Later, you can stop observing
+        // observer.disconnect();
     }
 }
