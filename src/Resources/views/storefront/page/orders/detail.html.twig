@@ -87,11 +87,11 @@
                             <th>{{ 'account.orderItemColumnQuantity' | trans }}</th>
                             <th>{{ 'account.orderItemColumnTotal' | trans }}</th>
                             <th>
-                                {% block component_product_box_action_buy_all %}
+                                {% block reiff_order_detail_buy_all %}
                                     {% set formAction = path('frontend.checkout.line-item.add') %}
                                     {% set displayBtn = false %}
 
-                                    {% block component_product_box_action_form_all %}
+                                    {% block reiff_order_detail_buy_all_form %}
                                         <form action="{{ formAction }}"
                                               method="post"
                                               class="buy-widget buy-widget-by-number ignore--b2b-ajax-panel"
@@ -111,7 +111,7 @@
                                         </form>
                                     {% endblock %}
 
-                                    {% block page_product_detail_product_buy_button %}
+                                    {% block reiff_order_detail_buy_all_button %}
                                         <a href="#" class="btn btn-primary btn-block btn-buy table-buy-btn table-buy-btn-all ignore--b2b-ajax-panel"
                                            title="{{ "ReiffIntegrations.customer.orders.addAll"|trans|sw_sanitize }}"
                                            aria-label="{{ "ReiffIntegrations.customer.orders.addAll"|trans|sw_sanitize }}" data-b2b-add-to-cart="true">
@@ -145,11 +145,11 @@
                                         {{ lineItem.netTotal|currency(order.currency) }}
                                     </td>
                                     <td>
-                                        {% block component_product_box_action_buy %}
+                                        {% block reiff_order_detail_line_item_buy %}
                                             {% if lineItem.productId %}
                                                 {% set formAction = path('frontend.checkout.line-item.add') %}
 
-                                                {% block component_product_box_action_form %}
+                                                {% block reiff_order_detail_line_item_buy_form %}
                                                     <form id="addToCart" action="{{ formAction }}"
                                                           method="post"
                                                           class="buy-widget buy-widget-by-number ignore--b2b-ajax-panel">
@@ -162,7 +162,7 @@
                                                     </form>
                                                 {% endblock %}
 
-                                                {% block page_product_detail_product_buy_button %}
+                                                {% block reiff_order_detail_line_item_buy_button %}
                                                     <a href="#" class="btn btn-primary btn-block btn-buy table-buy-btn ignore--b2b-ajax-panel"
                                                        title="{{ "listing.boxAddProduct"|trans|striptags }}"
                                                        aria-label="{{ "listing.boxAddProduct"|trans|striptags }}" data-b2b-add-to-cart="true">
