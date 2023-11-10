@@ -10,10 +10,10 @@ Component.override('sw-customer-list', {
             const columns = this.$super('getCustomerColumns');
 
             columns.push({
-                property: 'salesOrganization',
-                dataIndex: 'extensions.reiffCustomer.salesOrganization',
+                property: 'salesOrganisation',
+                dataIndex: 'extensions.reiffCustomer.salesOrganisation',
                 inlineEdit: 'string',
-                label: 'ReiffIntegrations.customer.list.tableHeader.salesOrganizationLabel',
+                label: 'ReiffIntegrations.customer.list.tableHeader.salesOrganisationLabel',
                 allowResize: true,
                 width: '100px',
             });

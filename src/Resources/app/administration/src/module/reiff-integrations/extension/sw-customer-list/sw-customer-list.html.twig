@@ -1,18 +1,18 @@
 {% block sw_customer_list_grid_columns %}
     {% parent() %}
 
-    <template #column-salesOrganization="{ item, compact, isInlineEdit }">
+    <template #column-salesOrganisation="{ item, compact, isInlineEdit }">
         <template v-if="isInlineEdit">
             <sw-text-field
-                v-model="item.extensions.reiffCustomer.salesOrganization"
+                v-model="item.extensions.reiffCustomer.salesOrganisation"
                 :size="compact ? 'small' : 'default'"
             />
         </template>
-        <template v-else-if="item?.extensions?.reiffCustomer?.salesOrganization">
-            {{ item.extensions.reiffCustomer.salesOrganization }}
+        <template v-else-if="item?.extensions?.reiffCustomer?.salesOrganisation">
+            {{ item.extensions.reiffCustomer.salesOrganisation }}
         </template>
         <template v-else>
-            {{ $tc('ReiffIntegrations.customer.detail.salesOrganizationPlaceholder') }}
+            {{ $tc('ReiffIntegrations.customer.detail.salesOrganisationPlaceholder') }}
         </template>
     </template>
 

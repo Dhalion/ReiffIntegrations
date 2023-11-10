@@ -3,18 +3,18 @@
 
     <sw-description-list>
         <dt class="sw-customer-base-info__label">
-            {{ $tc('ReiffIntegrations.customer.detail.salesOrganizationLabel') }}
+            {{ $tc('ReiffIntegrations.customer.detail.salesOrganisationLabel') }}
         </dt>
-        <dd class="sw-customer-base__label-customer-salesOrganization">
+        <dd class="sw-customer-base__label-customer-salesOrganisation">
             <sw-text-field v-if="customerEditMode"
-                           v-model="customer.extensions.reiffCustomer.salesOrganization"
-                           :placeholder="$tc('ReiffIntegrations.customer.detail.salesOrganizationPlaceholder')"
+                           v-model="customer.extensions.reiffCustomer.salesOrganisation"
+                           :placeholder="$tc('ReiffIntegrations.customer.detail.salesOrganisationPlaceholder')"
             />
-            <template v-else-if="customer?.extensions?.reiffCustomer?.salesOrganization">
-                {{ customer.extensions.reiffCustomer.salesOrganization }}
+            <template v-else-if="customer?.extensions?.reiffCustomer?.salesOrganisation">
+                {{ customer.extensions.reiffCustomer.salesOrganisation }}
             </template>
             <template v-else>
-                {{ $tc('ReiffIntegrations.customer.detail.salesOrganizationPlaceholder') }}
+                {{ $tc('ReiffIntegrations.customer.detail.salesOrganisationPlaceholder') }}
             </template>
         </dd>
     </sw-description-list>

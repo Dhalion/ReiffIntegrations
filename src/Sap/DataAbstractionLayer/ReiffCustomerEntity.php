@@ -12,7 +12,7 @@ class ReiffCustomerEntity extends Entity
     protected ?CustomerEntity $customer  = null;
     protected ?string $customerId        = null;
     protected ?string $debtorNumber      = null;
-    protected ?string $salesOrganization = null;
+    protected ?string $salesOrganisation = null;
 
     public function getCustomer(): ?CustomerEntity
     {
@@ -44,13 +44,13 @@ class ReiffCustomerEntity extends Entity
         $this->debtorNumber = $debtorNumber;
     }
 
-    public function getSalesOrganization(): ?string
+    public function getSalesOrganisation(): ?string
     {
-        return $this->salesOrganization;
+        return $this->salesOrganisation;
     }
 
-    public function setSalesOrganization(?string $salesOrganization): void
+    public function setSalesOrganisation(?string $salesOrganisation): void
     {
-        $this->salesOrganization = $salesOrganization;
+        $this->salesOrganisation = $salesOrganisation;
     }
 }

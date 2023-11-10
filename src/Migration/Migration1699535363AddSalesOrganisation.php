@@ -7,7 +7,7 @@ namespace ReiffIntegrations\Migration;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
-class Migration1699535363AddSalesOrganization extends MigrationStep
+class Migration1699535363AddSalesOrganisation extends MigrationStep
 {
     public function getCreationTimestamp(): int
     {
@@ -18,7 +18,7 @@ class Migration1699535363AddSalesOrganization extends MigrationStep
     {
         $connection->executeStatement('
             ALTER TABLE `reiff_customer`
-            ADD COLUMN `sales_organization` VARCHAR(255) NULL;
+            ADD COLUMN `sales_organisation` VARCHAR(255) NULL;
         ');
     }
 
