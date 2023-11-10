@@ -35,11 +35,27 @@ export default class AgiqonB2bAddToCartPlugin extends Plugin {
     _registerEventListeners() {
         const clickEvent = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
 
+        try {
+            this.tableBuyBtn = DomAccess.querySelectorAll(
+                this.openAccordion,
+                '.table-buy-btn'
+            );
+        } catch (e) {
+            return;
+        }
+
         console.info(this.tableBuyBtn.length)
 
-        this.tableBuyBtn.forEach((item) => {
-            item.addEventListener(clickEvent, this._onSubmitForm.bind(this));
-        });
+        // console.info(this.tableBuyBtn.length)
+
+        // re-initialize plugins
+        window.PluginManager.initializePlugins();
+
+
+
+        // this.tableBuyBtn.forEach((item) => {
+        //     item.addEventListener(clickEvent, this._onSubmitForm.bind(this));
+        // });
     }
 
     /**
@@ -93,31 +109,53 @@ export default class AgiqonB2bAddToCartPlugin extends Plugin {
         // Callback function to execute when mutations are observed
         const callback = (mutationList, observer) => {
             for (const mutation of mutationList) {
-                if (mutation.type === 'childList') {
+
+                // console.info(mutation.type)
+
+                if (mutation.type === 'attributes') {
+                    // console.info(mutation.type)
+
                     // this._triggerAccountType();
                     this.openAccordion = DomAccess.querySelector(
                         this.el,
                         '.b2b-accordion--open'
                     );
 
-                    console.info(this.openAccordion)
+                    if (this.openAccordion) {
 
-                    // this._client = new HttpClient();
+                        this._registerEventListeners();
 
-                    try {
-                        this.tableBuyBtn = DomAccess.querySelectorAll(
-                            this.el,
-                            '.table-buy-btn'
-                        );
-                    } catch (e) {
-                        return;
                     }
 
-                    console.info(this.tableBuyBtn.length)
-
-                    // this._registerEventListeners();
-
                 }
+
+                // if (mutation.type === 'childList') {
+                //     // console.info(mutation.type)
+                //
+                //     // this._triggerAccountType();
+                //     this.openAccordion = DomAccess.querySelector(
+                //         this.el,
+                //         '.b2b-accordion--open'
+                //     );
+                //
+                //     console.info(this.openAccordion)
+                //
+                //     // this._client = new HttpClient();
+                //
+                //     try {
+                //         this.tableBuyBtn = DomAccess.querySelectorAll(
+                //             this.el,
+                //             '.table-buy-btn'
+                //         );
+                //     } catch (e) {
+                //         return;
+                //     }
+                //
+                //     console.info(this.tableBuyBtn.length)
+                //
+                //     // this._registerEventListeners();
+                //
+                // }
             }
         };
 
