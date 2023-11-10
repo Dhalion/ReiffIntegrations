@@ -110,13 +110,15 @@
                                             {% endfor %}
 
                                             {% block reiff_order_detail_buy_all_button %}
-                                                <button class="btn btn-primary btn-block btn-buy table-buy-btn table-buy-btn-all ignore--b2b-ajax-panel"
-                                                        title="{{ "ReiffIntegrations.customer.orders.addAll"|trans|sw_sanitize }}"
-                                                        aria-label="{{ "ReiffIntegrations.customer.orders.addAll"|trans|sw_sanitize }}">
-                                                    {% sw_icon 'basket' style {
-                                                        'namespace': 'ReiffTheme'
-                                                    } %}
-                                                </button>
+                                                {% if displayBtn == true %}
+                                                    <button class="btn btn-primary btn-block btn-buy table-buy-btn table-buy-btn-all ignore--b2b-ajax-panel"
+                                                            title="{{ "ReiffIntegrations.customer.orders.addAll"|trans|sw_sanitize }}"
+                                                            aria-label="{{ "ReiffIntegrations.customer.orders.addAll"|trans|sw_sanitize }}">
+                                                        {% sw_icon 'basket' style {
+                                                            'namespace': 'ReiffTheme'
+                                                        } %}
+                                                    </button>
+                                                {% endif %}
                                             {% endblock %}
                                         </form>
                                     {% endblock %}
