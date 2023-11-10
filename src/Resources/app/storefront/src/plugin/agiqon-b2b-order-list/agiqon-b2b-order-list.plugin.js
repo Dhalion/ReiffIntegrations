@@ -238,14 +238,16 @@ export default class AgiqonB2bOrderListPlugin extends Plugin {
         // Callback function to execute when mutations are observed
         const callback = (mutationList, observer) => {
             for (const mutation of mutationList) {
+                if (mutation.type === 'childList') {
+                    try {
+                        this.openAccordion = DomAccess.querySelector(
+                            this.el,
+                            '.b2b-accordion--open'
+                        );
+                    } catch (e) {
+                        return;
+                    }
 
-                console.info(mutation.type)
-
-                if (mutation.type === 'attributes') {
-                    this.openAccordion = DomAccess.querySelector(
-                        this.el,
-                        '.b2b-accordion--open'
-                    );
                     if (this.openAccordion) {
                         this._initPlugins();
                     }
