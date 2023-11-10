@@ -33,6 +33,8 @@ export default class AgiqonB2bAddToCartPlugin extends Plugin {
     _registerEventListeners() {
         const clickEvent = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
 
+        console.info(this.tableBuyBtn.length)
+
         this.tableBuyBtn.forEach((item) => {
             item.addEventListener(clickEvent, this._onSubmitForm.bind(this));
         });
