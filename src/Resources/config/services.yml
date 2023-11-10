@@ -1,10 +1,6 @@
 parameters:
-    messenger_export_default_dsn: "enqueue://default?receiveTimeout=100&topic[name]=export&queue[name]=export"
-    messenger_import_default_dsn: "enqueue://default?receiveTimeout=100&topic[name]=import&queue[name]=import"
-    messenger_default_default_dsn: "enqueue://default?receiveTimeout=100"
     messenger_import_dsn: "%env(MESSENGER_TRANSPORT_DSN)%/import"
     messenger_export_dsn: "%env(MESSENGER_TRANSPORT_DSN)%/export"
-    messenger_default_dsn: "%env(MESSENGER_TRANSPORT_DSN)%"
 
 framework:
     messenger:
@@ -13,8 +9,6 @@ framework:
                 dsn: "%messenger_export_dsn%"
             import:
                 dsn: "%messenger_import_dsn%"
-            default:
-                dsn: "%messenger_default_dsn%"
         routing:
             'ReiffIntegrations\MeDaPro\Message\CategoryImportMessage': import
             'ReiffIntegrations\MeDaPro\Message\ManufacturerImportMessage': import

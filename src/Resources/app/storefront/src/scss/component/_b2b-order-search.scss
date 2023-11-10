@@ -8,14 +8,17 @@
 .b2b-order-search-results-wrap {
   background: #f7f7f7;
   border: 1px solid $sw-border-color;
+  overflow-x: auto;
 
   .sorting-buttons {
+    overflow: visible;
     position: sticky;
     top: 0;
     z-index: 1;
 
     > .row {
       border-bottom: 5px solid $sw-color-brand-primary;
+      flex-wrap: nowrap;
 
       > [class*="col"] {
         display: flex;
@@ -28,6 +31,7 @@
 
         &:last-child {
           justify-content: center;
+          min-width: 50px;
 
           .icon {
             svg {
@@ -103,11 +107,16 @@
   .b2b-accordion__title {
     font-size: $font-size-base;
     padding: 16px 0;
+    white-space: nowrap;
 
     .icon {
       svg {
         top: 0;
       }
+    }
+
+    .row {
+      flex-wrap: nowrap;
     }
 
     [class*="col"] {
@@ -207,22 +216,19 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      min-width: 42px;
+      width: 42px;
     }
-  }
-}
 
-.table-buy-btn-all {
-  background: none;
-  border: none;
-  display: flex;
-  align-items: center;
+    &.table-buy-btn-all {
+      .icon {
+        width: 20px;
+        height: 20px;
 
-  .icon {
-    margin-right: 8px;
-
-    svg {
-      top: 0;
+        svg {
+          stroke: $color-white;
+          stroke-width: 3px;
+        }
+      }
     }
   }
 }
