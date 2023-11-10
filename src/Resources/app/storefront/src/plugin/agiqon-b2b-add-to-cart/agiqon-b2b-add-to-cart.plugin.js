@@ -97,7 +97,7 @@ export default class AgiqonB2bAddToCartPlugin extends Plugin {
                     // this._triggerAccountType();
                     this.openAccordion = DomAccess.querySelector(
                         this.el,
-                        '.b2b-accordion b2b-accordion--open'
+                        '.b2b-accordion--open'
                     );
 
                     console.info(this.openAccordion)
