@@ -9,7 +9,7 @@ const { PluginManager } = window;
 PluginManager.register('K10rReiffAsyncSapOfferPlugin', K10rReiffAsyncSapOfferPlugin, '[data-k10r-reiff-async-sap-offer-plugin]');
 PluginManager.register('K10rReiffAvailabilityDisplayPlugin', K10rReiffAvailabilityDisplayPlugin, document.body);
 PluginManager.register('K10rReiffPriceDisplayPlugin', K10rReiffPriceDisplayPlugin, '[data-k10r-reiff-price-display-plugin]');
-PluginManager.register('AgiqonB2bAddToCart', AgiqonB2bAddToCartPlugin, '[data-b2b-add-to-cart]');
+PluginManager.register('AgiqonB2bAddToCart', AgiqonB2bAddToCartPlugin, '.b2b-order-search-results');
 PluginManager.register('AgiqonB2bOrderList', AgiqonB2bOrderListPlugin, '[data-b2b-order-list]');
 
 if (module.hot) {
