@@ -209,5 +209,17 @@
       justify-content: center;
       width: 42px;
     }
+
+    &.table-buy-btn-all {
+      .icon {
+        width: 20px;
+        height: 20px;
+
+        svg {
+          stroke: $color-white;
+          stroke-width: 3px;
+        }
+      }
+    }
   }
 }
