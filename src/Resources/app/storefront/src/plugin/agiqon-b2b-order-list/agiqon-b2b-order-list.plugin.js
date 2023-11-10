@@ -99,6 +99,10 @@ export default class AgiqonB2bOrderListPlugin extends Plugin {
             return;
         }
 
+        container.forEach((item) => {
+            item.classList.remove('b2b-accordion--open');
+        });
+
         // get accordion elements
         const elements = Array.from(container.children);
 
