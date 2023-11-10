@@ -72,109 +72,6 @@
                         </div>
                     {% endblock %}
 
-{#                    {% block reiff_order_search_results_DEMO  %}#}
-
-{#                        #}{# Accordion header with sorting #}
-{#                        <div class="b2b-order-search-results-wrap">#}
-{#                            {% block reiff_order_search_sorting_DEMO  %}#}
-{#                                {% set sortingIcon %}#}
-{#                                    {% sw_icon 'arrow-down-long-solid' style {#}
-{#                                        'namespace': 'ReiffIntegrations'#}
-{#                                    } %}#}
-{#                                    {% sw_icon 'arrow-up-long-solid' style {#}
-{#                                        'namespace': 'ReiffIntegrations'#}
-{#                                    } %}#}
-{#                                {% endset %}#}
-
-{#                                <div class="container sorting-buttons">#}
-{#                                    <div class="row">#}
-{#                                        <div class="col">#}
-{#                                            {{ "ReiffIntegrations.customer.orders.sorting.orderNumber"|trans|sw_sanitize }}#}
-{#                                            <button type="button"#}
-{#                                                    class="btn-sort"#}
-{#                                                    data-sorting-type="by-order-number"#}
-{#                                                    data-sorting-direction="default">#}
-{#                                                {{ sortingIcon }}#}
-{#                                            </button>#}
-{#                                        </div>#}
-{#                                        <div class="col">#}
-{#                                            {{ "ReiffIntegrations.customer.orders.sorting.refNumber"|trans|sw_sanitize }}#}
-{#                                            <button type="button"#}
-{#                                                    class="btn-sort"#}
-{#                                                    data-sorting-type="by-reference"#}
-{#                                                    data-sorting-direction="default">#}
-{#                                                {{ sortingIcon }}#}
-{#                                            </button>#}
-{#                                        </div>#}
-{#                                        <div class="col">#}
-{#                                            {{ "ReiffIntegrations.customer.orders.sorting.orderDate"|trans|sw_sanitize }}#}
-{#                                            <button type="button"#}
-{#                                                    class="btn-sort"#}
-{#                                                    data-sorting-type="by-date"#}
-{#                                                    data-sorting-direction="default">#}
-{#                                                {{ sortingIcon }}#}
-{#                                            </button>#}
-{#                                        </div>#}
-{#                                        <div class="col">#}
-{#                                            {{ "ReiffIntegrations.customer.orders.sorting.orderStatus"|trans|sw_sanitize }}#}
-{#                                            <button type="button"#}
-{#                                                    class="btn-sort"#}
-{#                                                    data-sorting-type="by-status"#}
-{#                                                    data-sorting-direction="default">#}
-{#                                                {{ sortingIcon }}#}
-{#                                            </button>#}
-{#                                        </div>#}
-{#                                        <div class="col">#}
-{#                                            {{ "ReiffIntegrations.customer.orders.sorting.orderTotal"|trans|sw_sanitize }}#}
-{#                                            <button type="button"#}
-{#                                                    class="btn-sort"#}
-{#                                                    data-sorting-type="by-total"#}
-{#                                                    data-sorting-direction="default">#}
-{#                                                {{ sortingIcon }}#}
-{#                                            </button>#}
-{#                                        </div>#}
-{#                                        <div class="col-1">#}
-{#                                            {% sw_icon 'eye-open' %}#}
-{#                                        </div>#}
-{#                                    </div>#}
-{#                                </div>#}
-{#                            {% endblock %}#}
-
-{#                            #}{# Results accordion #}
-{#                            <div class="b2b-order-search-results" data-b2b-order-list="true">#}
-{#                                {% sw_include '@Storefront/storefront/page/orders/index-testing.html.twig' with {#}
-{#                                    orderNumber: '0013022533',#}
-{#                                    orderReference: 'shop3000302/TEST6',#}
-{#                                    orderDate: "now"|date("d M Y H:i", "Australia/Melbourne"),#}
-{#                                    orderStatus: 'In Bearbeitung',#}
-{#                                    orderTotal: '800.09'#}
-{#                                } %}#}
-{#                                {% sw_include '@Storefront/storefront/page/orders/index-testing.html.twig' with {#}
-{#                                    orderNumber: '0013022537',#}
-{#                                    orderReference: 'shop3000302/TEST3',#}
-{#                                    orderDate: "now"|date("d M Y H:i", "Asia/Hong_Kong"),#}
-{#                                    orderStatus: 'In Bearbeitung',#}
-{#                                    orderTotal: '200.09'#}
-{#                                } %}#}
-{#                                {% sw_include '@Storefront/storefront/page/orders/index-testing.html.twig' with {#}
-{#                                    orderNumber: '0013022536',#}
-{#                                    orderReference: 'shop3000302/MANO',#}
-{#                                    orderDate: "now"|date("d M Y H:i", "Asia/Hong_Kong"),#}
-{#                                    orderStatus: 'In Bearbeitung',#}
-{#                                    orderTotal: '1800.09'#}
-{#                                } %}#}
-{#                                {% sw_include '@Storefront/storefront/page/orders/index-testing.html.twig' with {#}
-{#                                    orderNumber: '0013022534',#}
-{#                                    orderReference: 'shop3000302/TEST4',#}
-{#                                    orderDate: "now"|date("d M Y H:i", "America/New_York"),#}
-{#                                    orderStatus: 'In Bearbeitung',#}
-{#                                    orderTotal: '600.09'#}
-{#                                } %}#}
-{#                            </div>#}
-
-{#                        </div>#}
-{#                    {% endblock %}#}
-
                 {% else %}
 
                     {% block reiff_order_search_sorting_wrap %}
@@ -287,16 +184,6 @@
                                                                 </div>
                                                                 <div class="col">
                                                                     <span>{{ order.netTotal|currency(decimals=decimals) }}</span>
-
-                                                                    {# TODO: add whole order to cart #}
-{#                                                                    {% sw_icon 'basket' style {#}
-{#                                                                        'namespace': 'ReiffTheme'#}
-{#                                                                    } %}#}
-
-                                                                    {# TODO: add shipping tracking link #}
-{#                                                                    {% sw_icon 'box-solid' style {#}
-{#                                                                        'namespace': 'ReiffIntegrations'#}
-{#                                                                    } %}#}
                                                                 </div>
                                                                 <div class="col-1">
                                                                     {% sw_icon 'arrow-head-down' style {
