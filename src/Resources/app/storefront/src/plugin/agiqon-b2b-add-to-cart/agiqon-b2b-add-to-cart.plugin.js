@@ -12,18 +12,20 @@ export default class AgiqonB2bAddToCartPlugin extends Plugin {
      * Initialize
      */
     init() {
-        this._client = new HttpClient();
+        // this._client = new HttpClient();
+        //
+        // try {
+        //     this.tableBuyBtn = DomAccess.querySelectorAll(
+        //         this.el,
+        //         '.table-buy-btn'
+        //     );
+        // } catch (e) {
+        //     return;
+        // }
+        //
+        // this._registerEventListeners();
 
-        try {
-            this.tableBuyBtn = DomAccess.querySelectorAll(
-                this.el,
-                '.table-buy-btn'
-            );
-        } catch (e) {
-            return;
-        }
-
-        this._registerEventListeners();
+        this._runObserver();
     }
 
     /**
@@ -78,5 +80,55 @@ export default class AgiqonB2bAddToCartPlugin extends Plugin {
                 response.json().then(data => {})
             }
         }).catch(error => {});
+    }
+
+    /**
+     * Observer
+     * @private
+     */
+    _runObserver() {
+        // Options for the observer (which mutations to observe)
+        const config = { attributes: true, childList: true, subtree: true };
+
+        // Callback function to execute when mutations are observed
+        const callback = (mutationList, observer) => {
+            for (const mutation of mutationList) {
+                if (mutation.type === 'childList') {
+                    // this._triggerAccountType();
+                    this.openAccordion = DomAccess.querySelector(
+                        this.el,
+                        '.b2b-accordion b2b-accordion--open'
+                    );
+
+                    console.info(this.openAccordion)
+
+                    // this._client = new HttpClient();
+
+                    try {
+                        this.tableBuyBtn = DomAccess.querySelectorAll(
+                            this.el,
+                            '.table-buy-btn'
+                        );
+                    } catch (e) {
+                        return;
+                    }
+
+                    console.info(this.tableBuyBtn.length)
+
+                    // this._registerEventListeners();
+
+                }
+            }
+        };
+
+        // Create an observer instance linked to the callback function
+        const observer = new MutationObserver(callback);
+
+        // Start observing the target node for configured mutations
+        // observer.observe(this.companyTabContainer, config);
+        observer.observe(this.el, config);
+
+        // Later, you can stop observing
+        // observer.disconnect();
     }
 }
