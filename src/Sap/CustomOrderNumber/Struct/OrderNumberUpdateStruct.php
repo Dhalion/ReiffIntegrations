@@ -11,7 +11,7 @@ class OrderNumberUpdateStruct extends Struct
     public function __construct(
         protected string $debtorNumber,
         protected string $customerId,
-        protected string $salesOrganisation,
+        protected string $salesOrganization,
     ) {
     }
 
@@ -25,8 +25,8 @@ class OrderNumberUpdateStruct extends Struct
         return $this->customerId;
     }
 
-    public function getSalesOrganisation(): string
+    public function getSalesOrganization(): string
     {
-        return $this->salesOrganisation;
+        return $this->salesOrganization;
     }
 }

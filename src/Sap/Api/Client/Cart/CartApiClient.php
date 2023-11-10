@@ -14,6 +14,7 @@ use ReiffIntegrations\Sap\Struct\Price\ItemStruct;
 use ReiffIntegrations\Util\Configuration;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class CartApiClient extends AbstractApiClient
@@ -29,7 +30,7 @@ class CartApiClient extends AbstractApiClient
     /**
      * @throws TimeoutException
      */
-    public function getPrices(Cart $cart, ReiffCustomerEntity $customer): ItemCollection
+    public function getPrices(Cart $cart, ReiffCustomerEntity $customer, SalesChannelContext $context): ItemCollection
     {
         $template = '
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:sap-com:document:sap:rfc:functions">
@@ -39,17 +40,21 @@ class CartApiClient extends AbstractApiClient
                      <IT_ITEMS>
                          %s
                      </IT_ITEMS>
-                     <IV_SESSION_LANGUAGE>DE</IV_SESSION_LANGUAGE>
+                     <IV_SESSION_LANGUAGE>%s</IV_SESSION_LANGUAGE>
                      <IV_SALES_ORGANISATION>%s</IV_SALES_ORGANISATION>
                   </urn:ZSHOP_SALES_PRICE_SIMULATE>
                </soapenv:Body>
             </soapenv:Envelope>
         ';
 
+        $language = $context->getLanguageId(); // TODO: find correct language IsoCode
+        $language = 'DE';
+
         $postData = trim(sprintf(
             $template,
             $this->getItems($cart, $customer->getDebtorNumber()),
-            $customer->getSalesOrganisation()
+            $language,
+            $customer->getSalesOrganization()
         ));
 
         $method = self::METHOD_POST;
@@ -61,7 +66,7 @@ class CartApiClient extends AbstractApiClient
             return new ItemCollection();
         }
 
-        $userName = $this->systemConfigService->getString(Configuration::CONFIG_KEY_API_USER_NAME);
+        $username = $this->systemConfigService->getString(Configuration::CONFIG_KEY_API_USER_NAME);
         $password = $this->systemConfigService->getString(Configuration::CONFIG_KEY_API_PASSWORD);
 
         $headerData = [
@@ -70,7 +75,7 @@ class CartApiClient extends AbstractApiClient
             'Content-length: ' . strlen($postData),
         ];
 
-        $handle = $this->getCurlHandle($url, $userName, $password, $headerData, $method, $postData, $ignoreSsl);
+        $handle = $this->getCurlHandle($url, $username, $password, $headerData, $method, $postData, $ignoreSsl);
 
         $response    = curl_exec($handle);
         $errorNumber = curl_errno($handle);

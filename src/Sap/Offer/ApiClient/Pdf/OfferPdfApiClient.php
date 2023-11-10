@@ -42,7 +42,7 @@ class OfferPdfApiClient extends AbstractApiClient
             return $this->responseParser->parseResponse(false, '');
         }
 
-        $userName = $this->systemConfigService->getString(Configuration::CONFIG_KEY_API_USER_NAME);
+        $username = $this->systemConfigService->getString(Configuration::CONFIG_KEY_API_USER_NAME);
         $password = $this->systemConfigService->getString(Configuration::CONFIG_KEY_API_PASSWORD);
 
         $headerData = [
@@ -51,7 +51,7 @@ class OfferPdfApiClient extends AbstractApiClient
             'Content-length: ' . strlen($postData),
         ];
 
-        $handle = $this->getCurlHandle($url, $userName, $password, $headerData, $method, $postData, $ignoreSsl);
+        $handle = $this->getCurlHandle($url, $username, $password, $headerData, $method, $postData, $ignoreSsl);
 
         $response    = curl_exec($handle);
         $errorNumber = curl_errno($handle);

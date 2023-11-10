@@ -27,18 +27,36 @@ class PriceApiClient extends AbstractApiClient
     /**
      * @throws TimeoutException
      */
-    public function getPrices(array $productNumbers, string $debtorNumber): ItemCollection
+    public function getPrices(
+        array $productNumbers,
+        string $debtorNumber,
+        string $salesOrganization,
+        string $languageCode
+    ): ItemCollection
     {
-        $postData = sprintf('<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:itb="http://www.itb-web.de/">
-   <soapenv:Header/>
-   <soapenv:Body>
-      <itb:GetItemScales>
-         <PriceRequests>
-             %s
-         </PriceRequests>
-      </itb:GetItemScales>
-   </soapenv:Body>
-</soapenv:Envelope>', $this->getPriceRequests($productNumbers, $debtorNumber));
+        $template = '
+            <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:sap-com:document:sap:soap:functions:mc-style">
+               <soapenv:Header/>
+               <soapenv:Body>
+                  <urn:ZshopGetMaterialFullPrice>
+                     <ItItems>
+                        %s
+                     </ItItems>
+                     <IvDistributionChannel>10</IvDistributionChannel>
+                     <IvDivision>00</IvDivision>
+                     <IvSalesOrganisation>%s</IvSalesOrganisation>
+                     <IvSessionLanguage>%s</IvSessionLanguage>
+                  </urn:ZshopGetMaterialFullPrice>
+               </soapenv:Body>
+            </soapenv:Envelope>
+        ';
+
+        $postData = trim(sprintf(
+            $template,
+            $this->getPriceRequests($productNumbers, $debtorNumber),
+            $salesOrganization,
+            $languageCode
+        ));
 
         $method = self::METHOD_POST;
 
@@ -55,7 +73,19 @@ class PriceApiClient extends AbstractApiClient
             'Content-length: ' . strlen($postData),
         ];
 
-        $handle = $this->getCurlHandle($url, '', '', $headerData, $method, $postData, $ignoreSsl, self::API_TIMEOUT_IN_SECONDS);
+        $username = $this->systemConfigService->getString(Configuration::CONFIG_KEY_API_USER_NAME);
+        $password = $this->systemConfigService->getString(Configuration::CONFIG_KEY_API_PASSWORD);
+
+        $handle = $this->getCurlHandle(
+            $url,
+            $username,
+            $password,
+            $headerData,
+            $method,
+            $postData,
+            $ignoreSsl,
+            self::API_TIMEOUT_IN_SECONDS
+        );
 
         $response         = curl_exec($handle);
         $errorNumber      = curl_errno($handle);
@@ -82,16 +112,22 @@ class PriceApiClient extends AbstractApiClient
         $requests = [];
 
         foreach ($productNumbers as $productNumber) {
-            $requests[] = sprintf(
-                '<ArticleRequestInformation>
-               <UserID>%s</UserID>
-               <ItemNumber>%s</ItemNumber>
-               <Quantity>%d</Quantity>
-            </ArticleRequestInformation>',
+            $template = '
+                <item>
+                    <Kunnr>%s</Kunnr>
+                    <Matnr>%s</Matnr>
+                    <Mgame>%s</Mgame>
+                    <Vrkme></Vrkme>
+                    <DatumPrice></DatumPrice>
+                </item>
+            ';
+
+            $requests[] = trim(sprintf(
+                $template,
                 $debtorNumber,
                 $productNumber,
                 self::PRICE_QUANTITY
-            );
+            ));
         }
 
         return implode("\n", $requests);

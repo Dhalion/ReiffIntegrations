@@ -77,7 +77,7 @@ class UpdateCommand extends Command
 
             $updateStruct = new OrderNumberUpdateStruct(
                 $customer->getDebtorNumber(),
-                $customer->getSalesOrganisation(),
+                $customer->getSalesOrganization(),
                 $customer->getCustomerId(),
             );
 

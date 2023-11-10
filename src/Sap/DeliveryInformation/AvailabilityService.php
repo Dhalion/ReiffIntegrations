@@ -8,6 +8,7 @@ use ReiffIntegrations\Sap\DeliveryInformation\ApiClient\AvailabilityApiClient;
 use ReiffIntegrations\Sap\DeliveryInformation\Struct\AvailabilityStruct;
 use ReiffIntegrations\Sap\DeliveryInformation\Struct\AvailabilityStructCollection;
 use ReiffIntegrations\Sap\Exception\TimeoutException;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
@@ -24,9 +25,9 @@ class AvailabilityService
     ) {
     }
 
-    public function fetchAvailabilities(array $productNumbers): AvailabilityStructCollection
+    public function fetchAvailabilities(array $productNumbers, SalesChannelContext $context): AvailabilityStructCollection
     {
-        $availabilities        = $this->getCachedAvailabilities($productNumbers);
+        $availabilities        = $this->getCachedAvailabilities($productNumbers, $context);
         $missingProductNumbers = [];
 
         foreach ($productNumbers as $productNumber) {
@@ -44,16 +45,16 @@ class AvailabilityService
                 return $availabilities;
             }
 
-            $this->updateAvailabilities($uncachedAvailabilities, $availabilities);
+            $this->updateAvailabilities($uncachedAvailabilities, $availabilities, $context);
         }
 
         return $availabilities;
     }
 
-    private function getCachedAvailabilities(array $productNumbers): AvailabilityStructCollection
+    private function getCachedAvailabilities(array $productNumbers, SalesChannelContext $context): AvailabilityStructCollection
     {
         $result      = new AvailabilityStructCollection();
-        $cacheResult = $this->cache->getItems($this->getCacheKeys($productNumbers));
+        $cacheResult = $this->cache->getItems($this->getCacheKeys($productNumbers, $context));
 
         foreach ($cacheResult as $cachedResult) {
             if ($cachedResult->isHit() && $cachedResult->get()) {
@@ -74,7 +75,16 @@ class AvailabilityService
 
         if (!$circuitBreaker->isHit()) {
             try {
-                $uncachedAvailabilities = $this->apiClient->getAvailability($productNumbers);
+                $salesOrganization = '';
+                $languageCode = 'DE';
+
+                // TODO: FETCH DATA! :D
+
+                $uncachedAvailabilities = $this->apiClient->getAvailability(
+                    $productNumbers,
+                    $salesOrganization,
+                    $languageCode
+                );
             } catch (TimeoutException $exception) {
                 $circuitBreaker->set(true);
                 $circuitBreaker->expiresAfter(self::CIRCUIT_BREAKER_EXPIRATION_IN_SECONDS);
@@ -91,12 +101,13 @@ class AvailabilityService
 
     private function updateAvailabilities(
         AvailabilityStructCollection $uncachedAvailabilities,
-        AvailabilityStructCollection $cachedAvailabilities
+        AvailabilityStructCollection $cachedAvailabilities,
+        SalesChannelContext $context
     ): void {
         foreach ($uncachedAvailabilities->getElements() as $availability) {
             $cachedAvailabilities->set($availability->getProductNumber(), $availability);
 
-            $cacheKey = $this->getCacheKey($availability->getProductNumber());
+            $cacheKey = $this->getCacheKey($availability->getProductNumber(), $context);
 
             $cacheItem = $this->cache->getItem($cacheKey);
             $cacheItem->set($availability);
@@ -109,18 +120,18 @@ class AvailabilityService
         $this->cache->commit();
     }
 
-    private function getCacheKeys(array $productNumbers): array
+    private function getCacheKeys(array $productNumbers, SalesChannelContext $context): array
     {
         $keys = [];
 
         foreach ($productNumbers as $productNumber) {
-            $keys[] = $this->getCacheKey((string) $productNumber);
+            $keys[] = $this->getCacheKey((string) $productNumber, $context);
         }
 
         return $keys;
     }
 
-    private function getCacheKey(string $productNumber): string
+    private function getCacheKey(string $productNumber, SalesChannelContext $context): string
     {
         $productNumber = str_replace(str_split(ItemInterface::RESERVED_CHARACTERS), '', (string) $productNumber);
 

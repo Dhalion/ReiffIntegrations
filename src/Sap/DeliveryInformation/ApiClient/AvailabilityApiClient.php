@@ -29,19 +29,34 @@ class AvailabilityApiClient extends AbstractApiClient
     /**
      * @throws TimeoutException
      */
-    public function getAvailability(array $productNumbers): AvailabilityStructCollection
+    public function getAvailability(
+        array $productNumbers,
+        string $salesOrganization,
+        string $languageCode
+    ): AvailabilityStructCollection
     {
-        $postData = sprintf(
-            '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:itb="http://www.itb-web.de/">
-           <soapenv:Header/>
-           <soapenv:Body>
-              <itb:GetAvailability>
-                 %s
-              </itb:GetAvailability>
-           </soapenv:Body>
-        </soapenv:Envelope>',
-            $this->getAvailabilityRequest($productNumbers)
-        );
+        $template = '
+            <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:sap-com:document:sap:rfc:functions">
+               <soapenv:Header/>
+               <soapenv:Body>
+                  <urn:ZSHOP_MATERIAL_AVAILABILITY>
+                     <IT_ITEMS>
+                        %s
+                     </IT_ITEMS>
+                     <IV_DISTRIBUTION_CHANNEL>10</IV_DISTRIBUTION_CHANNEL>
+                     <IV_SALES_ORGANISATION>%s</IV_SALES_ORGANISATION>
+                     <IV_SESSION_LANGUAGE>%s</IV_SESSION_LANGUAGE>
+                  </urn:ZSHOP_MATERIAL_AVAILABILITY>
+               </soapenv:Body>
+            </soapenv:Envelope>
+        ';
+
+        $postData = trim(sprintf(
+            $template,
+            $this->getAvailabilityRequest($productNumbers),
+            $salesOrganization,
+            $languageCode
+        ));
 
         $method = self::METHOD_POST;
 
@@ -58,7 +73,19 @@ class AvailabilityApiClient extends AbstractApiClient
             'Content-length: ' . strlen($postData),
         ];
 
-        $handle = $this->getCurlHandle($url, '', '', $headerData, $method, $postData, $ignoreSsl, self::API_TIMEOUT_IN_SECONDS);
+        $username = $this->systemConfigService->getString(Configuration::CONFIG_KEY_API_USER_NAME);
+        $password = $this->systemConfigService->getString(Configuration::CONFIG_KEY_API_PASSWORD);
+
+        $handle = $this->getCurlHandle(
+            $url,
+            $username,
+            $password,
+            $headerData,
+            $method,
+            $postData,
+            $ignoreSsl,
+            self::API_TIMEOUT_IN_SECONDS
+        );
 
         $response         = curl_exec($handle);
         $errorNumber      = curl_errno($handle);
@@ -85,13 +112,17 @@ class AvailabilityApiClient extends AbstractApiClient
         $requests = [];
 
         foreach ($productNumbers as $productNumber) {
-            $requests[] = sprintf(
-                '<GetAvailabilityRequestInformation>
-                            <MATERIAL>%s</MATERIAL>
-                            <PLANT></PLANT>
-                        </GetAvailabilityRequestInformation>',
+            $template = '
+                <item>
+                    <MATERIAL>%s</MATERIAL>
+                    <PLANT></PLANT>
+                </item>
+            ';
+
+            $requests[] = trim(sprintf(
+                $template,
                 $productNumber
-            );
+            ));
         }
 
         return implode("\n", $requests);

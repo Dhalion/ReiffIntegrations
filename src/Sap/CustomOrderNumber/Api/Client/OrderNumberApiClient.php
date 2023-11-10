@@ -29,7 +29,7 @@ class OrderNumberApiClient extends AbstractApiClient
         $this->responseParser      = $responseParser;
     }
 
-    public function readOrderNumbers(string $debtorNumber, string $salesOrganisation): OrderNumberApiResponse
+    public function readOrderNumbers(string $debtorNumber, string $salesOrganization): OrderNumberApiResponse
     {
         if (empty($debtorNumber)) {
             return $this->responseParser->parseResponse(false, '');
@@ -52,14 +52,14 @@ class OrderNumberApiClient extends AbstractApiClient
         $postData = trim(sprintf(
             $template,
             $debtorNumber,
-            $salesOrganisation
+            $salesOrganization
         ));
 
         $method    = self::METHOD_POST;
         $ignoreSsl = $this->systemConfigService->getBool(Configuration::CONFIG_KEY_API_IGNORE_SSL);
         $url       = $this->systemConfigService->getString(Configuration::CONFIG_KEY_API_ORDER_NUMBER_URL);
 
-        $userName = $this->systemConfigService->getString(Configuration::CONFIG_KEY_API_USER_NAME);
+        $username = $this->systemConfigService->getString(Configuration::CONFIG_KEY_API_USER_NAME);
         $password = $this->systemConfigService->getString(Configuration::CONFIG_KEY_API_PASSWORD);
 
         $headerData = [
@@ -68,7 +68,7 @@ class OrderNumberApiClient extends AbstractApiClient
             'Content-length: ' . strlen($postData),
         ];
 
-        $handle = $this->getCurlHandle($url, $userName, $password, $headerData, $method, $postData, $ignoreSsl);
+        $handle = $this->getCurlHandle($url, $username, $password, $headerData, $method, $postData, $ignoreSsl);
 
         curl_setopt($handle, CURLOPT_COOKIE, 'sap-usercontext=sap-client%3D' . self::SAP_CLIENT_NR);
 

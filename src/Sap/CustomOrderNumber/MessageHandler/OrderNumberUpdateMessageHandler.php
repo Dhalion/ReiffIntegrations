@@ -68,10 +68,10 @@ class OrderNumberUpdateMessageHandler
     private function getCrudData(OrderNumberUpdateStruct $updateStruct): array
     {
         $debtorNumber = $updateStruct->getDebtorNumber();
-        $salesOrganisation = $updateStruct->getSalesOrganisation();
+        $salesOrganization = $updateStruct->getSalesOrganization();
 
         try {
-            $response = $this->orderNumberApiClient->readOrderNumbers($debtorNumber, $salesOrganisation);
+            $response = $this->orderNumberApiClient->readOrderNumbers($debtorNumber, $salesOrganization);
         } catch (\Throwable $t) {
             $this->logger->error(self::class . '::getCrudData => something went horribly wrong during read of order numbers', [
                 'message' => $t->getMessage(),

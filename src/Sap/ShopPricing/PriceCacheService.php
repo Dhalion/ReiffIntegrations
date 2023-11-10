@@ -23,10 +23,10 @@ class PriceCacheService
     ) {
     }
 
-    public function fetchProductPrices(string $debtorNumber, array $productNumbers): ItemCollection
+    public function fetchProductPrices(array $priceData, array $productNumbers): ItemCollection
     {
         $missingProductNumbers = [];
-        $prices                = $this->getCachedPrices($debtorNumber, $productNumbers);
+        $prices                = $this->getCachedPrices($priceData, $productNumbers);
 
         foreach ($productNumbers as $productNumber) {
             $cachedPrice = $prices->getItemsByNumber($productNumber);
@@ -37,22 +37,22 @@ class PriceCacheService
         }
 
         if (!empty($missingProductNumbers)) {
-            $uncachedPrices = $this->getUncachedPrices($debtorNumber, $missingProductNumbers);
+            $uncachedPrices = $this->getUncachedPrices($priceData, $missingProductNumbers);
 
             if ($uncachedPrices->count() === 0) {
                 return $prices;
             }
 
-            $this->updatePrices($debtorNumber, $uncachedPrices, $prices);
+            $this->updatePrices($priceData, $uncachedPrices, $prices);
         }
 
         return $prices;
     }
 
-    private function getCachedPrices(string $debtorNumber, array $productNumbers): ItemCollection
+    private function getCachedPrices(array $priceData, array $productNumbers): ItemCollection
     {
         $result      = new ItemCollection();
-        $cacheResult = $this->cache->getItems($this->getCacheKeys($debtorNumber, $productNumbers));
+        $cacheResult = $this->cache->getItems($this->getCacheKeys($priceData, $productNumbers));
 
         foreach ($cacheResult as $cachedPrice) {
             if ($cachedPrice->isHit() && $cachedPrice->get()) {
@@ -68,21 +68,23 @@ class PriceCacheService
         return $result;
     }
 
-    private function getUncachedPrices(string $debtorNumber, array $productNumbers): ItemCollection
+    private function getUncachedPrices(array $priceData, array $productNumbers): ItemCollection
     {
         $circuitBreaker = $this->cache->getItem(self::CACHE_CIRCUIT_BREAKER_TAG);
 
         if (!$circuitBreaker->isHit()) {
             try {
-                return $this->client->getPrices($productNumbers, $debtorNumber);
+                return $this->client->getPrices(
+                    $productNumbers,
+                    $priceData['debtor_number'],
+                    $priceData['sales_organization'],
+                    $priceData['language_code']
+                );
             } catch (TimeoutException $exception) {
                 $circuitBreaker->set(true);
                 $circuitBreaker->expiresAfter(self::CIRCUIT_BREAKER_EXPIRATION_IN_SECONDS);
 
                 $this->cache->save($circuitBreaker);
-            } catch (\Throwable $throwable) {
-                // exception is not logged due to created cache items in getCachedPrices
-                throw $throwable;
             }
         }
 
@@ -90,7 +92,7 @@ class PriceCacheService
     }
 
     private function updatePrices(
-        string $debtorNumber,
+        array $priceData,
         ItemCollection $uncachedPrices,
         ItemCollection $prices
     ): void {
@@ -107,7 +109,7 @@ class PriceCacheService
 
         foreach ($pricesToSave as $productNumber => $priceItemCollection) {
             /** $productNumber is converted to int due looking int-ish */
-            $cacheKey = $this->getCacheKey($debtorNumber, (string) $productNumber);
+            $cacheKey = $this->getCacheKey($priceData, (string) $productNumber);
 
             $cacheItem = $this->cache->getItem($cacheKey);
             $cacheItem->set($priceItemCollection);
@@ -120,21 +122,21 @@ class PriceCacheService
         $this->cache->commit();
     }
 
-    private function getCacheKeys(string $debtorNumber, array $productNumbers): array
+    private function getCacheKeys(array $priceData, array $productNumbers): array
     {
         $keys = [];
 
         foreach ($productNumbers as $productNumber) {
-            $keys[] = $this->getCacheKey($debtorNumber, $productNumber);
+            $keys[] = $this->getCacheKey($priceData, $productNumber);
         }
 
         return $keys;
     }
 
-    private function getCacheKey(string $debtorNumber, string $productNumber): string
+    private function getCacheKey(array $priceData, string $productNumber): string
     {
         $productNumber = str_replace(str_split(ItemInterface::RESERVED_CHARACTERS), '', $productNumber);
 
-        return sprintf('%s#%s#%s', self::CACHE_CUSTOMER_PRICE_TAG, $debtorNumber, $productNumber);
+        return sprintf('%s#%s#%s', self::CACHE_CUSTOMER_PRICE_TAG, $priceData['debtor_number'], $productNumber);
     }
 }

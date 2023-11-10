@@ -95,7 +95,7 @@ class PriceCartProcessor implements CartDataCollectorInterface, CartProcessorInt
             )
         ) {
             try {
-                $sapCart = $this->client->getPrices($original, $reiffCustomer);
+                $sapCart = $this->client->getPrices($original, $reiffCustomer, $context);
                 $data->set(self::SAP_CART_HASH, $cartHash);
                 $roundingConfig = $context->getItemRounding();
 

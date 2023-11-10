@@ -46,7 +46,7 @@ class OrderListApiClient extends AbstractApiClient
         $postData = trim(sprintf(
             $template,
             $customer->getDebtorNumber(),
-            $customer->getSalesOrganisation(),
+            $customer->getSalesOrganization(),
             $fromDate->format('Y-m-d'),
             $toDate->format('Y-m-d')
         ));
@@ -60,7 +60,7 @@ class OrderListApiClient extends AbstractApiClient
             return $this->responseParser->parseResponse(false, '');
         }
 
-        $userName = $this->systemConfigService->getString(Configuration::CONFIG_KEY_API_USER_NAME);
+        $username = $this->systemConfigService->getString(Configuration::CONFIG_KEY_API_USER_NAME);
         $password = $this->systemConfigService->getString(Configuration::CONFIG_KEY_API_PASSWORD);
 
         $headerData = [
@@ -69,7 +69,7 @@ class OrderListApiClient extends AbstractApiClient
             'Content-length: ' . strlen($postData),
         ];
 
-        $handle = $this->getCurlHandle($url, $userName, $password, $headerData, $method, $postData, $ignoreSsl);
+        $handle = $this->getCurlHandle($url, $username, $password, $headerData, $method, $postData, $ignoreSsl);
 
         curl_setopt($handle, CURLOPT_COOKIE, 'sap-usercontext=sap-client%3D' . self::SAP_CLIENT_NR);
 

@@ -41,7 +41,7 @@ class ContractStatusClient extends AbstractApiClient
         $ignoreSsl = $this->systemConfigService->getBool(Configuration::CONFIG_KEY_API_IGNORE_SSL);
         $url       = $this->systemConfigService->getString(Configuration::CONFIG_KEY_API_CONTRACT_STATUS_URL);
 
-        $userName = $this->systemConfigService->getString(Configuration::CONFIG_KEY_API_USER_NAME);
+        $username = $this->systemConfigService->getString(Configuration::CONFIG_KEY_API_USER_NAME);
         $password = $this->systemConfigService->getString(Configuration::CONFIG_KEY_API_PASSWORD);
 
         $headerData = [
@@ -50,7 +50,7 @@ class ContractStatusClient extends AbstractApiClient
             'Content-length: ' . strlen($postData),
         ];
 
-        $handle = $this->getCurlHandle($url, $userName, $password, $headerData, $method, $postData, $ignoreSsl);
+        $handle = $this->getCurlHandle($url, $username, $password, $headerData, $method, $postData, $ignoreSsl);
 
         curl_setopt($handle, CURLOPT_COOKIE, 'sap-usercontext=sap-client%3D' . self::SAP_CLIENT_NR);
 
