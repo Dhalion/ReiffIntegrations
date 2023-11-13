@@ -84,7 +84,9 @@
 
     &:nth-child(even) {
       .b2b-accordion__title {
-        background: $color-white;
+        [class*="col"] {
+          background: $color-white;
+        }
       }
     }
 
@@ -107,7 +109,7 @@
 
   .b2b-accordion__title {
     font-size: $font-size-base;
-    padding: 16px 0;
+    padding: 0;
     white-space: nowrap;
 
     .icon {
@@ -123,7 +125,7 @@
     [class*="col"] {
       display: flex;
       align-items: center;
-      padding: 0 16px;
+      padding: 16px;
 
       &:last-child {
         display: flex;
