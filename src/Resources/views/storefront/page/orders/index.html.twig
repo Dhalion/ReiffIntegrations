@@ -88,7 +88,7 @@
 
                                 <div class="container sorting-buttons">
                                     <div class="row">
-                                        <div class="col-6 col-lg-2">
+                                        <div class="col-6 col-md-3 col-lg-2">
                                             {{ "ReiffIntegrations.customer.orders.sorting.orderNumber"|trans|sw_sanitize }}
                                             <button type="button"
                                                     class="btn-sort"
@@ -97,7 +97,7 @@
                                                 {{ sortingIcon }}
                                             </button>
                                         </div>
-                                        <div class="col-6 col-lg-2">
+                                        <div class="col-6 col-md-3 col-lg-2">
                                             {{ "ReiffIntegrations.customer.orders.sorting.refNumber"|trans|sw_sanitize }}
                                             <button type="button"
                                                     class="btn-sort"
@@ -106,7 +106,7 @@
                                                 {{ sortingIcon }}
                                             </button>
                                         </div>
-                                        <div class="col-6 col-lg-2">
+                                        <div class="col-6 col-md-2">
                                             {{ "ReiffIntegrations.customer.orders.sorting.orderDate"|trans|sw_sanitize }}
                                             <button type="button"
                                                     class="btn-sort"
@@ -115,7 +115,7 @@
                                                 {{ sortingIcon }}
                                             </button>
                                         </div>
-                                        <div class="col-6 col-lg-3">
+                                        <div class="col-6 col-md-3">
                                             {{ "ReiffIntegrations.customer.orders.sorting.orderStatus"|trans|sw_sanitize }}
                                             <button type="button"
                                                     class="btn-sort"
@@ -124,7 +124,7 @@
                                                 {{ sortingIcon }}
                                             </button>
                                         </div>
-                                        <div class="col-6 col-lg-2">
+                                        <div class="col-6 col-md-3 col-lg-2">
                                             {{ "ReiffIntegrations.customer.orders.sorting.orderTotal"|trans|sw_sanitize }}
                                             <button type="button"
                                                     class="btn-sort"
@@ -133,7 +133,7 @@
                                                 {{ sortingIcon }}
                                             </button>
                                         </div>
-                                        <div class="col-6 col-lg-1">
+                                        <div class="col-6 col-md-1">
                                             {% sw_icon 'eye-open' %}
                                         </div>
                                     </div>
@@ -170,22 +170,22 @@
 
                                                         <div class="container">
                                                             <div class="row">
-                                                                <div class="col-6 col-lg-2">
+                                                                <div class="col-6 col-md-3 col-lg-2">
                                                                     <span>{{ order.number }}</span>
                                                                 </div>
-                                                                <div class="col-6 col-lg-2">
+                                                                <div class="col-6 col-md-3 col-lg-2">
                                                                     <span>{{ order.reference?: '-' }}</span>
                                                                 </div>
-                                                                <div class="col-6 col-lg-2">
+                                                                <div class="col-6 col-md-2">
                                                                     <span>{{ order.orderDate|format_date('medium', locale=app.request.locale) }}</span>
                                                                 </div>
-                                                                <div class="col-6 col-lg-3">
+                                                                <div class="col-6 col-md-3">
                                                                     <span class="{{ orderStatusIndicator }}">{{ order.status }}</span>
                                                                 </div>
-                                                                <div class="col-6 col-lg-2">
+                                                                <div class="col-6 col-md-3 col-lg-2">
                                                                     <span>{{ order.netTotal|currency(decimals=decimals) }}</span>
                                                                 </div>
-                                                                <div class="col-6 col-lg-1">
+                                                                <div class="col-6 col-md-1">
                                                                     {% sw_icon 'arrow-head-down' style {
                                                                         size: 'xs'
                                                                     } %}
