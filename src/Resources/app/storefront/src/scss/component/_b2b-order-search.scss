@@ -8,7 +8,10 @@
 .b2b-order-search-results-wrap {
   background-color: $color-white;
   border: 1px solid $sw-border-color;
-  overflow-x: auto;
+
+  @include media-breakpoint-down(xl) {
+    overflow-x: auto;
+  }
 
   .sorting-buttons {
     overflow: visible;
@@ -89,6 +92,10 @@
       .b2b-accordion__title {
         [class*="col"] {
           background: #f7f7f7;
+
+          &:hover {
+            background: darken(#f7f7f7, 2%) !important;
+          }
         }
       }
     }
