@@ -17,10 +17,10 @@
     z-index: 1;
 
     > .row {
-      border-bottom: 5px solid $sw-color-brand-primary;
       flex-wrap: nowrap;
 
       > [class*="col"] {
+        border-bottom: 5px solid $sw-color-brand-primary;
         display: flex;
         align-items: center;
         font-weight: 600;
@@ -79,6 +79,7 @@
 
 .b2b-order-search-results {
   .b2b-accordion {
+    overflow: visible;
     transition: none;
 
     &:nth-child(even) {
