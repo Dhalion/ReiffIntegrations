@@ -93,9 +93,9 @@
       }
     }
 
-    &:hover {
-      .b2b-accordion__title {
-        background: darken(#f7f7f7, 2%);
+    .b2b-accordion__title {
+      &:hover {
+        background: darken(#f7f7f7, 2%) !important;
       }
     }
 
@@ -163,14 +163,20 @@
 
   .b2b-accordion__body {
     background: $color-white;
-    border-bottom: 1px solid $sw-color-brand-primary;
     font-weight: $font-weight-normal;
+    overflow: visible;
 
     .b2b--ajax-panel {
       @include media-breakpoint-down(xl) {
         display: grid;
-        grid-template-columns: 930px;
+        grid-template-columns: 890px;
       }
+    }
+  }
+
+  + .b2b-accordion {
+    .b2b-accordion__title > .container > .row > [class*="col"] {
+      border-top: 1px solid $sw-color-brand-primary;
     }
   }
 }
