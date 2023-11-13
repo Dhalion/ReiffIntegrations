@@ -92,8 +92,10 @@
       .b2b-accordion__title {
         [class*="col"] {
           background: #f7f7f7;
+        }
 
-          &:hover {
+        &:hover {
+          [class*="col"] {
             background: darken(#f7f7f7, 2%) !important;
           }
         }
