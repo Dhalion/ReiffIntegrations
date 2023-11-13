@@ -17,7 +17,10 @@
     z-index: 1;
 
     > .row {
-      flex-wrap: nowrap;
+      @include media-breakpoint-down(xl) {
+        display: grid;
+        grid-template-columns: 170px 170px 130px 190px 170px 80px;
+      }
 
       > [class*="col"] {
         border-bottom: 5px solid $sw-color-brand-primary;
@@ -82,10 +85,10 @@
     overflow: visible;
     transition: none;
 
-    &:nth-child(even) {
+    &:not(.b2b-accordion--open):nth-child(even) {
       .b2b-accordion__title {
         [class*="col"] {
-          background: $color-white;
+          background: #f7f7f7;
         }
       }
     }
@@ -119,7 +122,10 @@
     }
 
     .row {
-      flex-wrap: nowrap;
+      @include media-breakpoint-down(xl) {
+        display: grid;
+        grid-template-columns: 170px 170px 130px 190px 170px 80px;
+      }
     }
 
     [class*="col"] {
@@ -159,6 +165,13 @@
     background: $color-white;
     border-bottom: 1px solid $sw-color-brand-primary;
     font-weight: $font-weight-normal;
+
+    .b2b--ajax-panel {
+      @include media-breakpoint-down(xl) {
+        display: grid;
+        grid-template-columns: 930px;
+      }
+    }
   }
 }
 
