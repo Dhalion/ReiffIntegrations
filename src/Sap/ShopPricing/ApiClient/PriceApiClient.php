@@ -28,10 +28,10 @@ class PriceApiClient extends AbstractApiClient
      * @throws TimeoutException
      */
     public function getPrices(
-        array $productNumbers,
         string $debtorNumber,
-        string $salesOrganization,
-        string $languageCode
+        string $salesOrganisation,
+        string $languageCode,
+        array $productNumbers,
     ): ItemCollection
     {
         $template = '
@@ -54,7 +54,7 @@ class PriceApiClient extends AbstractApiClient
         $postData = trim(sprintf(
             $template,
             $this->getPriceRequests($productNumbers, $debtorNumber),
-            $salesOrganization,
+            $salesOrganisation,
             $languageCode
         ));
 

@@ -7,6 +7,9 @@ namespace ReiffIntegrations\Sap\ShopPricing;
 use ReiffIntegrations\Sap\Exception\TimeoutException;
 use ReiffIntegrations\Sap\ShopPricing\ApiClient\PriceApiClient;
 use ReiffIntegrations\Sap\Struct\Price\ItemCollection;
+use ReiffIntegrations\Util\Configuration;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
@@ -19,7 +22,8 @@ class PriceCacheService
 
     public function __construct(
         private readonly TagAwareAdapterInterface $cache,
-        private readonly PriceApiClient $client
+        private readonly PriceApiClient $client,
+        private readonly SystemConfigService $systemConfigService,
     ) {
     }
 
@@ -68,17 +72,24 @@ class PriceCacheService
         return $result;
     }
 
-    private function getUncachedPrices(array $priceData, array $productNumbers): ItemCollection
+    private function getUncachedPrices(
+        array $priceData,
+        array $productNumbers
+    ): ItemCollection
     {
         $circuitBreaker = $this->cache->getItem(self::CACHE_CIRCUIT_BREAKER_TAG);
 
         if (!$circuitBreaker->isHit()) {
             try {
+                $debtorNumber = $this->fetchDebtorNumber($priceData);
+                $salesOrganisation = $this->fetchSalesOrganisation($priceData);
+                $languageCode = $this->fetchLanguageCode($priceData);
+
                 return $this->client->getPrices(
+                    $debtorNumber,
+                    $salesOrganisation,
+                    $languageCode,
                     $productNumbers,
-                    $priceData['debtor_number'],
-                    $priceData['sales_organization'],
-                    $priceData['language_code']
                 );
             } catch (TimeoutException $exception) {
                 $circuitBreaker->set(true);
@@ -135,8 +146,56 @@ class PriceCacheService
 
     private function getCacheKey(array $priceData, string $productNumber): string
     {
+        $salesOrganisation = $this->fetchSalesOrganisation($priceData);
+        $debtorNumber = $this->fetchDebtorNumber($priceData);
+
         $productNumber = str_replace(str_split(ItemInterface::RESERVED_CHARACTERS), '', $productNumber);
 
-        return sprintf('%s#%s#%s', self::CACHE_CUSTOMER_PRICE_TAG, $priceData['debtor_number'], $productNumber);
+        return sprintf(
+            '%s#%s#%s#%s',
+            self::CACHE_CUSTOMER_PRICE_TAG,
+            $debtorNumber,
+            $productNumber,
+            $salesOrganisation
+        );
+    }
+
+    private function fetchSalesOrganisation(array $priceData): string
+    {
+        $salesOrganisation = $priceData['sales_organisation'] ?? null;
+
+        if (null === $salesOrganisation) {
+            $salesOrganisation = $this->systemConfigService->getString(
+                Configuration::CONFIG_KEY_API_FALLBACK_SALES_ORGANISATION
+            );
+        }
+
+        return $salesOrganisation;
+    }
+
+    private function fetchLanguageCode(array $priceData): string
+    {
+        $languageCode = $priceData['language_code'] ?? null;
+
+        if (null === $languageCode) {
+            $languageCode = $this->systemConfigService->getString(
+                Configuration::CONFIG_KEY_API_FALLBACK_LANGUAGE_CODE
+            );
+        }
+
+        return $languageCode;
+    }
+
+    private function fetchDebtorNumber(array $priceData): string
+    {
+        $debtorNumber = $priceData['debtor_number'] ?? null;
+
+        if (null === $debtorNumber) {
+            $debtorNumber = $this->systemConfigService->getString(
+                Configuration::CONFIG_KEY_API_FALLBACK_DEBTOR_NUMBER
+            );
+        }
+
+        return $debtorNumber;
     }
 }

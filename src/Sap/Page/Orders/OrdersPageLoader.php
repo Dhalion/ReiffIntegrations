@@ -40,8 +40,11 @@ class OrdersPageLoader
         /** @var OrdersPage $page */
         $page = OrdersPage::createFrom($page);
 
-        /** @var CustomerEntity $customer See $this::getBasicPage() */
         $customer = $salesChannelContext->getCustomer();
+
+        if (null === $customer) {
+            return $page;
+        }
 
         /** @var null|ReiffCustomerEntity $customerData */
         $customerData = $customer->getExtension(CustomerExtension::EXTENSION_NAME);
@@ -77,7 +80,8 @@ class OrdersPageLoader
         $orderResult = $this->orderListClient->getOrders(
             $customerData,
             $page->getFromDate(),
-            $page->getToDate()
+            $page->getToDate(),
+            $customer
         );
 
         $page->setSuccess($orderResult->isSuccess());

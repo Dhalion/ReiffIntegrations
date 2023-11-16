@@ -33,4 +33,21 @@ class ReiffCustomerEntity extends Entity
     {
         return $this->salesOrganisation;
     }
+
+    public function hasIncompleteFields(): bool
+    {
+        if (empty($this->salesOrganisation)) {
+            return true;
+        }
+
+        if (empty($this->debtorNumber)) {
+            return true;
+        }
+
+        if (empty($this->customerId)) {
+            return true;
+        }
+
+        return false;
+    }
 }

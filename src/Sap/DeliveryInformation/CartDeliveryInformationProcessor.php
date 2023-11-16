@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace ReiffIntegrations\Sap\DeliveryInformation;
 
 use ReiffIntegrations\Installer\CustomFieldInstaller;
+use ReiffIntegrations\Sap\DataAbstractionLayer\CustomerExtension;
+use ReiffIntegrations\Sap\DataAbstractionLayer\ReiffCustomerEntity;
 use ReiffIntegrations\Sap\DeliveryInformation\Struct\DeliveryCostsNotComputable;
 use ReiffIntegrations\Sap\DeliveryInformation\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -29,7 +31,12 @@ class CartDeliveryInformationProcessor implements CartDataCollectorInterface, Ca
     ) {
     }
 
-    public function collect(CartDataCollection $data, Cart $original, SalesChannelContext $context, CartBehavior $behavior): void
+    public function collect(
+        CartDataCollection $data,
+        Cart $original,
+        SalesChannelContext $context,
+        CartBehavior $behavior
+    ): void
     {
         $productLineItems = $this->getProductLineItem($original);
 
@@ -78,7 +85,7 @@ class CartDeliveryInformationProcessor implements CartDataCollectorInterface, Ca
         }
 
         $filtered            = array_unique($productNumbers);
-        $availabilityResults = $this->availabilityService->fetchAvailabilities($filtered);
+        $availabilityResults = $this->availabilityService->fetchAvailabilities($filtered, $context);
 
         foreach ($productLineItems as $lineItem) {
             /** @var null|DeliveryInformation $deliveryExtension */

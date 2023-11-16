@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace ReiffIntegrations\MeDaPro\Command;
 
+use K10rIntegrationHelper\NotificationSystem\NotificationService;
+use K10rIntegrationHelper\Observability\RunService;
 use ReiffIntegrations\MeDaPro\Command\Context\ImportCommandContext;
 use ReiffIntegrations\MeDaPro\Finder\Finder;
 use ReiffIntegrations\MeDaPro\ImportHandler\CategoryImportHandler;
@@ -48,7 +50,9 @@ class CatalogImportCommand extends Command
         private readonly MediaImportHandler $mediaImportHandler,
         private readonly Mailer $mailer,
         private readonly ImportArchiver $archiver,
-        private readonly Finder $finder
+        private readonly Finder $finder,
+        private readonly RunService $runService,
+        private readonly NotificationService $notificationService
     ) {
         parent::__construct();
     }

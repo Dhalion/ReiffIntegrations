@@ -71,7 +71,7 @@ class PriceSubscriber implements EventSubscriberInterface
         $productNumbers = $this->fetchProductNumbers($content);
         $itemCollection = new ItemCollection();
 
-        if ($priceData['debtor_number'] !== null && !empty($productNumbers)) {
+        if ($priceData !== null && !empty($productNumbers)) {
             $itemCollection = $this->cache->fetchProductPrices(
                 $priceData,
                 $productNumbers
@@ -84,7 +84,7 @@ class PriceSubscriber implements EventSubscriberInterface
                 $languageId,
                 $productNumbers,
                 $itemCollection,
-                $priceData['debtor_number']
+                $priceData['debtor_number'] ?? null
             );
         }
 
@@ -116,17 +116,20 @@ class PriceSubscriber implements EventSubscriberInterface
         $contextToken = $request->getSession()->get('sw-context-token');
 
         $query = '
-            SELECT reiff_customer.debtor_number, reiff_customer.sales_organization, locale.code as language_code
+            SELECT
+                reiff_customer.debtor_number as debtor_number,
+                reiff_customer.sales_organisation as sales_organisation,
+                locale.code as language_code
             FROM reiff_customer
-            LEFT JOIN sales_channel_api_context context ON context.customer_id = reiff_customer.customer_id
-            LEFT JOIN customer ON context.customer_id = customer.customer_id
+            LEFT JOIN sales_channel_api_context context ON UNHEX(JSON_UNQUOTE(JSON_EXTRACT(context.payload, "$.customerId"))) = reiff_customer.customer_id
+            LEFT JOIN customer ON reiff_customer.customer_id = customer.id
             LEFT JOIN language ON customer.language_id = language.id
             LEFT JOIN locale ON language.translation_code_id = locale.id
             WHERE context.token = :token
         ';
 
-        /** @var null|array $debtorNumber */
-        $data = $this->connection->fetchAllAssociative($query, [
+        /** @var null|array $data */
+        $data = $this->connection->fetchAssociative($query, [
             'token' => $contextToken
         ]);
 

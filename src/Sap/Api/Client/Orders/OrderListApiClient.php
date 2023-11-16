@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace ReiffIntegrations\Sap\Api\Client\Orders;
 
+use DateTimeInterface;
 use Psr\Log\LoggerInterface;
 use ReiffIntegrations\Api\Client\AbstractApiClient;
+use ReiffIntegrations\Sap\DataAbstractionLayer\CustomerExtension;
 use ReiffIntegrations\Sap\DataAbstractionLayer\ReiffCustomerEntity;
 use ReiffIntegrations\Util\Configuration;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class OrderListApiClient extends AbstractApiClient
@@ -22,7 +26,12 @@ class OrderListApiClient extends AbstractApiClient
     ) {
     }
 
-    public function getOrders(ReiffCustomerEntity $customer, \DateTimeInterface $fromDate, \DateTimeInterface $toDate): OrderListApiResponse
+    public function getOrders(
+        ReiffCustomerEntity $reiffCustomer,
+        DateTimeInterface $fromDate,
+        DateTimeInterface $toDate,
+        CustomerEntity $shopwareCustomer
+    ): OrderListApiResponse
     {
         $template = '
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:sap-com:document:sap:rfc:functions">
@@ -36,19 +45,24 @@ class OrderListApiClient extends AbstractApiClient
                             <DIVISION>00</DIVISION>
                             <DATE_FROM>%s</DATE_FROM>
                             <DATE_TO>%s</DATE_TO>
-                            <LANGUAGE>DE</LANGUAGE>
+                            <LANGUAGE>%s</LANGUAGE>
                          </IS_ORDER_LIST_INPUT>
                       </urn:ZSHOP_LIST_ORDER>
                 </soapenv:Body>
             </soapenv:Envelope>
         ';
 
+        $languageCode = $this->fetchLanguageCode($shopwareCustomer);
+        $debtorNumber = $this->fetchDebtorNumber($reiffCustomer);
+        $salesOrganisation = $this->fetchSalesOrganisation($reiffCustomer);
+
         $postData = trim(sprintf(
             $template,
-            $customer->getDebtorNumber(),
-            $customer->getSalesOrganization(),
+            $debtorNumber,
+            $salesOrganisation,
             $fromDate->format('Y-m-d'),
-            $toDate->format('Y-m-d')
+            $toDate->format('Y-m-d'),
+            $languageCode
         ));
 
         $method = self::METHOD_POST;
@@ -102,5 +116,42 @@ class OrderListApiClient extends AbstractApiClient
             'response'   => $response,
             'error'      => $errorNumber,
         ]);
+    }
+
+    private function fetchLanguageCode(CustomerEntity $shopwareCustomer): string
+    {
+        $languageCode = $shopwareCustomer->getLanguage()?->getTranslationCode()?->getCode();
+
+        if (null === $languageCode) {
+            $languageCode = $this->systemConfigService->getString(Configuration::CONFIG_KEY_API_FALLBACK_LANGUAGE_CODE);
+        }
+
+        return $languageCode;
+    }
+
+    private function fetchSalesOrganisation(ReiffCustomerEntity $reiffCustomer): string
+    {
+        $salesOrganisation = $reiffCustomer->getSalesOrganisation();
+
+        if (empty($salesOrganisation)) {
+            $salesOrganisation = $this->systemConfigService->getString(
+                Configuration::CONFIG_KEY_API_FALLBACK_SALES_ORGANISATION
+            );
+        }
+
+        return $salesOrganisation;
+    }
+
+    private function fetchDebtorNumber(ReiffCustomerEntity $reiffCustomer): string
+    {
+        $debtorNumber = $reiffCustomer->getDebtorNumber();
+
+        if (empty($debtorNumber)) {
+            $debtorNumber = $this->systemConfigService->getString(
+                Configuration::CONFIG_KEY_API_FALLBACK_DEBTOR_NUMBER
+            );
+        }
+
+        return $debtorNumber;
     }
 }

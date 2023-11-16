@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace ReiffIntegrations\Api\Client;
 
+use ReiffIntegrations\Util\Configuration;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
+
 abstract class AbstractApiClient
 {
-    public const METHOD_POST = 'post';
-    public const METHOD_GET  = 'get';
+    public const METHOD_POST = 'POST';
+    public const METHOD_GET  = 'GET';
 
     protected function getCurlHandle(
         string $url,

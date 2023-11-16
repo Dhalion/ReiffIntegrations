@@ -6,8 +6,10 @@ namespace ReiffIntegrations\Sap\Offer\ApiClient;
 
 use Psr\Log\LoggerInterface;
 use ReiffIntegrations\Api\Client\AbstractApiClient;
+use ReiffIntegrations\Sap\DataAbstractionLayer\CustomerExtension;
 use ReiffIntegrations\Sap\DataAbstractionLayer\ReiffCustomerEntity;
 use ReiffIntegrations\Util\Configuration;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class OfferReadApiClient extends AbstractApiClient
@@ -30,9 +32,9 @@ class OfferReadApiClient extends AbstractApiClient
         $this->responseParser      = $responseParser;
     }
 
-    public function readOffers(ReiffCustomerEntity $customer): OfferReadApiResponse
+    public function readOffers(ReiffCustomerEntity $reiffCustomer): OfferReadApiResponse
     {
-        if (empty($customer->getDebtorNumber())) {
+        if (empty($reiffCustomer->getDebtorNumber())) {
             return $this->responseParser->parseResponse(false, '');
         }
 
@@ -54,8 +56,8 @@ class OfferReadApiClient extends AbstractApiClient
 
         $postData = sprintf(
             $template,
-            $customer->getDebtorNumber(),
-            $customer->getSalesOrganization()
+            $reiffCustomer->getDebtorNumber(),
+            $this->fetchSalesOrganisation($reiffCustomer)
         );
 
         $method    = self::METHOD_POST;
@@ -86,7 +88,13 @@ class OfferReadApiClient extends AbstractApiClient
         curl_close($handle);
 
         if ($errorNumber !== 0 || $statusCode !== 200 || $response === false) {
-            $this->logRequestError($method, $url, $postData, (string) $response, $errorNumber);
+            $this->logger->error('API error during offers read', [
+                'method'     => $method,
+                'requestUrl' => $url,
+                'body'       => $postData,
+                'response'   => (string) $response,
+                'error'      => $errorNumber,
+            ]);
 
             return $this->responseParser->parseResponse(false, (string) $response);
         }
@@ -94,19 +102,16 @@ class OfferReadApiClient extends AbstractApiClient
         return $this->responseParser->parseResponse(true, (string) $response);
     }
 
-    private function logRequestError(
-        string $method,
-        string $exportUrl,
-        string $serializedData,
-        string $response,
-        int $errorNumber
-    ): void {
-        $this->logger->error('API error during offers read', [
-            'method'     => $method,
-            'requestUrl' => $exportUrl,
-            'body'       => $serializedData,
-            'response'   => $response,
-            'error'      => $errorNumber,
-        ]);
+    private function fetchSalesOrganisation(ReiffCustomerEntity $reiffCustomer): string
+    {
+        $salesOrganisation = $reiffCustomer->getSalesOrganisation();
+
+        if (empty($salesOrganisation)) {
+            $salesOrganisation = $this->systemConfigService->getString(
+                Configuration::CONFIG_KEY_API_FALLBACK_SALES_ORGANISATION
+            );
+        }
+
+        return $salesOrganisation;
     }
 }

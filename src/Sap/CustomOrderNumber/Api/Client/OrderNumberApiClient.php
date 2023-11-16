@@ -6,6 +6,7 @@ namespace ReiffIntegrations\Sap\CustomOrderNumber\Api\Client;
 
 use Psr\Log\LoggerInterface;
 use ReiffIntegrations\Api\Client\AbstractApiClient;
+use ReiffIntegrations\Sap\CustomOrderNumber\Struct\OrderNumberUpdateStruct;
 use ReiffIntegrations\Util\Configuration;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
@@ -29,8 +30,23 @@ class OrderNumberApiClient extends AbstractApiClient
         $this->responseParser      = $responseParser;
     }
 
-    public function readOrderNumbers(string $debtorNumber, string $salesOrganization): OrderNumberApiResponse
+    public function readOrderNumbers(OrderNumberUpdateStruct $updateStruct): OrderNumberApiResponse
     {
+        $debtorNumber = $updateStruct->getDebtorNumber();
+        $salesOrganisation = $updateStruct->getSalesOrganisation();
+
+        if (empty($debtorNumber)) {
+            $debtorNumber = $this->systemConfigService->getString(
+                Configuration::CONFIG_KEY_API_FALLBACK_DEBTOR_NUMBER
+            );
+        }
+
+        if (empty($salesOrganisation)) {
+            $salesOrganisation = $this->systemConfigService->getString(
+                Configuration::CONFIG_KEY_API_FALLBACK_SALES_ORGANISATION
+            );
+        }
+
         if (empty($debtorNumber)) {
             return $this->responseParser->parseResponse(false, '');
         }
@@ -52,7 +68,7 @@ class OrderNumberApiClient extends AbstractApiClient
         $postData = trim(sprintf(
             $template,
             $debtorNumber,
-            $salesOrganization
+            $salesOrganisation
         ));
 
         $method    = self::METHOD_POST;

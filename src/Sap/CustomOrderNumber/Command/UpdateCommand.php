@@ -76,9 +76,9 @@ class UpdateCommand extends Command
             }
 
             $updateStruct = new OrderNumberUpdateStruct(
-                $customer->getDebtorNumber(),
-                $customer->getSalesOrganization(),
                 $customer->getCustomerId(),
+                $customer->getDebtorNumber(),
+                $customer->getSalesOrganisation(),
             );
 
             $message = $this->messageHandler->getMessage($updateStruct, $context);

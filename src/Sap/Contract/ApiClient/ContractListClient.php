@@ -24,6 +24,21 @@ class ContractListClient extends AbstractApiClient
 
     public function getContracts(ReiffCustomerEntity $customer, ?\DateTimeInterface $fromDate, ?\DateTimeInterface $toDate): ContractListResponse
     {
+        $debtorNumber = $customer->getDebtorNumber();
+        $salesOrganisation = $customer->getSalesOrganisation();
+
+        if (empty($debtorNumber)) {
+            $debtorNumber = $this->systemConfigService->getString(
+                Configuration::CONFIG_KEY_API_FALLBACK_DEBTOR_NUMBER
+            );
+        }
+
+        if (empty($salesOrganisation)) {
+            $salesOrganisation = $this->systemConfigService->getString(
+                Configuration::CONFIG_KEY_API_FALLBACK_SALES_ORGANISATION
+            );
+        }
+
         $template = '
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:sap-com:document:sap:rfc:functions">
                 <soapenv:Header />
@@ -45,8 +60,8 @@ class ContractListClient extends AbstractApiClient
 
         $postData = trim(sprintf(
             $template,
-            $customer->getDebtorNumber(),
-            $customer->getSalesOrganization(),
+            $debtorNumber,
+            $salesOrganisation,
             $fromDate ? $fromDate->format('Y-m-d') : '',
             $toDate ? $toDate->format('Y-m-d') : ''
         ));
@@ -65,7 +80,15 @@ class ContractListClient extends AbstractApiClient
             'Content-length: ' . strlen($postData),
         ];
 
-        $handle = $this->getCurlHandle($url, $username, $password, $headerData, $method, $postData, $ignoreSsl);
+        $handle = $this->getCurlHandle(
+            $url,
+            $username,
+            $password,
+            $headerData,
+            $method,
+            $postData,
+            $ignoreSsl
+        );
 
         curl_setopt($handle, CURLOPT_COOKIE, 'sap-usercontext=sap-client%3D' . self::SAP_CLIENT_NR);
 
@@ -76,27 +99,17 @@ class ContractListClient extends AbstractApiClient
         curl_close($handle);
 
         if ($errorNumber !== 0 || $statusCode !== 200 || $response === false) {
-            $this->logRequestError($method, $url, $postData, (string) $response, $errorNumber);
+            $this->logger->error('API error during contracts list read', [
+                'method'     => $method,
+                'requestUrl' => $url,
+                'body'       => $postData,
+                'response'   => (string) $response,
+                'error'      => $errorNumber,
+            ]);
 
             return $this->responseParser->parseResponse(false, (string) $response);
         }
 
         return $this->responseParser->parseResponse(true, (string) $response);
-    }
-
-    private function logRequestError(
-        string $method,
-        string $exportUrl,
-        string $serializedData,
-        string $response,
-        int $errorNumber
-    ): void {
-        $this->logger->error('API error during contracts list read', [
-            'method'     => $method,
-            'requestUrl' => $exportUrl,
-            'body'       => $serializedData,
-            'response'   => $response,
-            'error'      => $errorNumber,
-        ]);
     }
 }

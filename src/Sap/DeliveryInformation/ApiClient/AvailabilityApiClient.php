@@ -31,7 +31,7 @@ class AvailabilityApiClient extends AbstractApiClient
      */
     public function getAvailability(
         array $productNumbers,
-        string $salesOrganization,
+        string $salesOrganisation,
         string $languageCode
     ): AvailabilityStructCollection
     {
@@ -54,7 +54,7 @@ class AvailabilityApiClient extends AbstractApiClient
         $postData = trim(sprintf(
             $template,
             $this->getAvailabilityRequest($productNumbers),
-            $salesOrganization,
+            $salesOrganisation,
             $languageCode
         ));
 

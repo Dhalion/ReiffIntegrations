@@ -14,6 +14,7 @@ use ReiffIntegrations\Sap\Struct\Price\ItemStruct;
 use ReiffIntegrations\Util\Configuration;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\System\Language\LanguageLoaderInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
@@ -32,6 +33,14 @@ class CartApiClient extends AbstractApiClient
      */
     public function getPrices(Cart $cart, ReiffCustomerEntity $customer, SalesChannelContext $context): ItemCollection
     {
+        $salesOrganisation = $customer->getSalesOrganisation();
+
+        if (empty($salesOrganisation)) {
+            $salesOrganisation = $this->systemConfigService->getString(
+                Configuration::CONFIG_KEY_API_FALLBACK_SALES_ORGANISATION
+            );
+        }
+
         $template = '
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:sap-com:document:sap:rfc:functions">
                <soapenv:Header/>
@@ -47,14 +56,13 @@ class CartApiClient extends AbstractApiClient
             </soapenv:Envelope>
         ';
 
-        $language = $context->getLanguageId(); // TODO: find correct language IsoCode
-        $language = 'DE';
+        $language = $this->fetchLanguageCode($context);
 
         $postData = trim(sprintf(
             $template,
             $this->getItems($cart, $customer->getDebtorNumber()),
             $language,
-            $customer->getSalesOrganization()
+            $salesOrganisation
         ));
 
         $method = self::METHOD_POST;
@@ -84,7 +92,13 @@ class CartApiClient extends AbstractApiClient
         curl_close($handle);
 
         if ($errorNumber !== CURLE_OK || $statusCode !== 200 || $response === false) {
-            $this->logRequestError($method, $url, $postData, (string) $response, $errorNumber);
+            $this->logger->error('API error during prices read', [
+                'method'     => $method,
+                'requestUrl' => $url,
+                'body'       => $postData,
+                'response'   => (string) $response,
+                'error'      => $errorNumber,
+            ]);
 
             if ($errorNumber === CURLE_OPERATION_TIMEOUTED) {
                 throw new TimeoutException('request timeout');
@@ -161,6 +175,7 @@ class CartApiClient extends AbstractApiClient
             $orderUnit     = $lineItem['PRICE']['item']['VRKME'];
             $price         = ((float) $lineItem['PRICE']['item']['NETPR']) / $priceQuantity * $quantity;
             $productNumber = $lineItem['MATNR'];
+
             $items->set($productNumber, new ItemStruct(
                 $productNumber,
                 $quantity,
@@ -173,19 +188,14 @@ class CartApiClient extends AbstractApiClient
         return $items;
     }
 
-    private function logRequestError(
-        string $method,
-        string $exportUrl,
-        string $serializedData,
-        string $response,
-        int $errorNumber
-    ): void {
-        $this->logger->error('API error during prices read', [
-            'method'     => $method,
-            'requestUrl' => $exportUrl,
-            'body'       => $serializedData,
-            'response'   => $response,
-            'error'      => $errorNumber,
-        ]);
+    private function fetchLanguageCode(SalesChannelContext $context): string
+    {
+        $languageCode = $context->getCustomer()?->getLanguage()?->getTranslationCode()?->getCode();
+
+        if (null === $languageCode) {
+            $languageCode = $this->systemConfigService->getString(Configuration::CONFIG_KEY_API_FALLBACK_LANGUAGE_CODE);
+        }
+
+        return $languageCode;
     }
 }
