@@ -262,7 +262,6 @@ export default class AgiqonB2bOrderListPlugin extends Plugin {
         const observer = new MutationObserver(callback);
 
         // Start observing the target node for configured mutations
-        // observer.observe(this.companyTabContainer, config);
         observer.observe(this.el, config);
 
         // Later, you can stop observing
