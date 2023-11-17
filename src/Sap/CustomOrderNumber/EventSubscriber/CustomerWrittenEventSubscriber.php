@@ -24,6 +24,7 @@ class CustomerWrittenEventSubscriber implements EventSubscriberInterface
         private readonly OrderNumberUpdateMessageHandler $messageHandler,
         private readonly MessageBusInterface $messageBus,
         private readonly EntityRepository $reiffCustomerRepository,
+        private readonly EntityRepository $customerRepository,
     ) {
     }
 
@@ -49,6 +50,10 @@ class CustomerWrittenEventSubscriber implements EventSubscriberInterface
 
             if (!$debtorData && $event->getContext()->getScope() === Context::CRUD_API_SCOPE) {
                 $this->createCustomerExtension($payload['id'], $event->getContext());
+            }
+
+            if (isset($payload['active']) && $payload['active'] === true && $event->getContext()->getScope() === Context::CRUD_API_SCOPE) {
+                $this->confirmDoubleOptIn($payload['id'], $event->getContext());
             }
 
             if ($debtorData === null || $debtorData->hasIncompleteFields()) {
@@ -85,6 +90,16 @@ class CustomerWrittenEventSubscriber implements EventSubscriberInterface
             [
                 'customerId' => $customerId,
                 'debtorNumber' => null
+            ]
+        ], $context);
+    }
+
+    private function confirmDoubleOptIn(string $customerId, Context $context): void
+    {
+        $this->customerRepository->upsert([
+            [
+                'id' => $customerId,
+                'doubleOptInConfirmDate' => new \DateTimeImmutable()
             ]
         ], $context);
     }
