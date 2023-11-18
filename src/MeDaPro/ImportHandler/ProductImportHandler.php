@@ -6,7 +6,6 @@ namespace ReiffIntegrations\MeDaPro\ImportHandler;
 
 use Doctrine\DBAL\Connection;
 use K10rIntegrationHelper\Observability\RunService;
-use Psr\Log\LoggerInterface;
 use ReiffIntegrations\Installer\CustomFieldInstaller;
 use ReiffIntegrations\MeDaPro\DataAbstractionLayer\CategoryExtension;
 use ReiffIntegrations\MeDaPro\DataProvider\RuleProvider;
@@ -19,8 +18,6 @@ use ReiffIntegrations\MeDaPro\Struct\CatalogMetadata;
 use ReiffIntegrations\MeDaPro\Struct\ProductCollection;
 use ReiffIntegrations\MeDaPro\Struct\ProductStruct;
 use ReiffIntegrations\Util\EntitySyncer;
-use ReiffIntegrations\Util\Handler\AbstractImportHandler;
-use ReiffIntegrations\Util\Mailer;
 use ReiffIntegrations\Util\Message\AbstractImportMessage;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
@@ -37,9 +34,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
-use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\Unit\UnitEntity;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -100,14 +95,14 @@ class ProductImportHandler
         'Montageanleitung',
     ];
 
-    private const VISIBILITY_ID_PREFIX           = ProductVisibilityDefinition::ENTITY_NAME;
-    private const CONFIGURATOR_ID_PREFIX         = ProductConfiguratorSettingDefinition::ENTITY_NAME;
-    private const CROSSSELLING_ID_PREFIX         = ProductCrossSellingDefinition::ENTITY_NAME;
-    private const NEGATIVE_BOOL_VALUE            = 'nein';
-    private const POSITIVE_ANGEBOT_VALUE         = 'angebot';
-    private const POSITIVE_ANFRAGE_VALUE         = '1';
-    private const POSITIVE_NEUHEIT_VALUE         = 'neuheit';
-    private const POSITIVE_BOOL_VALUE            = 'ja';
+    private const VISIBILITY_ID_PREFIX   = ProductVisibilityDefinition::ENTITY_NAME;
+    private const CONFIGURATOR_ID_PREFIX = ProductConfiguratorSettingDefinition::ENTITY_NAME;
+    private const CROSSSELLING_ID_PREFIX = ProductCrossSellingDefinition::ENTITY_NAME;
+    private const NEGATIVE_BOOL_VALUE    = 'nein';
+    private const POSITIVE_ANGEBOT_VALUE = 'angebot';
+    private const POSITIVE_ANFRAGE_VALUE = '1';
+    private const POSITIVE_NEUHEIT_VALUE = 'neuheit';
+    private const POSITIVE_BOOL_VALUE    = 'ja';
 
     private ?string $taxId          = null;
     private ?string $salesChannelId = null;
@@ -134,7 +129,8 @@ class ProductImportHandler
         private readonly RuleProvider $ruleProvider,
         private readonly RunService $runService,
         private readonly NotificationHelper $notificationHelper,
-    ){ }
+    ) {
+    }
 
     public function __invoke(ProductImportMessage $message): void
     {
@@ -149,15 +145,15 @@ class ProductImportHandler
         $context = $message->getContext();
         $context->addState(EntityIndexerRegistry::USE_INDEXING_QUEUE);
 
-        $productStruct = $message->getProduct();
+        $productStruct   = $message->getProduct();
         $catalogMetadata = $message->getCatalogMetadata();
 
         $notificationData = [
-            'catalogId' => $catalogMetadata->getCatalogId(),
-            'sortimentId' => $catalogMetadata->getSortimentId(),
-            'language' => $catalogMetadata->getLanguageCode(),
+            'catalogId'        => $catalogMetadata->getCatalogId(),
+            'sortimentId'      => $catalogMetadata->getSortimentId(),
+            'language'         => $catalogMetadata->getLanguageCode(),
             'archivedFilename' => $message->getArchivedFileName(),
-            'productNumber' => $message->getProduct()->getProductNumber()
+            'productNumber'    => $message->getProduct()->getProductNumber(),
         ];
 
         $isSuccess = true;
@@ -267,19 +263,19 @@ class ProductImportHandler
                 'description'  => $productStruct->getDataByKey('Beschreibung'),
                 'keywords'     => implode('; ', $keywords),
                 'customFields' => [
-                    CustomFieldInstaller::PRODUCT_ECLASS51                => $productStruct->getDataByKey('ECLASS 51'),
-                    CustomFieldInstaller::PRODUCT_ECLASS71                => $productStruct->getDataByKey('ECLASS 71'),
-                    CustomFieldInstaller::PRODUCT_MATERIALFRACHTGRUPPE    => $productStruct->getDataByKey('Materialfrachtgruppe SAP'),
-                    CustomFieldInstaller::PRODUCT_ANFRAGE                 => $productStruct->getDataByKey('Anfrage') === self::POSITIVE_ANFRAGE_VALUE,
-                    CustomFieldInstaller::PRODUCT_BANNER_OFFER            => $productStruct->getDataByKey('Banner_Angebot') === self::POSITIVE_ANGEBOT_VALUE,
-                    CustomFieldInstaller::PRODUCT_BANNER_NEW              => $productStruct->getDataByKey('Banner_Neuheit') === self::POSITIVE_NEUHEIT_VALUE,
-                    CustomFieldInstaller::PRODUCT_ABSCHNITT               => $productStruct->getDataByKey('Abschnitt') === self::POSITIVE_BOOL_VALUE,
-                    CustomFieldInstaller::PRODUCT_BUTTON_CAD              => ($productStruct->getDataByKey('Button CAD')) !== null && $productStruct->getDataByKey('Button CAD') !== self::NEGATIVE_BOOL_VALUE,
-                    CustomFieldInstaller::PRODUCT_BUTTON_ZUSCHNITT        => $productStruct->getDataByKey('Artikel konfigurieren') === self::POSITIVE_BOOL_VALUE,
-                    CustomFieldInstaller::PRODUCT_VIDEO                   => $productStruct->getDataByKey('Video'),
-                    CustomFieldInstaller::PRODUCT_SHIPPING_TIME           => (int) $productStruct->getDataByKey('TradePro Lieferzeit'),
-                    CustomFieldInstaller::PRODUCT_PRICE_BASE_QUANTITY     => (int) $productStruct->getDataByKey('Preismenge'),
-                    CustomFieldInstaller::PRODUCT_MANUFACTURER_NAME_LOGO  => $productStruct->getDataByKey('Logo-Zuordnung'),
+                    CustomFieldInstaller::PRODUCT_ECLASS51               => $productStruct->getDataByKey('ECLASS 51'),
+                    CustomFieldInstaller::PRODUCT_ECLASS71               => $productStruct->getDataByKey('ECLASS 71'),
+                    CustomFieldInstaller::PRODUCT_MATERIALFRACHTGRUPPE   => $productStruct->getDataByKey('Materialfrachtgruppe SAP'),
+                    CustomFieldInstaller::PRODUCT_ANFRAGE                => $productStruct->getDataByKey('Anfrage') === self::POSITIVE_ANFRAGE_VALUE,
+                    CustomFieldInstaller::PRODUCT_BANNER_OFFER           => $productStruct->getDataByKey('Banner_Angebot') === self::POSITIVE_ANGEBOT_VALUE,
+                    CustomFieldInstaller::PRODUCT_BANNER_NEW             => $productStruct->getDataByKey('Banner_Neuheit') === self::POSITIVE_NEUHEIT_VALUE,
+                    CustomFieldInstaller::PRODUCT_ABSCHNITT              => $productStruct->getDataByKey('Abschnitt') === self::POSITIVE_BOOL_VALUE,
+                    CustomFieldInstaller::PRODUCT_BUTTON_CAD             => $productStruct->getDataByKey('Button CAD') !== null && $productStruct->getDataByKey('Button CAD') !== self::NEGATIVE_BOOL_VALUE,
+                    CustomFieldInstaller::PRODUCT_BUTTON_ZUSCHNITT       => $productStruct->getDataByKey('Artikel konfigurieren') === self::POSITIVE_BOOL_VALUE,
+                    CustomFieldInstaller::PRODUCT_VIDEO                  => $productStruct->getDataByKey('Video'),
+                    CustomFieldInstaller::PRODUCT_SHIPPING_TIME          => (int) $productStruct->getDataByKey('TradePro Lieferzeit'),
+                    CustomFieldInstaller::PRODUCT_PRICE_BASE_QUANTITY    => (int) $productStruct->getDataByKey('Preismenge'),
+                    CustomFieldInstaller::PRODUCT_MANUFACTURER_NAME_LOGO => $productStruct->getDataByKey('Logo-Zuordnung'),
                 ],
             ],
         ];
@@ -317,16 +313,15 @@ class ProductImportHandler
         ProductStruct $productStruct,
         CatalogMetadata $catalogMetadata,
         Context $context
-    ): array
-    {
-        $sortimentId = $productStruct->getSortimentId();
-        $isCloseout = $this->getIsCloseout($productStruct);
+    ): array {
+        $sortimentId  = $productStruct->getSortimentId();
+        $isCloseout   = $this->getIsCloseout($productStruct);
         $isNewArticle = false;
-        $productId = $this->getProductIdForNumber($productStruct->getProductNumber(), $context);
+        $productId    = $this->getProductIdForNumber($productStruct->getProductNumber(), $context);
 
         if (!$productId) {
             $isNewArticle = true;
-            $productId = Uuid::randomHex();
+            $productId    = Uuid::randomHex();
         }
 
         $data = [
@@ -416,7 +411,7 @@ class ProductImportHandler
             if ($position === null) {
                 $position = 0;
             } else {
-                $position++;
+                ++$position;
             }
 
             if (empty($productIds)) {
@@ -544,8 +539,7 @@ class ProductImportHandler
         Context $context,
         array $notificationData,
         CatalogMetadata $catalogMetadata
-    ): void
-    {
+    ): void {
         /** @var string[] $mediaPaths */
         $mediaPaths = [
             $productData->getDataByKey('Web Groß Hauptbild'),
@@ -586,8 +580,8 @@ class ProductImportHandler
 
         $mediaFiles = [
             [
-                'files' => $mediaPaths,
-                'customFields' => []
+                'files'        => $mediaPaths,
+                'customFields' => [],
             ],
             [
                 'files' => array_unique(
@@ -603,7 +597,7 @@ class ProductImportHandler
                         $productData->getDataByKey('Gefahrstoffsymbol GHS09'),
                     ])
                 ),
-                'customFields' => [CustomFieldInstaller::MEDIA_GEFAHRSTOFF => true]
+                'customFields' => [CustomFieldInstaller::MEDIA_GEFAHRSTOFF => true],
             ],
             [
                 'files' => array_unique(
@@ -617,7 +611,7 @@ class ProductImportHandler
                         $productData->getDataByKey('Web Piktogramm allg 7'),
                     ])
                 ),
-                'customFields' => [CustomFieldInstaller::MEDIA_PICTOGRAM => true]
+                'customFields' => [CustomFieldInstaller::MEDIA_PICTOGRAM => true],
             ],
             [
                 'files' => array_unique(
@@ -787,9 +781,8 @@ class ProductImportHandler
         CatalogMetadata $catalogMetadata,
         Context $context,
         array $notificationData
-    ): void
-    {
-        $mainProduct   = $this->getMainProductData($productStruct, $catalogMetadata, $context);
+    ): void {
+        $mainProduct = $this->getMainProductData($productStruct, $catalogMetadata, $context);
 
         if ($productStruct->getSortimentId()) {
             $allVariantsInDefaultSortiment = true;

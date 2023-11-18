@@ -14,9 +14,6 @@
         </service>
 
         <service id="ReiffIntegrations\MeDaPro\ImportHandler\ProductImportHandler">
-            <argument type="service" id="ReiffIntegrations\Logger"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="ReiffIntegrations\Util\Mailer"/>
             <argument type="service" id="ReiffIntegrations\Util\EntitySyncer"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="product.repository"/>
@@ -28,6 +25,8 @@
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer"/>
             <argument type="service" id="unit.repository"/>
             <argument type="service" id="ReiffIntegrations\MeDaPro\DataProvider\RuleProvider"/>
+            <argument type="service" id="K10rIntegrationHelper\Observability\RunService"/>
+            <argument type="service" id="ReiffIntegrations\MeDaPro\Helper\NotificationHelper"/>
 
             <tag name="messenger.message_handler"/>
         </service>

@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class CategoryActivator
 {
-    const LIMIT = 500;
+    public const LIMIT = 500;
 
     public function __construct(
         private readonly Connection $connection,
@@ -23,7 +23,7 @@ class CategoryActivator
     // Activates categories, where at least 1 product in category is active
     public function activateCategories(Context $context): void
     {
-        while($payload = $this->fetchCategoriesToActivate()) {
+        while ($payload = $this->fetchCategoriesToActivate()) {
             $this->categoryRepository->update($payload, $context);
         }
     }
@@ -31,7 +31,7 @@ class CategoryActivator
     // Deactivates categories, where all products in category are inactive.
     public function deactivateCategories(Context $context): void
     {
-        while($payload = $this->fetchCategoriesToDeactivate()) {
+        while ($payload = $this->fetchCategoriesToDeactivate()) {
             $this->categoryRepository->update($payload, $context);
         }
     }
@@ -39,35 +39,35 @@ class CategoryActivator
     private function fetchCategoriesToActivate(): ?array
     {
         $sql = <<<SQL
-SELECT c.id
-FROM category c
-WHERE c.active = 0
-AND EXISTS (
-    SELECT 1
-    FROM product_category pc
-    JOIN product p ON pc.product_id = p.id
-    WHERE pc.category_id = c.id
-    AND p.active = 1
-)
-ORDER BY `c`.`id` ASC
-LIMIT :actualLimit
-SQL;
+            SELECT c.id
+            FROM category c
+            WHERE c.active = 0
+            AND EXISTS (
+                SELECT 1
+                FROM product_category pc
+                JOIN product p ON pc.product_id = p.id
+                WHERE pc.category_id = c.id
+                AND p.active = 1
+            )
+            ORDER BY `c`.`id` ASC
+            LIMIT :actualLimit
+            SQL;
 
         $result = $this->connection->fetchAllAssociative($sql, [
             'actualLimit' => self::LIMIT,
         ], [
-            'actualLimit' => ParameterType::INTEGER
+            'actualLimit' => ParameterType::INTEGER,
         ]);
 
-        if(!$result) {
+        if (!$result) {
             return null;
         }
 
         $payloadArray = [];
-        foreach($result as $row) {
+        foreach ($result as $row) {
             $payloadArray[] = [
-                'id' => Uuid::fromBytesToHex($row['id']),
-                'active' => true
+                'id'     => Uuid::fromBytesToHex($row['id']),
+                'active' => true,
             ];
         }
 
@@ -76,41 +76,42 @@ SQL;
 
     private function fetchCategoriesToDeactivate(): ?array
     {
-        $sql = <<<SQL
-SELECT c.id
-FROM category c
-WHERE c.active = 1
-AND NOT EXISTS (
-    SELECT 1
-    FROM product_category pc
-    JOIN product p ON pc.product_id = p.id
-    WHERE pc.category_id = c.id
-    AND p.active = 1
-)
-AND EXISTS (
-    SELECT 1
-    FROM product_category pc
-    JOIN product p ON pc.product_id = p.id
-    WHERE pc.category_id = c.id
-)
-ORDER BY `c`.`id` ASC
-LIMIT :actualLimit
-SQL;
+        $sql = '
+            SELECT c.id
+            FROM category c
+            WHERE c.active = 1
+            AND NOT EXISTS (
+                SELECT 1
+                FROM product_category pc
+                JOIN product p ON pc.product_id = p.id
+                WHERE pc.category_id = c.id
+                AND p.active = 1
+            )
+            AND EXISTS (
+                SELECT 1
+                FROM product_category pc
+                JOIN product p ON pc.product_id = p.id
+                WHERE pc.category_id = c.id
+            )
+            ORDER BY `c`.`id` ASC
+            LIMIT :actualLimit
+        ';
+
         $result = $this->connection->fetchAllAssociative($sql, [
             'actualLimit' => self::LIMIT,
         ], [
-            'actualLimit' => ParameterType::INTEGER
+            'actualLimit' => ParameterType::INTEGER,
         ]);
 
-        if(!$result) {
+        if (!$result) {
             return null;
         }
 
         $payloadArray = [];
-        foreach($result as $row) {
+        foreach ($result as $row) {
             $payloadArray[] = [
-                'id' => Uuid::fromBytesToHex($row['id']),
-                'active' => false
+                'id'     => Uuid::fromBytesToHex($row['id']),
+                'active' => false,
             ];
         }
 

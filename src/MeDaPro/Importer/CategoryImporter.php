@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace ReiffIntegrations\MeDaPro\Importer;
 
-use K10rIntegrationHelper\NotificationSystem\NotificationService;
 use K10rIntegrationHelper\Observability\RunService;
 use ReiffIntegrations\MeDaPro\DataAbstractionLayer\CategoryExtension;
 use ReiffIntegrations\MeDaPro\DataProvider\RuleProvider;
@@ -13,7 +12,6 @@ use ReiffIntegrations\MeDaPro\Helper\NotificationHelper;
 use ReiffIntegrations\MeDaPro\Struct\CatalogMetadata;
 use ReiffIntegrations\MeDaPro\Struct\CatalogStruct;
 use ReiffIntegrations\Util\Configuration;
-use ReiffIntegrations\Util\Context\DryRunState;
 use ReiffIntegrations\Util\EntitySyncer;
 use ReiffTheme\ReiffTheme;
 use Shopware\Core\Content\Category\CategoryDefinition;
@@ -49,11 +47,10 @@ class CategoryImporter
         CatalogStruct $catalog,
         CatalogMetadata $catalogMetadata,
         Context $context
-    ): void
-    {
-        $catalogId      = $catalog->getId();
-        $sortimentId    = $catalog->getSortimentId();
-        $rawCategories  = $catalog->getCategories();
+    ): void {
+        $catalogId     = $catalog->getId();
+        $sortimentId   = $catalog->getSortimentId();
+        $rawCategories = $catalog->getCategories();
 
         $rootCategoryId = $this->configService->getString(Configuration::CONFIG_KEY_ROOT_CATEGORY);
 
@@ -71,14 +68,14 @@ class CategoryImporter
         $runStatus = true;
 
         $notificationData = [
-            'catalogId' => $catalogMetadata->getCatalogId(),
-            'sortimentId' => $catalogMetadata->getSortimentId(),
-            'language' => $catalogMetadata->getLanguageCode(),
+            'catalogId'        => $catalogMetadata->getCatalogId(),
+            'sortimentId'      => $catalogMetadata->getSortimentId(),
+            'language'         => $catalogMetadata->getLanguageCode(),
             'archivedFilename' => $archivedFileName,
         ];
 
         foreach ($rawCategories->getElements() as $rawCategory) {
-            $elementId = Uuid::randomHex();
+            $elementId  = Uuid::randomHex();
             $categoryId = $this->getCategoryId($rawCategory->getUId(), $context);
 
             $this->runService->createNewElement(
@@ -90,7 +87,7 @@ class CategoryImporter
 
             $isSuccess = true;
 
-            $notificationData['categoryId'] = $rawCategory->getUId();
+            $notificationData['categoryId']       = $rawCategory->getUId();
             $notificationData['parentCategoryId'] = $rawCategory->getParentId();
 
             $updateKey = md5(
@@ -107,6 +104,7 @@ class CategoryImporter
                     ];
 
                     $parentId = $rootCategoryId;
+
                     if ($rawCategory->getParentId() !== null) {
                         $parentId = $this->getCategoryId($rawCategory->getParentId(), $context);
                     }
@@ -114,11 +112,12 @@ class CategoryImporter
                     $categoryMediaPath = $rawCategory->getMediaPaths()['Web Kataloggruppen Hauptbild'] ?? [];
 
                     $mediaId = null;
+
                     if (!empty($categoryMediaPath) && array_key_exists('Web Kataloggruppen Hauptbild', $rawCategory->getMediaPaths())) {
                         try {
                             $mediaId = $this->mediaHelper->getMediaIdByPath($categoryMediaPath, CategoryDefinition::ENTITY_NAME, $context);
 
-                            if (null === $mediaId) {
+                            if ($mediaId === null) {
                                 throw new \RuntimeException(sprintf('could not find media at the location: %s', $categoryMediaPath));
                             }
                         } catch (\Throwable $exception) {
@@ -143,7 +142,7 @@ class CategoryImporter
                         ],
                         'translations' => [
                             $catalogMetadata->getLanguageCode() => [
-                                'name' => $rawCategory->getName(),
+                                'name'                                       => $rawCategory->getName(),
                                 ReiffTheme::THEME_CUSTOM_FIELD_CATEGORY_ICON => $mediaId,
                             ],
                         ],

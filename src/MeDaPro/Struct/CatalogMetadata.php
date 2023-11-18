@@ -14,15 +14,14 @@ class CatalogMetadata extends Struct
     protected string $systemLanguageCode;
 
     public function __construct(
-        string  $catalogId,
+        string $catalogId,
         ?string $sortimentId,
         string $languageCode,
         string $systemLanguageCode
-    )
-    {
-        $this->catalogId = $catalogId;
-        $this->sortimentId = $sortimentId;
-        $this->languageCode = $languageCode;
+    ) {
+        $this->catalogId          = $catalogId;
+        $this->sortimentId        = $sortimentId;
+        $this->languageCode       = $languageCode;
         $this->systemLanguageCode = $systemLanguageCode;
     }
 

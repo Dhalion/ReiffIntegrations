@@ -41,7 +41,7 @@ class CustomFieldInstaller
     public const ORDER_COMPLETE_DELIVERY    = 'reiff_order_is_complete_delivery';
     public const ORDER_LINE_ITEM_COMMISSION = 'reiff_order_line_item_commission';
 
-    public const PAYMENT_TERMS_OF_PAYMENT   = 'reiff_payment_terms_of_payment';
+    public const PAYMENT_TERMS_OF_PAYMENT = 'reiff_payment_terms_of_payment';
 
     public const CUSTOMER_PROVIDED_DEBTOR_NUMBER   = 'reiff_customer_provided_debtor_number';
     public const CUSTOMER_IS_OCI                   = 'reiff_customer_is_oci';
@@ -387,18 +387,18 @@ class CustomFieldInstaller
             ],
         ],
         [
-            'id' => '018ab774742f71eca13a093aad680bba',
-            'name' => 'REIFF Zahlungsdaten',
+            'id'     => '018ab774742f71eca13a093aad680bba',
+            'name'   => 'REIFF Zahlungsdaten',
             'active' => true,
             'config' => [
                 'label' => [
                     'en-GB' => 'REIFF payment data',
                     'de-DE' => 'REIFF Zahlungsdaten',
-                ]
+                ],
             ],
             'relations' => [
                 [
-                    'id' => '018ab775ad4c72a7ab201863fe00e7d0',
+                    'id'     => '018ab775ad4c72a7ab201863fe00e7d0',
                 'entityName' => PaymentMethodDefinition::ENTITY_NAME,
                 ],
             ],

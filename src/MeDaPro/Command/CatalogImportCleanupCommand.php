@@ -6,6 +6,7 @@ namespace ReiffIntegrations\MeDaPro\Command;
 
 use ReiffIntegrations\MeDaPro\Cleaner\CategoryActivator;
 use ReiffIntegrations\MeDaPro\Cleaner\ProductActivator;
+use ReiffIntegrations\MeDaPro\Cleaner\SortmentRemoval;
 use ReiffIntegrations\MeDaPro\Command\Context\ImportCommandContext;
 use ReiffIntegrations\MeDaPro\DataProvider\RuleProvider;
 use ReiffIntegrations\MeDaPro\Finder\Finder;
@@ -22,7 +23,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use ReiffIntegrations\MeDaPro\Cleaner\SortmentRemoval;
 use Symfony\Component\Finder\SplFileInfo;
 
 class CatalogImportCleanupCommand extends Command
@@ -39,7 +39,6 @@ class CatalogImportCleanupCommand extends Command
         private readonly SortmentRemoval $sortmentRemoval,
         private readonly RuleProvider $ruleProvider,
         private readonly Finder $finder,
-
     ) {
         parent::__construct();
     }
@@ -70,7 +69,7 @@ class CatalogImportCleanupCommand extends Command
         }
 
         $importBasePath = $this->systemConfigService->getString(Configuration::CONFIG_KEY_FILE_IMPORT_SOURCE_PATH);
-        $importFiles = $this->finder->fetchImportFiles($importBasePath);
+        $importFiles    = $this->finder->fetchImportFiles($importBasePath);
 
         if (empty($importFiles)) {
             $style->info(sprintf('No file found to import at %s', $importBasePath));
@@ -79,7 +78,7 @@ class CatalogImportCleanupCommand extends Command
         }
 
         foreach ($importFiles as $importFile) {
-            $file = $importFile->getFile();
+            $file            = $importFile->getFile();
             $catalogMetadata = $importFile->getCatalogMetadata();
 
             if (!$catalogMetadata->isSystemLanguage()) {
@@ -124,6 +123,7 @@ class CatalogImportCleanupCommand extends Command
     {
         $activatorErrors = [];
         $style->info('Deactivating variants without assortment');
+
         try {
             $this->productActivator->deleteVariants($importContext->getContext());
         } catch (\Throwable $throwable) {
@@ -132,6 +132,7 @@ class CatalogImportCleanupCommand extends Command
         }
 
         $style->info('Deactivating main products with all variants inactive');
+
         try {
             $this->productActivator->deactivateMainProducts($importContext->getContext());
         } catch (\Throwable $throwable) {
@@ -140,6 +141,7 @@ class CatalogImportCleanupCommand extends Command
         }
 
         $style->info('Deactivating categories with inactive all products');
+
         try {
             $this->categoryActivator->deactivateCategories($importContext->getContext());
         } catch (\Throwable $throwable) {

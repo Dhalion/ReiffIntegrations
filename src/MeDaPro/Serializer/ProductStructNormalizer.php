@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace ReiffIntegrations\MeDaPro\Serializer;
 
 use ReiffIntegrations\MeDaPro\Struct\ProductCollection;
-use Symfony\Component\Serializer\Normalizer\ContextAwareDenormalizerInterface;
 use ReiffIntegrations\MeDaPro\Struct\ProductStruct;
+use Symfony\Component\Serializer\Normalizer\ContextAwareDenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\ContextAwareNormalizerInterface;
 
 class ProductStructNormalizer implements ContextAwareNormalizerInterface, ContextAwareDenormalizerInterface
@@ -14,33 +14,14 @@ class ProductStructNormalizer implements ContextAwareNormalizerInterface, Contex
     public function normalize($object, string $format = null, array $context = []): array
     {
         return [
-            'productNumber' => $object->getProductNumber(),
-            'variants' => $this->normalizeVariants($object->getVariants()),
-            'data' => $object->getData(),
-            'filePath' => $object->getFilePath(),
-            'sortimentId' => $object->getSortimentId(),
-            'catalogId' => $object->getCatalogId(),
-            'crossSellingGroups' => $object->getCrossSellingGroups()
+            'productNumber'      => $object->getProductNumber(),
+            'variants'           => $this->normalizeVariants($object->getVariants()),
+            'data'               => $object->getData(),
+            'filePath'           => $object->getFilePath(),
+            'sortimentId'        => $object->getSortimentId(),
+            'catalogId'          => $object->getCatalogId(),
+            'crossSellingGroups' => $object->getCrossSellingGroups(),
         ];
-    }
-
-    private function normalizeVariants(ProductCollection $variantsCollection): array
-    {
-        $variantsData = [];
-
-        foreach ($variantsCollection as $variant) {
-            $variantsData[] = [
-                'productNumber' => $variant->getProductNumber(),
-                'variants' => $this->normalizeVariants($variant->getVariants()),
-                'data' => $variant->getData(),
-                'filePath' => $variant->getFilePath(),
-                'sortimentId' => $variant->getSortimentId(),
-                'catalogId' => $variant->getCatalogId(),
-                'crossSellingGroups' => $variant->getCrossSellingGroups()
-            ];
-        }
-
-        return $variantsData;
     }
 
     public function supportsNormalization($data, string $format = null, array $context = []): bool
@@ -61,6 +42,35 @@ class ProductStructNormalizer implements ContextAwareNormalizerInterface, Contex
             $data['catalogId'],
             $data['crossSellingGroups'] ?? []
         );
+    }
+
+    public function supportsDenormalization($data, string $type, string $format = null, array $context = []): bool
+    {
+        return $type === ProductStruct::class;
+    }
+
+    public function hasCacheableSupportsMethod(): bool
+    {
+        return true;
+    }
+
+    private function normalizeVariants(ProductCollection $variantsCollection): array
+    {
+        $variantsData = [];
+
+        foreach ($variantsCollection as $variant) {
+            $variantsData[] = [
+                'productNumber'      => $variant->getProductNumber(),
+                'variants'           => $this->normalizeVariants($variant->getVariants()),
+                'data'               => $variant->getData(),
+                'filePath'           => $variant->getFilePath(),
+                'sortimentId'        => $variant->getSortimentId(),
+                'catalogId'          => $variant->getCatalogId(),
+                'crossSellingGroups' => $variant->getCrossSellingGroups(),
+            ];
+        }
+
+        return $variantsData;
     }
 
     private function denormalizeVariants(array $variantsData): ProductCollection
@@ -85,15 +95,5 @@ class ProductStructNormalizer implements ContextAwareNormalizerInterface, Contex
         }
 
         return $variantsCollection;
-    }
-
-    public function supportsDenormalization($data, string $type, string $format = null, array $context = []): bool
-    {
-        return $type === ProductStruct::class;
-    }
-
-    public function hasCacheableSupportsMethod(): bool
-    {
-        return true;
     }
 }

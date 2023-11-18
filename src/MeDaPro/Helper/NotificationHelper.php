@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ReiffIntegrations\MeDaPro\Helper;
 
 use K10rIntegrationHelper\NotificationSystem\DataAbstractionLayer\Notifications\NotificationCollection;
@@ -7,7 +9,6 @@ use K10rIntegrationHelper\NotificationSystem\DataAbstractionLayer\Notifications\
 use K10rIntegrationHelper\NotificationSystem\NotificationService;
 use Monolog\Logger;
 use ReiffIntegrations\MeDaPro\Struct\CatalogMetadata;
-use setasign\Fpdi\PdfParser\Type\PdfName;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -25,21 +26,20 @@ class NotificationHelper
         string $notificationType,
         array $notificationData,
         CatalogMetadata $catalogMetadata
-    ): void
-    {
+    ): void {
         $notificationData = array_merge($notificationData, [
             'catalogId'   => $catalogMetadata->getCatalogId(),
             'sortimentId' => $catalogMetadata->getSortimentId(),
-            'language' => $catalogMetadata->getLanguageCode(),
+            'language'    => $catalogMetadata->getLanguageCode(),
         ]);
 
         $notification = new NotificationEntity();
         $notification->assign([
-            'id'                 => Uuid::randomHex(),
-            'notificationType'   => $notificationType,
-            'notificationLevel'  => (string) Logger::ERROR,
-            'notificationReason' => Logger::getLevelName(Logger::ERROR),
-            'notificationData'   => $notificationData,
+            'id'                  => Uuid::randomHex(),
+            'notificationType'    => $notificationType,
+            'notificationLevel'   => (string) Logger::ERROR,
+            'notificationReason'  => Logger::getLevelName(Logger::ERROR),
+            'notificationData'    => $notificationData,
             'notificationMessage' => $message,
             'notificationTime'    => new \DateTimeImmutable(),
         ]);
@@ -59,5 +59,4 @@ class NotificationHelper
 
         $this->notifications = [];
     }
-
 }

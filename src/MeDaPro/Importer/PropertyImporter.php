@@ -4,31 +4,20 @@ declare(strict_types=1);
 
 namespace ReiffIntegrations\MeDaPro\Importer;
 
-use Doctrine\DBAL\Connection;
-use K10rIntegrationHelper\NotificationSystem\NotificationService;
 use K10rIntegrationHelper\Observability\RunService;
-use Psr\Log\LoggerInterface;
 use ReiffIntegrations\MeDaPro\Helper\NotificationHelper;
 use ReiffIntegrations\MeDaPro\Struct\CatalogMetadata;
 use ReiffIntegrations\MeDaPro\Struct\ProductsStruct;
-use ReiffIntegrations\Util\Context\DryRunState;
 use ReiffIntegrations\Util\EntitySyncer;
-use ReiffIntegrations\Util\Handler\AbstractImportHandler;
-use ReiffIntegrations\Util\Mailer;
-use ReiffIntegrations\Util\Message\AbstractImportMessage;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
 use Shopware\Core\Content\Property\PropertyGroupDefinition;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class PropertyImporter
 {
-    private const DISPLAY_TYPE_DROPDOWN          = 'select'; // Shopware has no constant for this yet in PropertyGroupDefinition
+    private const DISPLAY_TYPE_DROPDOWN = 'select'; // Shopware has no constant for this yet in PropertyGroupDefinition
 
     /** @var string[] */
     private array $updatedPropertyGroups = [];
@@ -40,15 +29,15 @@ class PropertyImporter
         private readonly EntitySyncer $entitySyncer,
         private readonly RunService $runService,
         private readonly NotificationHelper $notificationHelper,
-    ) {}
+    ) {
+    }
 
     public function importProperties(
         string $archivedFileName,
         ProductsStruct $productsStruct,
         CatalogMetadata $catalogMetadata,
         Context $context
-    ): void
-    {
+    ): void {
         $properties = $productsStruct->getProperties();
 
         $this->runService->createRun(
@@ -65,9 +54,9 @@ class PropertyImporter
         $runStatus = true;
 
         $notificationData = [
-            'catalogId' => $catalogMetadata->getCatalogId(),
-            'sortimentId' => $catalogMetadata->getSortimentId(),
-            'language' => $catalogMetadata->getLanguageCode(),
+            'catalogId'        => $catalogMetadata->getCatalogId(),
+            'sortimentId'      => $catalogMetadata->getSortimentId(),
+            'language'         => $catalogMetadata->getLanguageCode(),
             'archivedFilename' => $archivedFileName,
         ];
 
@@ -92,7 +81,7 @@ class PropertyImporter
 
                 if (!array_key_exists($updateKey, $this->updatedPropertyGroups)) {
                     $upsertData = [
-                        'id' => $property['groupId'],
+                        'id'                         => $property['groupId'],
                         'displayType'                => self::DISPLAY_TYPE_DROPDOWN,
                         'sortingType'                => PropertyGroupDefinition::SORTING_TYPE_ALPHANUMERIC,
                         'filterable'                 => PropertyGroupDefinition::FILTERABLE,

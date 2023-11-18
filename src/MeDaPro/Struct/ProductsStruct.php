@@ -23,14 +23,14 @@ class ProductsStruct extends Struct
 
     public function getProductNumbers(): array
     {
-        return $this->products->map(function(ProductStruct $productStruct) {return $productStruct->getProductNumber();});
+        return $this->products->map(function (ProductStruct $productStruct) {return $productStruct->getProductNumber(); });
     }
 
     public function getVariantProductNumbers(): array
     {
         $variantNumbers = [];
-        foreach($this->getProducts() as $product) {
-            foreach($product->getVariants() as $variant) {
+        foreach ($this->getProducts() as $product) {
+            foreach ($product->getVariants() as $variant) {
                 $variantNumbers[] = $variant->getProductNumber();
             }
         }

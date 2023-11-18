@@ -15,9 +15,9 @@ class ImportFile extends Struct
 
     public function __construct(SplFileInfo $file, CatalogMetadata $catalogMetadata, int $position)
     {
-        $this->file = $file;
+        $this->file            = $file;
         $this->catalogMetadata = $catalogMetadata;
-        $this->position = $position;
+        $this->position        = $position;
     }
 
     public function getFile(): SplFileInfo

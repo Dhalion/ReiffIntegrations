@@ -4,28 +4,16 @@ declare(strict_types=1);
 
 namespace ReiffIntegrations\MeDaPro\Importer;
 
-use Doctrine\DBAL\Connection;
 use K10rIntegrationHelper\Observability\RunService;
-use Psr\Log\LoggerInterface;
-use ReiffIntegrations\MeDaPro\Helper\IdentityProvider;
 use ReiffIntegrations\MeDaPro\Helper\MediaHelper;
 use ReiffIntegrations\MeDaPro\Helper\NotificationHelper;
 use ReiffIntegrations\MeDaPro\Struct\CatalogMetadata;
 use ReiffIntegrations\MeDaPro\Struct\ProductsStruct;
-use ReiffIntegrations\MeDaPro\Struct\ProductStruct;
-use ReiffIntegrations\Util\Context\DryRunState;
 use ReiffIntegrations\Util\EntitySyncer;
-use ReiffIntegrations\Util\Handler\AbstractImportHandler;
-use ReiffIntegrations\Util\Mailer;
-use ReiffIntegrations\Util\Message\AbstractImportMessage;
-use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class ManufacturerImporter
 {
@@ -45,8 +33,7 @@ class ManufacturerImporter
         ProductsStruct $productsStruct,
         CatalogMetadata $catalogMetadata,
         Context $context
-    ): void
-    {
+    ): void {
         $this->runService->createRun(
             sprintf(
                 'Manufacturer Import (%s - %s)',
@@ -61,9 +48,9 @@ class ManufacturerImporter
         $runStatus = true;
 
         $notificationData = [
-            'catalogId' => $catalogMetadata->getCatalogId(),
-            'sortimentId' => $catalogMetadata->getSortimentId(),
-            'language' => $catalogMetadata->getLanguageCode(),
+            'catalogId'        => $catalogMetadata->getCatalogId(),
+            'sortimentId'      => $catalogMetadata->getSortimentId(),
+            'language'         => $catalogMetadata->getLanguageCode(),
             'archivedFilename' => $archivedFileName,
         ];
 
@@ -78,7 +65,7 @@ class ManufacturerImporter
                 $context
             );
 
-            $notificationData['manufacturerName'] = $manufacturer['name'];
+            $notificationData['manufacturerName']  = $manufacturer['name'];
             $notificationData['manufacturerImage'] = $manufacturer['image'];
 
             $updateKey = md5(
@@ -90,7 +77,7 @@ class ManufacturerImporter
             if (!array_key_exists($updateKey, $this->updatedManufacturerIds)) {
                 try {
                     $data = [
-                        'id' => self::generateManufacturerIdentity($manufacturer['name']),
+                        'id'           => self::generateManufacturerIdentity($manufacturer['name']),
                         'translations' => [
                             $catalogMetadata->getLanguageCode() => [
                                 'name' => $manufacturer['name'],
@@ -99,6 +86,7 @@ class ManufacturerImporter
                     ];
 
                     $manufacturerMediaId = null;
+
                     if (!empty($manufacturer['image'])) {
                         try {
                             $manufacturerMediaId = $this->mediaHelper->getMediaIdByPath(

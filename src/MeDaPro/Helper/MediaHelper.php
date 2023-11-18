@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace ReiffIntegrations\MeDaPro\Helper;
 
-use League\Flysystem\Filesystem;
 use League\Flysystem\MountManager;
 use ReiffIntegrations\MeDaPro\DataAbstractionLayer\MediaExtension;
 use ReiffIntegrations\MeDaPro\DataAbstractionLayer\ReiffMediaEntity;
@@ -61,12 +60,12 @@ class MediaHelper
         if ($mediaEntity === null) {
             try {
                 $mediaId = $this->createMedia($path, $remotePath, $hash, $folder, $context);
-            } catch(DuplicatedMediaFileNameException $exception) {
+            } catch (DuplicatedMediaFileNameException $exception) {
                 $fileExtension = pathinfo($remotePath, PATHINFO_EXTENSION);
-                $fileName = pathinfo($remotePath, PATHINFO_FILENAME);
-                $media = $this->getMediaFromFolder($fileName, $fileExtension, $folder, $context);
+                $fileName      = pathinfo($remotePath, PATHINFO_FILENAME);
+                $media         = $this->getMediaFromFolder($fileName, $fileExtension, $folder, $context);
 
-                if(!$media) {
+                if (!$media) {
                     throw $exception;
                 }
 
@@ -176,7 +175,7 @@ class MediaHelper
                     $mediaEntity->getId(),
                     false
                 );
-            }  catch(\Exception) {
+            } catch (\Exception) {
             }
 
             $updateData = [
@@ -239,12 +238,13 @@ class MediaHelper
         return $this->mediaRepository->search($mediaCriteria, $context)->first();
     }
 
-    private function getMetadata(string $path): array {
+    private function getMetadata(string $path): array
+    {
         return [
             'lastModified' => $this->mountManager->lastModified($path),
-            'fileSize' => $this->mountManager->fileSize($path),
-            'visibility' => $this->mountManager->visibility($path),
-            'mimeType' => $this->mountManager->mimeType($path),
+            'fileSize'     => $this->mountManager->fileSize($path),
+            'visibility'   => $this->mountManager->visibility($path),
+            'mimeType'     => $this->mountManager->mimeType($path),
         ];
     }
 
@@ -255,7 +255,7 @@ class MediaHelper
             ->addFilter(new AndFilter([
                 new EqualsFilter('fileName', $fileName),
                 new EqualsFilter('fileExtension', $fileExtension),
-                new EqualsFilter('mediaFolder.defaultFolder.entity', $folder)
+                new EqualsFilter('mediaFolder.defaultFolder.entity', $folder),
             ]));
 
         return $this->mediaRepository->search($criteria, $context)->first();
@@ -268,16 +268,16 @@ class MediaHelper
             ->addFilter(new AndFilter([
                 new EqualsFilter('fileName', $fileName),
                 new EqualsFilter('fileExtension', $fileExtension),
-                new EqualsFilter('mediaFolder.defaultFolder.entity', $folder)
+                new EqualsFilter('mediaFolder.defaultFolder.entity', $folder),
             ]));
 
         $mediaId = $this->mediaRepository->searchIds($criteria, $context)->firstId();
 
-        if($mediaId) {
+        if ($mediaId) {
             $this->mediaRepository->delete([
                 [
-                    $mediaId
-                ]
+                    $mediaId,
+                ],
             ], $context);
         }
     }

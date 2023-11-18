@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ReiffIntegrations\MeDaPro\Finder;
 
 use ReiffIntegrations\MeDaPro\Parser\JsonParser;
@@ -16,8 +18,6 @@ class Finder
     }
 
     /**
-     * @param string $importBasePath
-     *
      * @return ImportFile[]
      */
     public function fetchImportFiles(string $importBasePath): array
@@ -89,6 +89,7 @@ class Finder
                 if ($otherFile->getCatalogMetadata()->getCatalogId() !== $catalogMetadata->getCatalogId()) {
                     continue;
                 }
+
                 if ($otherFile->getCatalogMetadata()->getSortimentId() !== $catalogMetadata->getSortimentId()) {
                     continue;
                 }
@@ -97,11 +98,7 @@ class Finder
             }
 
             if (!$foundFile) {
-                throw new \LogicException(sprintf(
-                    'The SystemLanguage Catalog (%s) for the file %s is missing',
-                    $catalogMetadata->getSystemLanguageCode(),
-                    $importFile->getFile()->getFilename()
-                ));
+                throw new \LogicException(sprintf('The SystemLanguage Catalog (%s) for the file %s is missing', $catalogMetadata->getSystemLanguageCode(), $importFile->getFile()->getFilename()));
             }
         }
     }

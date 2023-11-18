@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace ReiffIntegrations\MeDaPro\Command;
 
-use K10rIntegrationHelper\NotificationSystem\DataAbstractionLayer\Notifications\NotificationCollection;
-use K10rIntegrationHelper\NotificationSystem\NotificationService;
-use K10rIntegrationHelper\Observability\DataAbstractionLayer\IntegrationRun\IntegrationRunEntity;
 use K10rIntegrationHelper\Observability\RunService;
 use ReiffIntegrations\MeDaPro\Command\Context\ImportCommandContext;
 use ReiffIntegrations\MeDaPro\Finder\Finder;
@@ -15,25 +12,15 @@ use ReiffIntegrations\MeDaPro\Importer\CategoryImporter;
 use ReiffIntegrations\MeDaPro\Importer\ManufacturerImporter;
 use ReiffIntegrations\MeDaPro\Importer\MediaImporter;
 use ReiffIntegrations\MeDaPro\Importer\PropertyImporter;
-use ReiffIntegrations\MeDaPro\ImportHandler\CategoryImportHandler;
-use ReiffIntegrations\MeDaPro\ImportHandler\ManufacturerImportHandler;
-use ReiffIntegrations\MeDaPro\ImportHandler\MediaImportHandler;
 use ReiffIntegrations\MeDaPro\ImportHandler\ProductImportHandler;
-use ReiffIntegrations\MeDaPro\ImportHandler\PropertyImportHandler;
 use ReiffIntegrations\MeDaPro\Message\ProductImportMessage;
 use ReiffIntegrations\MeDaPro\Parser\JsonParser;
-use ReiffIntegrations\MeDaPro\Struct\CatalogMetadata;
-use ReiffIntegrations\MeDaPro\Struct\CatalogStruct;
-use ReiffIntegrations\MeDaPro\Struct\ImportFile;
-use ReiffIntegrations\MeDaPro\Struct\ProductsStruct;
 use ReiffIntegrations\MeDaPro\Struct\ProductStruct;
 use ReiffIntegrations\Util\Configuration;
 use ReiffIntegrations\Util\Context\DebugState;
 use ReiffIntegrations\Util\Context\DryRunState;
 use ReiffIntegrations\Util\ImportArchiver;
 use ReiffIntegrations\Util\LockHandler;
-use ReiffIntegrations\Util\Mailer;
-use ReiffIntegrations\Util\MessageHandler\ImportMessageHandler;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -115,7 +102,7 @@ class CatalogImportCommand extends Command
         }
 
         foreach ($importFiles as $importFile) {
-            $file = $importFile->getFile();
+            $file            = $importFile->getFile();
             $catalogMetadata = $importFile->getCatalogMetadata();
 
             $style->info(sprintf('Importing file [%s]', $file->getFilename()));
@@ -147,9 +134,9 @@ class CatalogImportCommand extends Command
             }
 
             $notificationData = [
-                'catalogId' => $catalogMetadata->getCatalogId(),
-                'sortimentId' => $catalogMetadata->getSortimentId(),
-                'language' => $catalogMetadata->getLanguageCode(),
+                'catalogId'        => $catalogMetadata->getCatalogId(),
+                'sortimentId'      => $catalogMetadata->getSortimentId(),
+                'language'         => $catalogMetadata->getLanguageCode(),
                 'archivedFilename' => $archivedFileName,
             ];
 
