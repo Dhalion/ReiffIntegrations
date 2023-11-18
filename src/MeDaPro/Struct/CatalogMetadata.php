@@ -14,13 +14,13 @@ class CatalogMetadata extends Struct
     protected string $systemLanguageCode;
 
     public function __construct(
-        string $catalogId,
+        string  $catalogId,
         ?string $sortimentId,
         string $languageCode,
         string $systemLanguageCode
     )
     {
-        $this->catalogId   = $catalogId;
+        $this->catalogId = $catalogId;
         $this->sortimentId = $sortimentId;
         $this->languageCode = $languageCode;
         $this->systemLanguageCode = $systemLanguageCode;
@@ -49,5 +49,10 @@ class CatalogMetadata extends Struct
     public function isSystemLanguage(): bool
     {
         return $this->languageCode === $this->systemLanguageCode;
+    }
+
+    public function isValid(): bool
+    {
+        return $this->catalogId !== '' && $this->languageCode !== '' && $this->systemLanguageCode !== '';
     }
 }

@@ -15,18 +15,20 @@ use ReiffIntegrations\MeDaPro\Struct\ProductCollection;
 use ReiffIntegrations\MeDaPro\Struct\ProductsStruct;
 use ReiffIntegrations\MeDaPro\Struct\ProductStruct;
 use ReiffIntegrations\Util\LockHandler;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
 use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 class JsonParser
 {
+    public const ATTRIBUTE_PREFIX_MANUFACTURER = 'Hersteller';
+
     private const CATEGORY_TYPE_VARIATION_GROUP = 'variationGroup';
     private const ATTRIBUTE_IDENTIFIER_PROPERTY = 'Textattribute';
     private const ATTRIBUTE_IDENTIFIER_OPTION = 'Tabellenattribute';
     private const ATTRIBUTE_IDENTIFIER_LABEL = ' Name';
     private const PRODUCT_FIELD_NUMBER = 'Artikel-Nr';
-    private const ATTRIBUTE_PREFIX_MANUFACTURER = 'Hersteller';
     private const CLOSEOUT_FIELD = 'Lagerverkauf';
     private const CLOSEOUT_IDENTIFIER = 'Lagerverkauf Name';
     private const ALLOWED_EMPTY_FIELDS = [ // We have to keep these fields in the structs to know if they are empty strings
@@ -36,14 +38,10 @@ class JsonParser
     private static array $propertyMapping = [];
     private static array $propertyCounters = [];
 
-    public function getCategories(string $filePath, CatalogMetadata $catalogMetadata): ?CatalogStruct
+    public function getCategories(string $filePath, CatalogMetadata $catalogMetadata): CatalogStruct
     {
         $catalogId = $catalogMetadata->getCatalogId();
         $sortimentId = $catalogMetadata->getSortimentId();
-
-        if ($catalogId === null) {
-            return null;
-        }
 
         $categoryData = $this->getItems($filePath, '/catalogNodes');
         $categories = [];
@@ -77,6 +75,7 @@ class JsonParser
         $products = [];
         $catalogNodes = [];
         $properties = [];
+        $manufacturers = [];
 
         foreach ($this->getItems($filePath, '/catalogNodes') as $catalogNode) {
             $catalogNodes[$catalogNode['id']] = $catalogNode;
@@ -194,7 +193,6 @@ class JsonParser
                         $properties[$cleanKey]['name'] = $structuredProduct['properties'][$cleanKey]['name'];
                         $properties[$cleanKey]['options'][$optionId] = $structuredProduct['properties'][$cleanKey]['value'];
                         $properties[$cleanKey]['groupId'] = $groupId;
-
                     } elseif (array_key_exists($cleanKey, $attributes['table']) && !empty($value) && $attributeType === 'table') {
                         $groupId = md5(sprintf('%s-%s', PropertyGroupDefinition::ENTITY_NAME, $cleanKey));
                         $optionId = $this->getMappedId($catalogMetadata, $cleanKey, $value);
@@ -207,7 +205,6 @@ class JsonParser
                         $properties[$cleanKey]['name'] = $structuredProduct['options'][$cleanKey]['name'];
                         $properties[$cleanKey]['options'][$optionId] = $structuredProduct['options'][$cleanKey]['value'];
                         $properties[$cleanKey]['groupId'] = $groupId;
-
                     } elseif (!empty($value) || in_array($key, self::ALLOWED_EMPTY_FIELDS)) {
                         if (array_key_exists($key, $structuredProduct)) {
                             throw new \RuntimeException(
@@ -244,6 +241,16 @@ class JsonParser
                     CrossSellingHelper::getCrossSellingGroups($product['structured'])
                 );
 
+                if (!empty($structuredProduct[self::ATTRIBUTE_PREFIX_MANUFACTURER]) && !is_string($structuredProduct[self::ATTRIBUTE_PREFIX_MANUFACTURER])) {
+                    $manufacturerName = $structuredProduct[self::ATTRIBUTE_PREFIX_MANUFACTURER];
+                    $manufacturerImage = $structuredProduct['Web Logo 1'];
+
+                    if (empty($manufacturers[$manufacturerName])) {
+                        $manufacturers[$manufacturerName]['name'] = $manufacturerName;
+                        $manufacturers[$manufacturerName]['media'] = $manufacturerImage;
+                    }
+                }
+
                 $mainProduct->getVariants()->set((string)$productNumber, $variantStruct);
             }
             unset($product);
@@ -254,7 +261,7 @@ class JsonParser
 
         $this->validateMappedData();
 
-        return new ProductsStruct(new ProductCollection($products), $filePath, $properties);
+        return new ProductsStruct(new ProductCollection($products), $filePath, $properties, $manufacturers);
     }
 
     public function getCatalogMetadata(string $filePath, string $systemLanguageCode): CatalogMetadata
@@ -297,7 +304,8 @@ class JsonParser
     {
         $mappingKey = implode("_", array_filter([
             $catalogMetadata->getCatalogId(),
-            $catalogMetadata->getSortimentId()
+            $catalogMetadata->getSortimentId(),
+            $groupName
         ]));
 
         if (!isset(self::$propertyCounters[$mappingKey][$catalogMetadata->getLanguageCode()])) {

@@ -22,26 +22,14 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class MediaHelper
 {
-    protected EntityRepository $mediaRepository;
-    protected MediaService $mediaService;
-    protected Filesystem $shopwareTempFilesystem;
-    protected MountManager $mountManager;
-    protected string $shopwareTempPath;
     /** @var array<string, string[]> */
     private array $mediaIdsByPathAndFolder = [];
 
     public function __construct(
-        EntityRepository $mediaRepository,
-        MediaService $mediaService,
-        Filesystem $shopwareTempFilesystem,
-        MountManager $mountManager,
-        string $shopwareTempPath
+        private readonly EntityRepository $mediaRepository,
+        private readonly MediaService $mediaService,
+        private readonly MountManager $mountManager,
     ) {
-        $this->mediaRepository        = $mediaRepository;
-        $this->mediaService           = $mediaService;
-        $this->shopwareTempFilesystem = $shopwareTempFilesystem;
-        $this->mountManager           = $mountManager;
-        $this->shopwareTempPath       = $shopwareTempPath;
     }
 
     public function getMediaIdByPath(string $path, string $folder, Context $context): ?string
@@ -51,6 +39,7 @@ class MediaHelper
         if (array_key_exists($folder, $this->mediaIdsByPathAndFolder) && array_key_exists($path, $this->mediaIdsByPathAndFolder[$folder])) {
             return $this->mediaIdsByPathAndFolder[$folder][$path];
         }
+
         $mediaEntity = $this->fetchExistingMedia($path, $context);
         $remotePath  = $this->getRemotePath($path);
 

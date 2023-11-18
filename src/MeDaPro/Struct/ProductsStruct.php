@@ -12,6 +12,7 @@ class ProductsStruct extends Struct
         private readonly ProductCollection $products,
         private readonly string $filePath,
         private readonly array $properties,
+        private readonly array $manufacturers,
     ) {
     }
 
@@ -50,5 +51,10 @@ class ProductsStruct extends Struct
     public function getProperties(): array
     {
         return $this->properties;
+    }
+
+    public function getManufacturers(): array
+    {
+        return $this->manufacturers;
     }
 }

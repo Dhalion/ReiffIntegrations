@@ -3,9 +3,12 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
+        <service id="ReiffIntegrations\MeDaPro\Helper\NotificationHelper">
+            <argument type="service" id="K10rIntegrationHelper\NotificationSystem\NotificationService" />
+        </service>
+
         <service id="ReiffIntegrations\MeDaPro\Command\CatalogImportCommand">
             <argument type="service" id="messenger.bus.shopware"/>
-            <argument type="service" id="ReiffIntegrations\Util\MessageHandler\ImportMessageHandler"/>
             <argument type="service" id="ReiffIntegrations\MeDaPro\Parser\JsonParser"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="ReiffIntegrations\Util\LockHandler"/>
@@ -14,7 +17,6 @@
             <argument type="service" id="ReiffIntegrations\MeDaPro\ImportHandler\PropertyImportHandler"/>
             <argument type="service" id="ReiffIntegrations\MeDaPro\ImportHandler\ManufacturerImportHandler"/>
             <argument type="service" id="ReiffIntegrations\MeDaPro\ImportHandler\MediaImportHandler"/>
-            <argument type="service" id="ReiffIntegrations\Util\Mailer"/>
             <argument type="service" id="ReiffIntegrations\Util\ImportArchiver"/>
             <argument type="service" id="ReiffIntegrations\MeDaPro\Finder\Finder"/>
 

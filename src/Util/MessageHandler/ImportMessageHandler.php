@@ -39,10 +39,10 @@ class ImportMessageHandler
                 }
 
                 if ($importHandler->hasErrors()) {
-                    $this->archiver->error($message->getArchiveFileName(), $context);
+                    $this->archiver->error($message->getArchivedFileName(), $context);
                 }
 
-                $importHandler->notifyErrors(sprintf('%s: %s', get_class($message), $message->getArchiveFileName()), $context);
+                $importHandler->notifyErrors(sprintf('%s: %s', get_class($message), $message->getArchivedFileName()), $context);
             }
         }
     }
