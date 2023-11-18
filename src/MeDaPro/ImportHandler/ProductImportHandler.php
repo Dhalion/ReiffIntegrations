@@ -137,10 +137,7 @@ class ProductImportHandler
         $this->handle($message);
     }
 
-    /**
-     * @param ProductImportMessage $message
-     */
-    public function handle(AbstractImportMessage $message): void
+    public function handle(ProductImportMessage $message): void
     {
         $context = $message->getContext();
         $context->addState(EntityIndexerRegistry::USE_INDEXING_QUEUE);

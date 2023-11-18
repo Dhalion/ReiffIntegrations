@@ -8,12 +8,21 @@ use Shopware\Core\Framework\Struct\Struct;
 
 class CatalogStruct extends Struct
 {
+    protected string $id;
+    protected CategoryCollection $categories;
+    protected string $filePath;
+    protected ?string $sortimentId;
+
     public function __construct(
-        private readonly string $id,
-        private readonly CategoryCollection $categories,
-        private readonly string $filePath,
-        private readonly ?string $sortimentId,
-    ) {
+        string $id,
+        CategoryCollection $categories,
+        string $filePath,
+        ?string $sortimentId = null
+    )  {
+        $this->id = $id;
+        $this->categories = $categories;
+        $this->filePath = $filePath;
+        $this->sortimentId = $sortimentId;
     }
 
     public function getId(): string

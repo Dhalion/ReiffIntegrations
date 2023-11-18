@@ -293,7 +293,7 @@ class JsonParser
         }
     }
 
-    private function getMappedId(CatalogMetadata $catalogMetadata, $groupName, $optionValue): string
+    private function getMappedId(CatalogMetadata $catalogMetadata, string $groupName, string $optionValue): string
     {
         $mappingKey = implode('_', array_filter([
             $catalogMetadata->getCatalogId(),

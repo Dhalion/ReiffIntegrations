@@ -19,7 +19,7 @@ class PropertyImporter
 {
     private const DISPLAY_TYPE_DROPDOWN = 'select'; // Shopware has no constant for this yet in PropertyGroupDefinition
 
-    /** @var string[] */
+    /** @var bool[] */
     private array $updatedPropertyGroups = [];
 
     /** @var bool[] */

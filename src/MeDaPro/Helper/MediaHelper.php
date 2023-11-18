@@ -235,7 +235,13 @@ class MediaHelper
         $mediaCriteria->addFilter(new EqualsFilter(sprintf('%s.originalPath', MediaExtension::EXTENSION_NAME), $path));
         $mediaCriteria->setLimit(1);
 
-        return $this->mediaRepository->search($mediaCriteria, $context)->first();
+        $result = $this->mediaRepository->search($mediaCriteria, $context)->first();
+
+        if (!$result instanceof MediaEntity) {
+            return null;
+        }
+
+        return $result;
     }
 
     private function getMetadata(string $path): array
@@ -258,27 +264,12 @@ class MediaHelper
                 new EqualsFilter('mediaFolder.defaultFolder.entity', $folder),
             ]));
 
-        return $this->mediaRepository->search($criteria, $context)->first();
-    }
+        $result = $this->mediaRepository->search($criteria, $context)->first();
 
-    private function deleteMediaInFolder(string $fileName, string $fileExtension, string $folder, Context $context): void
-    {
-        $criteria = (new Criteria())
-            ->addAssociation('mediaFolder.defaultFolder')
-            ->addFilter(new AndFilter([
-                new EqualsFilter('fileName', $fileName),
-                new EqualsFilter('fileExtension', $fileExtension),
-                new EqualsFilter('mediaFolder.defaultFolder.entity', $folder),
-            ]));
-
-        $mediaId = $this->mediaRepository->searchIds($criteria, $context)->firstId();
-
-        if ($mediaId) {
-            $this->mediaRepository->delete([
-                [
-                    $mediaId,
-                ],
-            ], $context);
+        if (!$result instanceof MediaEntity) {
+            return null;
         }
+
+        return $result;
     }
 }

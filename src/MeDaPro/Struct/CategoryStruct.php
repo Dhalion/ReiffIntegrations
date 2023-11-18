@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Struct\Struct;
 class CategoryStruct extends Struct
 {
     protected string $id;
-    protected ?string $parentId;
+    protected ?string $parentId = null;
     protected string $uId;
     protected string $type;
     protected string $name;
