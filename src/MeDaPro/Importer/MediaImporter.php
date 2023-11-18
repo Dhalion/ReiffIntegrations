@@ -61,11 +61,14 @@ class MediaImporter
                 $context
             );
 
+            ++$elementCount;
+
             foreach ($mainProduct->getVariants() as $productStruct) {
                 $notificationData['productNumber'] = $productStruct->getProductNumber();
 
+                $hasErrors = false;
+
                 foreach (ProductImportHandler::PRODUCT_MEDIA_FIELDS as $mediaField) {
-                    ++$elementCount;
 
                     /** @var null|string $media */
                     $media = $productStruct->getDataByKey($mediaField);
@@ -80,18 +83,27 @@ class MediaImporter
                         if (!$mediaId) {
                             throw new \RuntimeException(sprintf('could not find media at the location: %s', $media));
                         }
-                        $notificationData['media'][] = $media;
                     } catch (\Throwable $exception) {
                         $isSuccess = false;
                         $runStatus = false;
+                        $hasErrors = true;
 
-                        $this->notificationHelper->addNotification(
-                            $exception->getMessage(),
-                            'media_import',
-                            $notificationData,
-                            $catalogMetadata
-                        );
+                        $notificationData['errors'][] = $exception->getMessage();
+                        $notificationData['mediaFields'][] = $mediaField;
                     }
+                }
+
+                if ($hasErrors) {
+                    $mailData = $notificationData;
+                    $mailData['errors'] = implode("\n", $mailData['errors']);
+                    $mailData['mediaFields'] = implode("\n", $mailData['mediaFields']);
+
+                    $this->notificationHelper->addNotification(
+                        'media import failed',
+                        'media_import',
+                        $mailData,
+                        $catalogMetadata
+                    );
                 }
             }
 

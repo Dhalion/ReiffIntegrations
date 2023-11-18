@@ -74,6 +74,11 @@ class CategoryImporter
             'archivedFilename' => $archivedFileName,
         ];
 
+        $categoryIdSw6IdMapping = [];
+        foreach ($rawCategories->getElements() as $rawCategory) {
+            $categoryIdSw6IdMapping[$rawCategory->getId()] = $this->getCategoryId($rawCategory->getUId(), $context);
+        }
+
         foreach ($rawCategories->getElements() as $rawCategory) {
             $elementId  = Uuid::randomHex();
             $categoryId = $this->getCategoryId($rawCategory->getUId(), $context);
@@ -87,7 +92,7 @@ class CategoryImporter
 
             $isSuccess = true;
 
-            $notificationData['categoryId']       = $rawCategory->getUId();
+            $notificationData['categoryId']       = $rawCategory->getId();
             $notificationData['parentCategoryId'] = $rawCategory->getParentId();
 
             $updateKey = md5(
@@ -96,17 +101,16 @@ class CategoryImporter
                 $catalogMetadata->getLanguageCode()
             );
 
-            if (!array_key_exists($updateKey, $this->updatedCategoryIds)) {
-                try {
-                    $categoryData = [
-                        'id'                     => $categoryId,
-                        'swagDynamicAccessRules' => $this->getDynamicAccessRules($sortimentId, $context),
-                    ];
+            $isUpdated = array_key_exists($updateKey, $this->updatedCategoryIds);
 
+            $notificationData['skipped'] = $isUpdated;
+
+            if ($isUpdated) {
+                try {
                     $parentId = $rootCategoryId;
 
                     if ($rawCategory->getParentId() !== null) {
-                        $parentId = $this->getCategoryId($rawCategory->getParentId(), $context);
+                        $parentId = $categoryIdSw6IdMapping[$rawCategory->getParentId()];
                     }
 
                     $categoryMediaPath = $rawCategory->getMediaPaths()['Web Kataloggruppen Hauptbild'] ?? [];
@@ -130,7 +134,9 @@ class CategoryImporter
                         }
                     }
 
-                    $categoryData = array_merge($categoryData, [
+                    $categoryData = [
+                        'id'                     => $categoryIdSw6IdMapping[$rawCategory->getId()],
+                        'swagDynamicAccessRules' => $this->getDynamicAccessRules($sortimentId, $context),
                         'parentId'  => $parentId,
                         'active'    => true,
                         'cmsPageId' => $parentId === $rootCategoryId
@@ -146,7 +152,7 @@ class CategoryImporter
                                 ReiffTheme::THEME_CUSTOM_FIELD_CATEGORY_ICON => $mediaId,
                             ],
                         ],
-                    ]);
+                    ];
 
                     $this->entitySyncer->addOperation(
                         CategoryDefinition::ENTITY_NAME,

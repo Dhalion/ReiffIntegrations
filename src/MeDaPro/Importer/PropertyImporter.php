@@ -70,7 +70,8 @@ class PropertyImporter
                 $context
             );
 
-            $notificationData['property'] = $property;
+            $notificationData['propertyId'] = $property['groupId'];
+            $notificationData['propertyName'] = $property['name'];
 
             try {
                 $updateKey = md5(

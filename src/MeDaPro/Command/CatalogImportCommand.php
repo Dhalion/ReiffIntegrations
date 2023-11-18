@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace ReiffIntegrations\MeDaPro\Command;
 
 use K10rIntegrationHelper\Observability\RunService;
+use PhpParser\Node\Stmt\For_;
 use ReiffIntegrations\MeDaPro\Command\Context\ImportCommandContext;
 use ReiffIntegrations\MeDaPro\Finder\Finder;
 use ReiffIntegrations\MeDaPro\Helper\NotificationHelper;
@@ -19,6 +20,7 @@ use ReiffIntegrations\MeDaPro\Struct\ProductStruct;
 use ReiffIntegrations\Util\Configuration;
 use ReiffIntegrations\Util\Context\DebugState;
 use ReiffIntegrations\Util\Context\DryRunState;
+use ReiffIntegrations\Util\Context\ForceState;
 use ReiffIntegrations\Util\ImportArchiver;
 use ReiffIntegrations\Util\LockHandler;
 use Shopware\Core\Framework\Context;
@@ -70,20 +72,22 @@ class CatalogImportCommand extends Command
         $force   = (bool) $input->getOption('force');
         $context = Context::createDefaultContext();
 
-        $importContext = new ImportCommandContext($debug, $dryRun, $force, $context);
-
         $style = new SymfonyStyle($input, $output);
 
-        if ($importContext->isDryRun()) {
-            $importContext->getContext()->addState(DryRunState::NAME);
+        if ($dryRun) {
+            $context->addState(DryRunState::NAME);
         }
 
-        if ($importContext->isDebug()) {
-            $importContext->getContext()->addState(DebugState::NAME);
+        if ($debug) {
+            $context->addState(DebugState::NAME);
+        }
+
+        if ($force) {
+            $context->addState(ForceState::NAME);
         }
 
         $style->info('Cleanup temporary archive');
-        $this->archiver->cleanup($importContext->getContext());
+        $this->archiver->cleanup($context);
 
         $importBasePath = $this->systemConfigService->getString(Configuration::CONFIG_KEY_FILE_IMPORT_SOURCE_PATH);
 
@@ -107,7 +111,7 @@ class CatalogImportCommand extends Command
 
             $style->info(sprintf('Importing file [%s]', $file->getFilename()));
 
-            if ($this->lockHandler->hasFileLock($file, $importContext)) {
+            if ($this->lockHandler->hasFileLock($file, $context)) {
                 $style->info(sprintf('Skipped file [%s] due to existing lock', $file->getFilename()));
 
                 continue;
@@ -116,7 +120,11 @@ class CatalogImportCommand extends Command
             $this->lockHandler->createFileLock($file);
             $this->removeTrailingComma($file);
 
-            $archivedFileName = $this->archiver->archive($file->getFilename(), $importContext->getContext());
+            if (!$context->hasState(DebugState::NAME) && !$context->hasState(DryRunState::NAME)) {
+                $archivedFileName = $this->archiver->archive($file->getFilename(), $context);
+            } else {
+                $archivedFileName = $file->getFilename();
+            }
 
             if (!$catalogMetadata->isValid()) {
                 $message = sprintf(
@@ -142,17 +150,17 @@ class CatalogImportCommand extends Command
 
             try {
                 $style->info('Parsing categories');
-                $categoryData = $this->jsonParser->getCategories($archivedFileName, $catalogMetadata);
+                $categoryData = $this->jsonParser->getCategories($file->getRealPath(), $catalogMetadata);
 
                 $style->info('Parsing products');
-                $products = $this->jsonParser->getProducts($archivedFileName, $catalogMetadata);
+                $products = $this->jsonParser->getProducts($file->getRealPath(), $catalogMetadata);
 
                 $style->info('Importing categories');
                 $this->categoryImporter->importCategories(
                     $archivedFileName,
                     $categoryData,
                     $catalogMetadata,
-                    $importContext->getContext()
+                    $context
                 );
 
                 $style->info('Importing properties');
@@ -160,7 +168,7 @@ class CatalogImportCommand extends Command
                     $archivedFileName,
                     $products,
                     $catalogMetadata,
-                    $importContext->getContext()
+                    $context
                 );
 
                 if ($catalogMetadata->isSystemLanguage()) {
@@ -169,7 +177,7 @@ class CatalogImportCommand extends Command
                         $archivedFileName,
                         $products,
                         $catalogMetadata,
-                        $importContext->getContext()
+                        $context
                     );
 
                     $style->info('Importing media');
@@ -177,11 +185,11 @@ class CatalogImportCommand extends Command
                         $archivedFileName,
                         $products,
                         $catalogMetadata,
-                        $importContext->getContext()
+                        $context
                     );
                 }
 
-                $this->notificationHelper->sendNotifications($importContext->getContext());
+                $this->notificationHelper->sendNotifications($context);
 
                 $style->info('Importing products');
 
@@ -193,7 +201,7 @@ class CatalogImportCommand extends Command
                     ),
                     'product_import',
                     $products->getProducts()->count(),
-                    $importContext->getContext()
+                    $context
                 );
 
                 /** @var ProductStruct $product */
@@ -211,11 +219,11 @@ class CatalogImportCommand extends Command
                         $product,
                         $archivedFileName,
                         $catalogMetadata,
-                        $importContext->getContext(),
+                        $context,
                         $elementId
                     );
 
-                    if ($importContext->isDebug()) {
+                    if ($context->hasState(DebugState::NAME)) {
                         $this->productImportHandler->handle($productImportMessage);
                     } else {
                         $this->messageBus->dispatch($productImportMessage);

@@ -65,8 +65,7 @@ class ManufacturerImporter
                 $context
             );
 
-            $notificationData['manufacturerName']  = $manufacturer['name'];
-            $notificationData['manufacturerImage'] = $manufacturer['image'];
+            $notificationData['manufacturerImage'] = $manufacturer['media'] ?? null;
 
             $updateKey = md5(
                 ProductManufacturerDefinition::ENTITY_NAME .
@@ -87,10 +86,10 @@ class ManufacturerImporter
 
                     $manufacturerMediaId = null;
 
-                    if (!empty($manufacturer['image'])) {
+                    if (!empty($manufacturer['media'])) {
                         try {
                             $manufacturerMediaId = $this->mediaHelper->getMediaIdByPath(
-                                $manufacturer['image'],
+                                $manufacturer['media'],
                                 ProductManufacturerDefinition::ENTITY_NAME,
                                 $context
                             );

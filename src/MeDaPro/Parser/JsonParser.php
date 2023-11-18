@@ -234,12 +234,14 @@ class JsonParser
                     CrossSellingHelper::getCrossSellingGroups($product['structured'])
                 );
 
-                if (!empty($structuredProduct[self::ATTRIBUTE_PREFIX_MANUFACTURER]) && !is_string($structuredProduct[self::ATTRIBUTE_PREFIX_MANUFACTURER])) {
+                if (!empty($structuredProduct[self::ATTRIBUTE_PREFIX_MANUFACTURER]) && is_string($structuredProduct[self::ATTRIBUTE_PREFIX_MANUFACTURER])) {
                     $manufacturerName  = $structuredProduct[self::ATTRIBUTE_PREFIX_MANUFACTURER];
-                    $manufacturerImage = $structuredProduct['Web Logo 1'];
+                    $manufacturerImage = !empty($structuredProduct['Web Logo 1']) ? $structuredProduct['Web Logo 1'] : null;
 
                     if (empty($manufacturers[$manufacturerName])) {
                         $manufacturers[$manufacturerName]['name']  = $manufacturerName;
+                        $manufacturers[$manufacturerName]['media'] = $manufacturerImage;
+                    } elseif (empty($manufacturers[$manufacturerName]['media']) && !empty($manufacturerImage)) {
                         $manufacturers[$manufacturerName]['media'] = $manufacturerImage;
                     }
                 }
@@ -252,7 +254,7 @@ class JsonParser
         }
         unset($variants);
 
-        $this->validateMappedData();
+        $this->validateMappedData($catalogMetadata);
 
         return new ProductsStruct(new ProductCollection($products), $filePath, $properties, $manufacturers);
     }
@@ -284,11 +286,22 @@ class JsonParser
         return new CatalogMetadata($catalogId, $sortimentId, $language, $systemLanguageCode);
     }
 
-    private function validateMappedData(): void
+    private function validateMappedData(CatalogMetadata $catalogMetadata): void
     {
-        foreach (self::$propertyCounters as $mappingKey => $languages) {
-            if (count(array_unique($languages)) > 1) {
-                throw new \RuntimeException(sprintf('Property amount for %s is not consistent', $mappingKey));
+        $currentMappingKey = implode('_', array_filter([
+            $catalogMetadata->getCatalogId(),
+            $catalogMetadata->getSortimentId(),
+        ]));
+
+        foreach (self::$propertyCounters as $mappingKey => $groupNames) {
+            if ((string) $mappingKey !== $currentMappingKey) {
+                continue;
+            }
+
+            foreach ($groupNames as $languages) {
+                if (count(array_unique($languages)) > 1) {
+                    throw new \RuntimeException(sprintf('Property amount for %s is not consistent', $mappingKey));
+                }
             }
         }
     }
@@ -298,14 +311,13 @@ class JsonParser
         $mappingKey = implode('_', array_filter([
             $catalogMetadata->getCatalogId(),
             $catalogMetadata->getSortimentId(),
-            $groupName,
         ]));
 
-        if (!isset(self::$propertyCounters[$mappingKey][$catalogMetadata->getLanguageCode()])) {
-            self::$propertyCounters[$mappingKey][$catalogMetadata->getLanguageCode()] = 0;
+        if (!isset(self::$propertyCounters[$mappingKey][$groupName][$catalogMetadata->getLanguageCode()])) {
+            self::$propertyCounters[$mappingKey][$groupName][$catalogMetadata->getLanguageCode()] = 0;
         }
 
-        $count = ++self::$propertyCounters[$mappingKey][$catalogMetadata->getLanguageCode()];
+        $count = ++self::$propertyCounters[$mappingKey][$groupName][$catalogMetadata->getLanguageCode()];
 
         if ($catalogMetadata->isSystemLanguage()) {
             $uuid = md5(sprintf(
@@ -315,16 +327,16 @@ class JsonParser
                 $optionValue
             ));
 
-            self::$propertyMapping[$mappingKey][$count] = $uuid;
+            self::$propertyMapping[$mappingKey][$groupName][$count] = $uuid;
         }
 
-        if (empty(self::$propertyMapping[$mappingKey][$count])) {
+        if (empty(self::$propertyMapping[$mappingKey][$groupName][$count])) {
             $error = 'Could not find mapping for %s. ImportFile with system default language may be missing';
 
             throw new \LogicException(sprintf($error, $groupName));
         }
 
-        return self::$propertyMapping[$mappingKey][$count];
+        return self::$propertyMapping[$mappingKey][$groupName][$count];
     }
 
     private function cleanupAttributeName(string $name): string

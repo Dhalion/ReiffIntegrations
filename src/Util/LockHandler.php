@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace ReiffIntegrations\Util;
 
 use ReiffIntegrations\MeDaPro\Command\Context\ImportCommandContext;
+use ReiffIntegrations\Util\Context\ForceState;
+use Shopware\Core\Framework\Context;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\Cache\Exception\CacheException;
 use Symfony\Component\Finder\SplFileInfo;
@@ -35,9 +37,9 @@ class LockHandler
         }
     }
 
-    public function hasFileLock(SplFileInfo $file, ImportCommandContext $context): bool
+    public function hasFileLock(SplFileInfo $file, Context $context): bool
     {
-        if ($context->isForce()) {
+        if ($context->hasState(ForceState::NAME)) {
             return false;
         }
 

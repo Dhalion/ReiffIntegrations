@@ -159,8 +159,7 @@ class ProductImportHandler
             $this->importProduct(
                 $productStruct,
                 $catalogMetadata,
-                $context,
-                $notificationData
+                $context
             );
 
             $this->finalizeProduct($context);
@@ -534,7 +533,6 @@ class ProductImportHandler
         array &$variant,
         ProductStruct $productData,
         Context $context,
-        array $notificationData,
         CatalogMetadata $catalogMetadata
     ): void {
         /** @var string[] $mediaPaths */
@@ -566,12 +564,7 @@ class ProductImportHandler
                     throw new \RuntimeException(sprintf('could not find product media at the location: %s', $coverPath));
                 }
             } catch (\Throwable $exception) {
-                $this->notificationHelper->addNotification(
-                    $exception->getMessage(),
-                    'product_import',
-                    $notificationData,
-                    $catalogMetadata
-                );
+                // fail silently as the media file was already reported during the media import
             }
         }
 
@@ -644,12 +637,7 @@ class ProductImportHandler
                         throw new \RuntimeException(sprintf('could not find product media at the location: %s', $mediaPath));
                     }
                 } catch (\Throwable $exception) {
-                    $this->notificationHelper->addNotification(
-                        $exception->getMessage(),
-                        'product_import',
-                        $notificationData,
-                        $catalogMetadata
-                    );
+                    // fail silently as the media file was already reported during the media import
                 }
             }
         }
@@ -777,7 +765,6 @@ class ProductImportHandler
         ProductStruct $productStruct,
         CatalogMetadata $catalogMetadata,
         Context $context,
-        array $notificationData
     ): void {
         $mainProduct = $this->getMainProductData($productStruct, $catalogMetadata, $context);
 
@@ -837,12 +824,7 @@ class ProductImportHandler
                     throw new \RuntimeException(sprintf('could not find product media at the location: %s', $mainCover));
                 }
             } catch (\Throwable $exception) {
-                $this->notificationHelper->addNotification(
-                    $exception->getMessage(),
-                    'product_import',
-                    $notificationData,
-                    $catalogMetadata
-                );
+                // fail silently as the media file was already reported during the media import
             }
         }
 
@@ -893,7 +875,7 @@ class ProductImportHandler
                     $this->addOptions($mainProduct, $variant, $variantStruct, $context);
                 }
 
-                $this->addMedia($variant, $variantStruct, $context, $notificationData, $catalogMetadata);
+                $this->addMedia($variant, $variantStruct, $context, $catalogMetadata);
 
                 $this->addUnits($variant, $variantStruct, $context);
             }

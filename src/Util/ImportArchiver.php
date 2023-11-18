@@ -36,7 +36,7 @@ class ImportArchiver
             $this->filesystem->move($source, $destination);
         }
 
-        return $destination;
+        return $destinationFilename;
     }
 
     public function error(string $filename, Context $context): string
