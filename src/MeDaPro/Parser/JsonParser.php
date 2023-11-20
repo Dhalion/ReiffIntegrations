@@ -335,7 +335,6 @@ class JsonParser
                 $mailData,
                 $catalogMetadata
             );
-            $this->notificationHelper->sendNotifications($context);
 
             throw new \RuntimeException('Product parsing failed with errors');
         }
@@ -384,7 +383,7 @@ class JsonParser
 
             foreach ($groupNames as $groupName => $mappingByLanguage) {
                 if (count(array_unique($mappingByLanguage)) > 1) {
-                    throw new \RuntimeException(sprintf('Property amount for %s in group %s is not consistent', $mappingKey, $groupName));
+                    throw new \RuntimeException(sprintf('Property amount in %s is not consistent', $groupName));
                 }
             }
         }
