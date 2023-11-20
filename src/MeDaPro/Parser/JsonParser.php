@@ -326,11 +326,14 @@ class JsonParser
         $this->runService->finalizeRun($runStatus, $catalogMetadata->getArchivedFilename(), $context);
 
         if ($hasErrors) {
-            $mailData           = $notificationData;
-            $mailData['errors'] = implode("\n", array_unique($notificationErrors));
+            $mailData = $notificationData;
+
+            foreach (array_unique($notificationErrors) as $key => $error) {
+                $mailData['error_' . $key] = $error;
+            }
 
             $this->notificationHelper->addNotification(
-                'product pre processing failed failed',
+                'product pre processing failed',
                 'parse_products',
                 $mailData,
                 $catalogMetadata
