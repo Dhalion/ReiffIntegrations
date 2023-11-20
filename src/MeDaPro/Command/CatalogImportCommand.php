@@ -193,8 +193,6 @@ class CatalogImportCommand extends Command
                     );
                 }
 
-                $this->notificationHelper->sendNotifications($context);
-
                 $style->info('Importing products');
 
                 $this->runService->createRun(
@@ -244,6 +242,8 @@ class CatalogImportCommand extends Command
                 );
             }
         }
+
+        $this->notificationHelper->sendNotifications($context);
 
         return Command::SUCCESS;
     }
