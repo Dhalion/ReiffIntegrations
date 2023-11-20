@@ -183,7 +183,7 @@ class PriceCacheService
             );
         }
 
-        return $languageCode;
+        return strtoupper(substr($languageCode, 0, 2));
     }
 
     private function fetchDebtorNumber(array $priceData): string

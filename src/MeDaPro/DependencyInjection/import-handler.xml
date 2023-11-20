@@ -4,7 +4,7 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
         <service id="ReiffIntegrations\MeDaPro\ImportHandler\CategoryImportHandler">
-            <argument type="service" id="ReiffIntegrations\Logger"/>
+            <argument type="service" id="monolog.logger.reiff_integrations"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="ReiffIntegrations\Util\Mailer"/>
             <argument type="service" id="ReiffIntegrations\Util\EntitySyncer"/>
@@ -17,7 +17,7 @@
         </service>
 
         <service id="ReiffIntegrations\MeDaPro\ImportHandler\ProductImportHandler">
-            <argument type="service" id="ReiffIntegrations\Logger"/>
+            <argument type="service" id="monolog.logger.reiff_integrations"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="ReiffIntegrations\Util\Mailer"/>
             <argument type="service" id="ReiffIntegrations\Util\EntitySyncer"/>
@@ -36,7 +36,7 @@
         </service>
 
         <service id="ReiffIntegrations\MeDaPro\ImportHandler\PropertyImportHandler">
-            <argument type="service" id="ReiffIntegrations\Logger"/>
+            <argument type="service" id="monolog.logger.reiff_integrations"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="ReiffIntegrations\Util\Mailer"/>
             <argument type="service" id="ReiffIntegrations\Util\EntitySyncer"/>
@@ -46,7 +46,7 @@
         </service>
 
         <service id="ReiffIntegrations\MeDaPro\ImportHandler\ManufacturerImportHandler">
-            <argument type="service" id="ReiffIntegrations\Logger"/>
+            <argument type="service" id="monolog.logger.reiff_integrations"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="ReiffIntegrations\Util\Mailer"/>
             <argument type="service" id="ReiffIntegrations\Util\EntitySyncer"/>
@@ -58,7 +58,7 @@
         </service>
 
         <service id="ReiffIntegrations\MeDaPro\ImportHandler\MediaImportHandler">
-            <argument type="service" id="ReiffIntegrations\Logger"/>
+            <argument type="service" id="monolog.logger.reiff_integrations"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="ReiffIntegrations\Util\Mailer"/>
             <argument type="service" id="ReiffIntegrations\Util\EntitySyncer"/>

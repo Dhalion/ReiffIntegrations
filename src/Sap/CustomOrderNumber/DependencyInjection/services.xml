@@ -5,12 +5,12 @@
     <services>
         <service id="ReiffIntegrations\Sap\CustomOrderNumber\Api\Client\OrderNumberApiClient">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="ReiffIntegrations\Logger"/>
+            <argument type="service" id="monolog.logger.reiff_integrations"/>
             <argument type="service" id="ReiffIntegrations\Sap\CustomOrderNumber\Api\Client\OrderNumberResponseParser"/>
         </service>
 
         <service id="ReiffIntegrations\Sap\CustomOrderNumber\Api\Client\OrderNumberResponseParser">
-            <argument type="service" id="ReiffIntegrations\Logger"/>
+            <argument type="service" id="monolog.logger.reiff_integrations"/>
         </service>
 
         <service id="ReiffIntegrations\Sap\CustomOrderNumber\Command\UpdateCommand">
@@ -31,7 +31,7 @@
         </service>
 
         <service id="ReiffIntegrations\Sap\CustomOrderNumber\MessageHandler\OrderNumberUpdateMessageHandler">
-            <argument type="service" id="ReiffIntegrations\Logger"/>
+            <argument type="service" id="monolog.logger.reiff_integrations"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="ReiffIntegrations\Sap\CustomOrderNumber\Api\Client\OrderNumberApiClient"/>
             <argument type="service" id="b2b_order_number.crud_service"/>

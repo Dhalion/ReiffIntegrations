@@ -19,40 +19,40 @@
         </service>
 
         <service id="ReiffIntegrations\Sap\Api\Client\Orders\OrderListResponseParser">
-            <argument type="service" id="ReiffIntegrations\Logger"/>
+            <argument type="service" id="monolog.logger.reiff_integrations"/>
         </service>
 
         <service id="ReiffIntegrations\Sap\Api\Client\Orders\OrderListApiClient">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="ReiffIntegrations\Logger"/>
+            <argument type="service" id="monolog.logger.reiff_integrations"/>
             <argument type="service" id="ReiffIntegrations\Sap\Api\Client\Orders\OrderListResponseParser"/>
         </service>
 
         <service id="ReiffIntegrations\Sap\Api\Client\Orders\OrderDetailResponseParser">
-            <argument type="service" id="ReiffIntegrations\Logger"/>
+            <argument type="service" id="monolog.logger.reiff_integrations"/>
             <argument type="service" id="country.repository"/>
             <argument type="service" id="product.repository"/>
         </service>
 
         <service id="ReiffIntegrations\Sap\Api\Client\Orders\OrderDetailApiClient">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="ReiffIntegrations\Logger"/>
+            <argument type="service" id="monolog.logger.reiff_integrations"/>
             <argument type="service" id="ReiffIntegrations\Sap\Api\Client\Orders\OrderDetailResponseParser"/>
         </service>
 
         <service id="ReiffIntegrations\Sap\Api\Client\Pdf\OrderPdfResponseParser">
-            <argument type="service" id="ReiffIntegrations\Logger"/>
+            <argument type="service" id="monolog.logger.reiff_integrations"/>
         </service>
 
         <service id="ReiffIntegrations\Sap\Api\Client\Pdf\OrderPdfApiClient">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="ReiffIntegrations\Logger"/>
+            <argument type="service" id="monolog.logger.reiff_integrations"/>
             <argument type="service" id="ReiffIntegrations\Sap\Api\Client\Pdf\OrderPdfResponseParser"/>
         </service>
 
         <service id="ReiffIntegrations\Sap\Api\Client\Cart\CartApiClient">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="ReiffIntegrations\Logger"/>
+            <argument type="service" id="monolog.logger.reiff_integrations"/>
         </service>
 
         <service id="ReiffIntegrations\Sap\Cart\PriceCartProcessor">
