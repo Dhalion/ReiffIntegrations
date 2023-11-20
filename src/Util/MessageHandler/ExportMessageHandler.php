@@ -24,7 +24,6 @@ class ExportMessageHandler
         $this->__invoke($message);
     }
 
-
     public function __invoke(AbstractExportMessage $message): void
     {
         $this->handleWithResult($message);

@@ -14,7 +14,6 @@ use ReiffIntegrations\MeDaPro\Parser\JsonParser;
 use ReiffIntegrations\Util\Configuration;
 use ReiffIntegrations\Util\Context\DebugState;
 use ReiffIntegrations\Util\Context\DryRunState;
-use ReiffIntegrations\Util\ImportArchiver;
 use ReiffIntegrations\Util\Mailer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -33,7 +32,6 @@ class CatalogImportCleanupCommand extends Command
         private readonly JsonParser $jsonParser,
         private readonly SystemConfigService $systemConfigService,
         private readonly Mailer $mailer,
-        private readonly ImportArchiver $archiver,
         private readonly ProductActivator $productActivator,
         private readonly CategoryActivator $categoryActivator,
         private readonly SortmentRemoval $sortmentRemoval,
@@ -88,21 +86,12 @@ class CatalogImportCleanupCommand extends Command
             $style->info(sprintf('Importing file [%s]', $file->getFilename()));
             $this->removeTrailingComma($file);
 
-            $style->info('Parsing categories');
-            $categoryData = $this->jsonParser->getCategories($file->getRealPath(), $catalogMetadata);
-
-            if ($categoryData === null) {
-                $style->error('Invalid category data provided');
-                $archivedFileName = $this->archiver->error($file->getFilename(), $context);
-
-                $this->mailer->sendErrorMail([new \RuntimeException('Invalid category data provided')], $archivedFileName, $importContext->getContext());
-
-                continue;
-            }
-
             try {
                 $style->info('Parsing products');
-                $products = $this->jsonParser->getProducts($file->getRealPath(), $catalogMetadata);
+                $products = $this->jsonParser->getProducts(
+                    $file->getRealPath(),
+                    $catalogMetadata
+                );
             } catch (\Throwable $t) {
                 $style->error($t->getMessage());
                 $this->mailer->sendErrorMail([$t], $file->getFilename(), $importContext->getContext());

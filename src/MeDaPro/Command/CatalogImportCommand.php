@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace ReiffIntegrations\MeDaPro\Command;
 
 use K10rIntegrationHelper\Observability\RunService;
-use PhpParser\Node\Stmt\For_;
-use ReiffIntegrations\MeDaPro\Command\Context\ImportCommandContext;
 use ReiffIntegrations\MeDaPro\Finder\Finder;
 use ReiffIntegrations\MeDaPro\Helper\NotificationHelper;
 use ReiffIntegrations\MeDaPro\Importer\CategoryImporter;
@@ -126,10 +124,12 @@ class CatalogImportCommand extends Command
                 $archivedFileName = $file->getFilename();
             }
 
+            $catalogMetadata->setArchivedFilename($archivedFileName);
+
             if (!$catalogMetadata->isValid()) {
                 $message = sprintf(
                     'Catalog metadata for file %s is invalid: catalogId: %s, languageCode: %s, sortimentId: %s, systemLanguageCode: %s',
-                    $archivedFileName,
+                    $catalogMetadata->getArchivedFilename(),
                     $catalogMetadata->getCatalogId(),
                     $catalogMetadata->getLanguageCode(),
                     $catalogMetadata->getSortimentId(),
@@ -145,19 +145,26 @@ class CatalogImportCommand extends Command
                 'catalogId'        => $catalogMetadata->getCatalogId(),
                 'sortimentId'      => $catalogMetadata->getSortimentId(),
                 'language'         => $catalogMetadata->getLanguageCode(),
-                'archivedFilename' => $archivedFileName,
+                'archivedFilename' => $catalogMetadata->getArchivedFilename(),
             ];
 
             try {
                 $style->info('Parsing categories');
-                $categoryData = $this->jsonParser->getCategories($file->getRealPath(), $catalogMetadata);
+                $categoryData = $this->jsonParser->getCategories(
+                    $file->getRealPath(),
+                    $catalogMetadata
+                );
 
                 $style->info('Parsing products');
-                $products = $this->jsonParser->getProducts($file->getRealPath(), $catalogMetadata);
+                $products = $this->jsonParser->getProducts(
+                    $file->getRealPath(),
+                    $catalogMetadata,
+                    $context
+                );
 
+                continue;
                 $style->info('Importing categories');
                 $this->categoryImporter->importCategories(
-                    $archivedFileName,
                     $categoryData,
                     $catalogMetadata,
                     $context
@@ -165,7 +172,6 @@ class CatalogImportCommand extends Command
 
                 $style->info('Importing properties');
                 $this->propertyImporter->importProperties(
-                    $archivedFileName,
                     $products,
                     $catalogMetadata,
                     $context
@@ -174,7 +180,6 @@ class CatalogImportCommand extends Command
                 if ($catalogMetadata->isSystemLanguage()) {
                     $style->info('Importing manufacturers');
                     $this->manufacturerImporter->importManufacturers(
-                        $archivedFileName,
                         $products,
                         $catalogMetadata,
                         $context
@@ -182,7 +187,6 @@ class CatalogImportCommand extends Command
 
                     $style->info('Importing media');
                     $this->mediaImporter->importMedia(
-                        $archivedFileName,
                         $products,
                         $catalogMetadata,
                         $context
@@ -195,9 +199,12 @@ class CatalogImportCommand extends Command
 
                 $this->runService->createRun(
                     sprintf(
-                        'Product Import (%s - %s)',
-                        $catalogMetadata->getCatalogId(),
-                        $catalogMetadata->getLanguageCode()
+                        'Product Import (%s)',
+                        implode('_', array_filter([
+                            $catalogMetadata->getSortimentId(),
+                            $catalogMetadata->getCatalogId(),
+                            $catalogMetadata->getLanguageCode(),
+                        ]))
                     ),
                     'product_import',
                     $products->getProducts()->count(),
@@ -217,7 +224,6 @@ class CatalogImportCommand extends Command
 
                     $productImportMessage = new ProductImportMessage(
                         $product,
-                        $archivedFileName,
                         $catalogMetadata,
                         $context,
                         $elementId

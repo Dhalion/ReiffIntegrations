@@ -29,19 +29,15 @@ class Finder
 
         $files = [];
         foreach ($finder as $file) {
-            $position = 100;
-
             $metadata = $this->jsonParser->getCatalogMetadata(
                 $file->getFilenameWithoutExtension(),
                 $systemLanguageCode
             );
 
-            if ($systemLanguageCode === $metadata->getLanguageCode()) {
-                $position -= 80;
-            }
+            $position = (int) $metadata->getCatalogId() + (int) $metadata->getSortimentId();
 
-            if ($metadata->getSortimentId() !== null) {
-                $position += 20;
+            if ($systemLanguageCode === $metadata->getLanguageCode()) {
+                --$position;
             }
 
             $files[$file->getFilenameWithoutExtension()] = new ImportFile(

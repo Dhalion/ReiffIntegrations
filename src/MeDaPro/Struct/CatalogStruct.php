@@ -17,11 +17,11 @@ class CatalogStruct extends Struct
         string $id,
         CategoryCollection $categories,
         string $filePath,
-        ?string $sortimentId = null
-    )  {
-        $this->id = $id;
-        $this->categories = $categories;
-        $this->filePath = $filePath;
+        string $sortimentId = null
+    ) {
+        $this->id          = $id;
+        $this->categories  = $categories;
+        $this->filePath    = $filePath;
         $this->sortimentId = $sortimentId;
     }
 

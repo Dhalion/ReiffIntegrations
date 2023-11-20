@@ -6,7 +6,9 @@ namespace ReiffIntegrations\MeDaPro\Parser;
 
 use JsonMachine\Items;
 use JsonMachine\JsonDecoder\ExtJsonDecoder;
+use K10rIntegrationHelper\Observability\RunService;
 use ReiffIntegrations\MeDaPro\Helper\CrossSellingHelper;
+use ReiffIntegrations\MeDaPro\Helper\NotificationHelper;
 use ReiffIntegrations\MeDaPro\Struct\CatalogMetadata;
 use ReiffIntegrations\MeDaPro\Struct\CatalogStruct;
 use ReiffIntegrations\MeDaPro\Struct\CategoryCollection;
@@ -16,6 +18,7 @@ use ReiffIntegrations\MeDaPro\Struct\ProductsStruct;
 use ReiffIntegrations\MeDaPro\Struct\ProductStruct;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
 use Shopware\Core\Content\Property\PropertyGroupDefinition;
+use Shopware\Core\Framework\Context;
 
 class JsonParser
 {
@@ -35,8 +38,16 @@ class JsonParser
     private static array $propertyMapping  = [];
     private static array $propertyCounters = [];
 
-    public function getCategories(string $filePath, CatalogMetadata $catalogMetadata): CatalogStruct
-    {
+    public function __construct(
+        private readonly RunService $runService,
+        private readonly NotificationHelper $notificationHelper,
+    ) {
+    }
+
+    public function getCategories(
+        string $filePath,
+        CatalogMetadata $catalogMetadata
+    ): CatalogStruct {
         $catalogId   = $catalogMetadata->getCatalogId();
         $sortimentId = $catalogMetadata->getSortimentId();
 
@@ -66,8 +77,35 @@ class JsonParser
         return new CatalogStruct($catalogId, new CategoryCollection($categories), basename($filePath), $sortimentId);
     }
 
-    public function getProducts(string $filePath, CatalogMetadata $catalogMetadata): ProductsStruct
-    {
+    public function getProducts(
+        string $filePath,
+        CatalogMetadata $catalogMetadata,
+        Context $context
+    ): ProductsStruct {
+        $this->runService->createRun(
+            sprintf(
+                'Parse Products (%s)',
+                implode('_', array_filter([
+                    $catalogMetadata->getSortimentId(),
+                    $catalogMetadata->getCatalogId(),
+                    $catalogMetadata->getLanguageCode(),
+                ]))
+            ),
+            'parse_products',
+            null,
+            $context
+        );
+
+        $runStatus = true;
+
+        $notificationData = [
+            'catalogId'        => $catalogMetadata->getCatalogId(),
+            'sortimentId'      => $catalogMetadata->getSortimentId(),
+            'language'         => $catalogMetadata->getLanguageCode(),
+            'archivedFilename' => $catalogMetadata->getArchivedFilename(),
+        ];
+        $notificationErrors = [];
+
         $rawProducts   = [];
         $products      = [];
         $catalogNodes  = [];
@@ -84,6 +122,8 @@ class JsonParser
             $rawProducts[$variationGroupId][$product[self::PRODUCT_FIELD_NUMBER]]['raw']['category'] = $catalogNodes[$catalogNodes[$product['variationGroupId']]['parentId']]['uId'];
             $rawProducts[$variationGroupId][$product[self::PRODUCT_FIELD_NUMBER]]['attributes']      = $product;
         }
+
+        $hasErrors = false;
 
         foreach ($rawProducts as &$variants) {
             $firstVariant = reset($variants);
@@ -181,8 +221,18 @@ class JsonParser
                     }
 
                     if (array_key_exists($cleanKey, $attributes['text']) && !empty($value) && $attributeType === 'text') {
-                        $groupId  = md5(sprintf('%s-%s', PropertyGroupDefinition::ENTITY_NAME, $cleanKey));
-                        $optionId = $this->getMappedId($catalogMetadata, $cleanKey, $value);
+                        $groupId = md5(sprintf('%s-%s', PropertyGroupDefinition::ENTITY_NAME, $cleanKey));
+
+                        try {
+                            $optionId = $this->getMappedId($catalogMetadata, $cleanKey, $value);
+                        } catch (\Throwable $exception) {
+                            $runStatus = false;
+                            $hasErrors = true;
+
+                            $notificationErrors[] = $exception->getMessage();
+
+                            continue;
+                        }
 
                         $structuredProduct['properties'][$cleanKey]['name']     = $attributes['text'][$cleanKey]['name'];
                         $structuredProduct['properties'][$cleanKey]['value']    = $value;
@@ -193,8 +243,18 @@ class JsonParser
                         $properties[$cleanKey]['options'][$optionId] = $structuredProduct['properties'][$cleanKey]['value'];
                         $properties[$cleanKey]['groupId']            = $groupId;
                     } elseif (array_key_exists($cleanKey, $attributes['table']) && !empty($value) && $attributeType === 'table') {
-                        $groupId  = md5(sprintf('%s-%s', PropertyGroupDefinition::ENTITY_NAME, $cleanKey));
-                        $optionId = $this->getMappedId($catalogMetadata, $cleanKey, $value);
+                        $groupId = md5(sprintf('%s-%s', PropertyGroupDefinition::ENTITY_NAME, $cleanKey));
+
+                        try {
+                            $optionId = $this->getMappedId($catalogMetadata, $cleanKey, $value);
+                        } catch (\Throwable $exception) {
+                            $runStatus = false;
+                            $hasErrors = true;
+
+                            $notificationErrors[] = $exception->getMessage();
+
+                            continue;
+                        }
 
                         $structuredProduct['options'][$cleanKey]['name']     = $attributes['table'][$cleanKey]['name'];
                         $structuredProduct['options'][$cleanKey]['value']    = $value;
@@ -254,7 +314,31 @@ class JsonParser
         }
         unset($variants);
 
-        $this->validateMappedData($catalogMetadata);
+        try {
+            $this->validateMappedData($catalogMetadata);
+        } catch (\Throwable $exception) {
+            $runStatus = false;
+            $hasErrors = true;
+
+            $notificationData['errors'][] = $exception->getMessage();
+        }
+
+        $this->runService->finalizeRun($runStatus, $catalogMetadata->getArchivedFilename(), $context);
+
+        if ($hasErrors) {
+            $mailData           = $notificationData;
+            $mailData['errors'] = implode("\n", array_unique($notificationErrors));
+
+            $this->notificationHelper->addNotification(
+                'product pre processing failed failed',
+                'parse_products',
+                $mailData,
+                $catalogMetadata
+            );
+            $this->notificationHelper->sendNotifications($context);
+
+            throw new \RuntimeException('Product parsing failed with errors');
+        }
 
         return new ProductsStruct(new ProductCollection($products), $filePath, $properties, $manufacturers);
     }
@@ -298,9 +382,9 @@ class JsonParser
                 continue;
             }
 
-            foreach ($groupNames as $languages) {
-                if (count(array_unique($languages)) > 1) {
-                    throw new \RuntimeException(sprintf('Property amount for %s is not consistent', $mappingKey));
+            foreach ($groupNames as $groupName => $mappingByLanguage) {
+                if (count(array_unique($mappingByLanguage)) > 1) {
+                    throw new \RuntimeException(sprintf('Property amount for %s in group %s is not consistent', $mappingKey, $groupName));
                 }
             }
         }
@@ -331,9 +415,9 @@ class JsonParser
         }
 
         if (empty(self::$propertyMapping[$mappingKey][$groupName][$count])) {
-            $error = 'Could not find mapping for %s. ImportFile with system default language may be missing';
+            $error = 'Could not find mapping for %s in %s. ImportFile with system default language may be missing.';
 
-            throw new \LogicException(sprintf($error, $groupName));
+            throw new \LogicException(sprintf($error, $optionValue, $groupName));
         }
 
         return self::$propertyMapping[$mappingKey][$groupName][$count];

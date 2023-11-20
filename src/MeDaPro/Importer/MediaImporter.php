@@ -24,30 +24,31 @@ class MediaImporter
     }
 
     public function importMedia(
-        string $archivedFileName,
         ProductsStruct $productsStruct,
         CatalogMetadata $catalogMetadata,
         Context $context
     ): void {
         $this->runService->createRun(
             sprintf(
-                'Media Import (%s - %s)',
-                $catalogMetadata->getCatalogId(),
-                $catalogMetadata->getLanguageCode()
+                'Media Import (%s)',
+                implode('_', array_filter([
+                    $catalogMetadata->getSortimentId(),
+                    $catalogMetadata->getCatalogId(),
+                    $catalogMetadata->getLanguageCode(),
+                ]))
             ),
             'media_import',
             null,
             $context
         );
 
-        $elementCount = 0;
-        $runStatus    = true;
+        $runStatus = true;
 
         $notificationData = [
             'catalogId'        => $catalogMetadata->getCatalogId(),
             'sortimentId'      => $catalogMetadata->getSortimentId(),
             'language'         => $catalogMetadata->getLanguageCode(),
-            'archivedFilename' => $archivedFileName,
+            'archivedFilename' => $catalogMetadata->getArchivedFilename(),
         ];
 
         foreach ($productsStruct->getProducts() as $mainProduct) {
@@ -61,15 +62,12 @@ class MediaImporter
                 $context
             );
 
-            ++$elementCount;
-
             foreach ($mainProduct->getVariants() as $productStruct) {
                 $notificationData['productNumber'] = $productStruct->getProductNumber();
 
                 $hasErrors = false;
 
                 foreach (ProductImportHandler::PRODUCT_MEDIA_FIELDS as $mediaField) {
-
                     /** @var null|string $media */
                     $media = $productStruct->getDataByKey($mediaField);
 
@@ -78,24 +76,20 @@ class MediaImporter
                     }
 
                     try {
-                        $mediaId = $this->mediaHelper->getMediaIdByPath($media, ProductDefinition::ENTITY_NAME, $context);
-
-                        if (!$mediaId) {
-                            throw new \RuntimeException(sprintf('could not find media at the location: %s', $media));
-                        }
+                        $this->mediaHelper->getMediaIdByPath($media, ProductDefinition::ENTITY_NAME, $context);
                     } catch (\Throwable $exception) {
                         $isSuccess = false;
                         $runStatus = false;
                         $hasErrors = true;
 
-                        $notificationData['errors'][] = $exception->getMessage();
+                        $notificationData['errors'][]      = $exception->getMessage();
                         $notificationData['mediaFields'][] = $mediaField;
                     }
                 }
 
                 if ($hasErrors) {
-                    $mailData = $notificationData;
-                    $mailData['errors'] = implode("\n", $mailData['errors']);
+                    $mailData                = $notificationData;
+                    $mailData['errors']      = implode("\n", $mailData['errors']);
                     $mailData['mediaFields'] = implode("\n", $mailData['mediaFields']);
 
                     $this->notificationHelper->addNotification(
@@ -111,12 +105,11 @@ class MediaImporter
                 $elementId,
                 $isSuccess,
                 $notificationData,
-                $archivedFileName,
+                $catalogMetadata->getArchivedFilename(),
                 $context
             );
         }
 
-        $this->runService->setElementCount($elementCount, $context);
-        $this->runService->finalizeRun($runStatus, $archivedFileName, $context);
+        $this->runService->finalizeRun($runStatus, $catalogMetadata->getArchivedFilename(), $context);
     }
 }

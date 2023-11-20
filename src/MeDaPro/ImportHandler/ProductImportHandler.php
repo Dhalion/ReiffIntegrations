@@ -18,7 +18,6 @@ use ReiffIntegrations\MeDaPro\Struct\CatalogMetadata;
 use ReiffIntegrations\MeDaPro\Struct\ProductCollection;
 use ReiffIntegrations\MeDaPro\Struct\ProductStruct;
 use ReiffIntegrations\Util\EntitySyncer;
-use ReiffIntegrations\Util\Message\AbstractImportMessage;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -149,7 +148,7 @@ class ProductImportHandler
             'catalogId'        => $catalogMetadata->getCatalogId(),
             'sortimentId'      => $catalogMetadata->getSortimentId(),
             'language'         => $catalogMetadata->getLanguageCode(),
-            'archivedFilename' => $message->getArchivedFileName(),
+            'archivedFilename' => $catalogMetadata->getArchivedFileName(),
             'productNumber'    => $message->getProduct()->getProductNumber(),
         ];
 
@@ -178,14 +177,9 @@ class ProductImportHandler
             $message->getElementId(),
             $isSuccess,
             $notificationData,
-            $message->getArchivedFileName(),
+            $catalogMetadata->getArchivedFilename(),
             $context
         );
-    }
-
-    protected function getLogIdentifier(): string
-    {
-        return self::class;
     }
 
     private function getProductIdForNumber(string $productNumber, Context $context): ?string

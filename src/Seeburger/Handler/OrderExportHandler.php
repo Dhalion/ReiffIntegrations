@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace ReiffIntegrations\Seeburger\Handler;
 
 use Doctrine\DBAL\Connection;
+use K10rIntegrationHelper\Observability\RunService;
 use Psr\Log\LoggerInterface;
 use ReiffIntegrations\Seeburger\Client\SeeburgerClient;
 use ReiffIntegrations\Seeburger\DataAbstractionLayer\OrderExtension;
@@ -12,7 +13,7 @@ use ReiffIntegrations\Seeburger\DataConverter\OrderIdocConverter;
 use ReiffIntegrations\Seeburger\Helper\OrderHelper;
 use ReiffIntegrations\Seeburger\Message\OrderExportMessage;
 use ReiffIntegrations\Seeburger\Provider\OrderProvider;
-use ReiffIntegrations\Seeburger\Struct\OrderId;
+use ReiffIntegrations\Seeburger\Struct\OrderData;
 use ReiffIntegrations\Util\Configuration;
 use ReiffIntegrations\Util\Context\DebugState;
 use ReiffIntegrations\Util\Context\DryRunState;
@@ -46,6 +47,7 @@ class OrderExportHandler extends AbstractExportHandler
         private readonly Connection $connection,
         private readonly OrderIdocConverter $orderIdocConverter,
         private readonly SeeburgerClient $client,
+        private readonly RunService $runService,
     ) {
         parent::__construct($logger, $configService, $errorMailer, $archiver);
     }
@@ -56,7 +58,7 @@ class OrderExportHandler extends AbstractExportHandler
     }
 
     /**
-     * @param OrderId $struct
+     * @param OrderData $struct
      */
     public function getMessage(Struct $struct, Context $context): OrderExportMessage
     {
@@ -74,53 +76,44 @@ class OrderExportHandler extends AbstractExportHandler
             throw new \InvalidArgumentException();
         }
 
-        $order = $this->getOrder($message->getOrderId()->getOrderId(), $context);
+        $order = $this->getOrder($message->getOrderData()->getOrderId(), $context);
+
+        $notificationData = [
+            'shopwareOrderId'        => $message->getOrderData()->getOrderId(),
+        ];
+
+        $isSuccess = true;
+        $exception = null;
 
         if (!$order) {
-            throw new \RuntimeException(sprintf('Order with ID %s not found', $message->getOrderId()->getOrderId()));
+            throw new \RuntimeException(sprintf('Order with ID %s not found', $message->getOrderData()->getOrderId()));
         }
+
         $this->orderId = $order->getId();
         $result        = '';
 
-        $this->connection->transactional(function () use ($context, $order, &$result): void {
-            if (!$context->hasState(DryRunState::NAME)) {
-                $this->orderRepository->upsert([
-                    [
-                        'id'                           => $order->getId(),
-                        OrderExtension::EXTENSION_NAME => [
-                            'queuedAt' => null,
-                        ],
-                    ],
-                ], $context);
-            }
+        try {
+            $this->exportOrder($context, $order, $result);
+        } catch (\Throwable $throwable) {
+            $isSuccess = false;
+            $exception = $throwable;
 
-            $idoc   = $this->orderIdocConverter->convert($order);
-            $result = $this->toString($idoc);
+            $notificationData['error'] = $throwable->getMessage();
+        }
 
-            if (!$context->hasState(DebugState::NAME) && !$context->hasState(DryRunState::NAME)) {
-                $this->client->post($result, $this->configService->getString(Configuration::CONFIG_KEY_ORDER_EXPORT_URL));
-            }
+        $notificationData['idoc'] = $result;
 
-            if (!$context->hasState(DryRunState::NAME)) {
-                $this->orderRepository->upsert([
-                    [
-                        'id'                           => $order->getId(),
-                        OrderExtension::EXTENSION_NAME => [
-                            'exportedAt' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                        ],
-                    ],
-                ], $context);
+        $this->runService->markAsHandled(
+            $message->getOrderData()->getElementId(),
+            $isSuccess,
+            $notificationData,
+            null,
+            $context
+        );
 
-                try {
-                    $this->orderHelper->transitionOrderToState(OrderStates::STATE_IN_PROGRESS, $order, StateMachineTransitionActions::ACTION_PROCESS, $context);
-                } catch (IllegalTransitionException $e) {
-                    // This allows for easier re-export without resetting the order state
-                    throw new WrappedException(sprintf('State transition error for order %s:', $order->getOrderNumber()), $e);
-                }
-
-                $this->archive($result, 'order.idoc');
-            }
-        });
+        if (null !== $exception) {
+            throw $exception;
+        }
 
         return $result;
     }
@@ -139,6 +132,51 @@ class OrderExportHandler extends AbstractExportHandler
         }
 
         parent::notifyErrors($itemIdentifier, $context);
+    }
+
+    public function exportOrder(Context $context, OrderEntity $order, string &$result): string
+    {
+        $this->connection->transactional(function () use ($context, $order, &$result): void {
+            if (!$context->hasState(DryRunState::NAME)) {
+                $this->orderRepository->upsert([
+                    [
+                        'id' => $order->getId(),
+                        OrderExtension::EXTENSION_NAME => [
+                            'queuedAt' => null,
+                        ],
+                    ],
+                ], $context);
+            }
+
+            $idoc = $this->orderIdocConverter->convert($order);
+            $result = $this->toString($idoc);
+
+            if (!$context->hasState(DebugState::NAME) && !$context->hasState(DryRunState::NAME)) {
+                $this->client->post($result, $this->configService->getString(Configuration::CONFIG_KEY_ORDER_EXPORT_URL));
+            }
+
+            if (!$context->hasState(DryRunState::NAME)) {
+                $this->orderRepository->upsert([
+                    [
+                        'id' => $order->getId(),
+                        OrderExtension::EXTENSION_NAME => [
+                            'exportedAt' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                        ],
+                    ],
+                ], $context);
+
+                try {
+                    $this->orderHelper->transitionOrderToState(OrderStates::STATE_IN_PROGRESS, $order, StateMachineTransitionActions::ACTION_PROCESS, $context);
+                } catch (IllegalTransitionException $e) {
+                    // This allows for easier re-export without resetting the order state
+                    throw new WrappedException(sprintf('State transition error for order %s:', $order->getOrderNumber()), $e);
+                }
+
+                $this->archive($result, 'order.idoc');
+            }
+        });
+
+        return $result;
     }
 
     protected function getLogIdentifier(): string

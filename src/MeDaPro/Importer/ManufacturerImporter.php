@@ -29,16 +29,18 @@ class ManufacturerImporter
     }
 
     public function importManufacturers(
-        string $archivedFileName,
         ProductsStruct $productsStruct,
         CatalogMetadata $catalogMetadata,
         Context $context
     ): void {
         $this->runService->createRun(
             sprintf(
-                'Manufacturer Import (%s - %s)',
-                $catalogMetadata->getCatalogId(),
-                $catalogMetadata->getLanguageCode()
+                'Manufacturer Import (%s)',
+                implode('_', array_filter([
+                    $catalogMetadata->getSortimentId(),
+                    $catalogMetadata->getCatalogId(),
+                    $catalogMetadata->getLanguageCode(),
+                ]))
             ),
             'manufacturer_import',
             count($productsStruct->getManufacturers()),
@@ -51,7 +53,7 @@ class ManufacturerImporter
             'catalogId'        => $catalogMetadata->getCatalogId(),
             'sortimentId'      => $catalogMetadata->getSortimentId(),
             'language'         => $catalogMetadata->getLanguageCode(),
-            'archivedFilename' => $archivedFileName,
+            'archivedFilename' => $catalogMetadata->getArchivedFilename(),
         ];
 
         foreach ($productsStruct->getManufacturers() as $manufacturer) {
@@ -93,10 +95,6 @@ class ManufacturerImporter
                                 ProductManufacturerDefinition::ENTITY_NAME,
                                 $context
                             );
-
-                            if (!$manufacturerMediaId) {
-                                throw new \RuntimeException(sprintf('Media not found: %s', $manufacturer['image']));
-                            }
                         } catch (\Throwable $exception) {
                             $this->notificationHelper->addNotification(
                                 $exception->getMessage(),
@@ -135,12 +133,12 @@ class ManufacturerImporter
                 $elementId,
                 $isSuccess,
                 $notificationData,
-                $archivedFileName,
+                $catalogMetadata->getArchivedFilename(),
                 $context
             );
         }
 
-        $this->runService->finalizeRun($runStatus, $archivedFileName, $context);
+        $this->runService->finalizeRun($runStatus, $catalogMetadata->getArchivedFilename(), $context);
     }
 
     public static function generateManufacturerIdentity(string $manufacturerName): string

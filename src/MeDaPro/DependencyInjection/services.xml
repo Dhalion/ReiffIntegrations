@@ -29,7 +29,6 @@
             <argument type="service" id="ReiffIntegrations\MeDaPro\Parser\JsonParser"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="ReiffIntegrations\Util\Mailer"/>
-            <argument type="service" id="ReiffIntegrations\Util\ImportArchiver"/>
             <argument type="service" id="ReiffIntegrations\MeDaPro\Cleaner\ProductActivator"/>
             <argument type="service" id="ReiffIntegrations\MeDaPro\Cleaner\CategoryActivator"/>
             <argument type="service" id="ReiffIntegrations\MeDaPro\Cleaner\SortmentRemoval"/>
@@ -45,7 +44,8 @@
         </service>
 
         <service id="ReiffIntegrations\MeDaPro\Parser\JsonParser">
-            <argument type="service" id="ReiffIntegrations\Util\LockHandler"/>
+            <argument type="service" id="K10rIntegrationHelper\Observability\RunService"/>
+            <argument type="service" id="ReiffIntegrations\MeDaPro\Helper\NotificationHelper"/>
         </service>
 
         <service id="ReiffIntegrations\MeDaPro\DataAbstractionLayer\CategoryExtension">

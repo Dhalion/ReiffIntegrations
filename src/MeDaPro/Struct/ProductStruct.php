@@ -13,7 +13,7 @@ class ProductStruct extends Struct
     protected array $data;
     protected string $filePath;
     protected ?string $sortimentId = null;
-    protected ?string $catalogId = null;
+    protected ?string $catalogId   = null;
     protected array $crossSellingGroups;
 
     public function __construct(
@@ -24,13 +24,13 @@ class ProductStruct extends Struct
         ?string $sortimentId,
         ?string $catalogId,
         array $crossSellingGroups = []
-    )  {
-        $this->productNumber = $productNumber;
-        $this->variants = $variants;
-        $this->data = $data;
-        $this->filePath = $filePath;
-        $this->sortimentId = $sortimentId;
-        $this->catalogId = $catalogId;
+    ) {
+        $this->productNumber      = $productNumber;
+        $this->variants           = $variants;
+        $this->data               = $data;
+        $this->filePath           = $filePath;
+        $this->sortimentId        = $sortimentId;
+        $this->catalogId          = $catalogId;
         $this->crossSellingGroups = $crossSellingGroups;
     }
 

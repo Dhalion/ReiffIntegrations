@@ -12,16 +12,10 @@ class ProductImportMessage
 {
     public function __construct(
         private readonly ProductStruct $product,
-        private readonly string $archivedFileName,
         private readonly CatalogMetadata $catalogMetadata,
         private readonly Context $context,
         private readonly string $elementId,
     ) {
-    }
-
-    public function getArchivedFileName(): string
-    {
-        return $this->archivedFileName;
     }
 
     public function getCatalogMetadata(): CatalogMetadata

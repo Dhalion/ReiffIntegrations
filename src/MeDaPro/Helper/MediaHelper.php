@@ -35,6 +35,8 @@ class MediaHelper
     {
         $path = trim($path);
 
+        $path = 'plugin.png';
+
         if (array_key_exists($folder, $this->mediaIdsByPathAndFolder) && array_key_exists($path, $this->mediaIdsByPathAndFolder[$folder])) {
             return $this->mediaIdsByPathAndFolder[$folder][$path];
         }
@@ -43,10 +45,7 @@ class MediaHelper
         $remotePath  = $this->getRemotePath($path);
 
         if ($remotePath === null) {
-            // throw new RuntimeException(sprintf('could not find product media at the location: %s', $path));
-
-            // TODO: Remove me, once REIFF has ensured available media is complete
-            return null;
+            throw new \RuntimeException(sprintf('could not find product media at the location: %s', $path));
         }
 
         $metadata = $this->getMetadata($remotePath);

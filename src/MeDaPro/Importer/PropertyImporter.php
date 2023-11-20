@@ -33,7 +33,6 @@ class PropertyImporter
     }
 
     public function importProperties(
-        string $archivedFileName,
         ProductsStruct $productsStruct,
         CatalogMetadata $catalogMetadata,
         Context $context
@@ -57,7 +56,7 @@ class PropertyImporter
             'catalogId'        => $catalogMetadata->getCatalogId(),
             'sortimentId'      => $catalogMetadata->getSortimentId(),
             'language'         => $catalogMetadata->getLanguageCode(),
-            'archivedFilename' => $archivedFileName,
+            'archivedFilename' => $catalogMetadata->getArchivedFilename(),
         ];
 
         foreach ($properties as $property) {
@@ -70,7 +69,7 @@ class PropertyImporter
                 $context
             );
 
-            $notificationData['propertyId'] = $property['groupId'];
+            $notificationData['propertyId']   = $property['groupId'];
             $notificationData['propertyName'] = $property['name'];
 
             try {
@@ -152,11 +151,11 @@ class PropertyImporter
                 $elementId,
                 $isSuccess,
                 $notificationData,
-                $archivedFileName,
+                $catalogMetadata->getArchivedFilename(),
                 $context
             );
         }
 
-        $this->runService->finalizeRun($runStatus, $archivedFileName, $context);
+        $this->runService->finalizeRun($runStatus, $catalogMetadata->getArchivedFilename(), $context);
     }
 }

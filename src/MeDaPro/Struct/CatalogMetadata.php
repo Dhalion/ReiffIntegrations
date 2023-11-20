@@ -12,6 +12,7 @@ class CatalogMetadata extends Struct
     protected ?string $sortimentId = null;
     protected string $languageCode;
     protected string $systemLanguageCode;
+    protected string $archivedFilename;
 
     public function __construct(
         string $catalogId,
@@ -53,5 +54,15 @@ class CatalogMetadata extends Struct
     public function isValid(): bool
     {
         return $this->catalogId !== '' && $this->languageCode !== '' && $this->systemLanguageCode !== '';
+    }
+
+    public function getArchivedFilename(): string
+    {
+        return $this->archivedFilename;
+    }
+
+    public function setArchivedFilename(string $archivedFilename): void
+    {
+        $this->archivedFilename = $archivedFilename;
     }
 }

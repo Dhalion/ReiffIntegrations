@@ -43,7 +43,6 @@ class CategoryImporter
     }
 
     public function importCategories(
-        string $archivedFileName,
         CatalogStruct $catalog,
         CatalogMetadata $catalogMetadata,
         Context $context
@@ -56,9 +55,12 @@ class CategoryImporter
 
         $this->runService->createRun(
             sprintf(
-                'Category Import (%s - %s)',
-                $catalogMetadata->getCatalogId(),
-                $catalogMetadata->getLanguageCode()
+                'Category Import (%s)',
+                implode('_', array_filter([
+                    $catalogMetadata->getSortimentId(),
+                    $catalogMetadata->getCatalogId(),
+                    $catalogMetadata->getLanguageCode(),
+                ]))
             ),
             'category_import',
             $rawCategories->count(),
@@ -71,7 +73,7 @@ class CategoryImporter
             'catalogId'        => $catalogMetadata->getCatalogId(),
             'sortimentId'      => $catalogMetadata->getSortimentId(),
             'language'         => $catalogMetadata->getLanguageCode(),
-            'archivedFilename' => $archivedFileName,
+            'archivedFilename' => $catalogMetadata->getArchivedFilename(),
         ];
 
         $categoryIdSw6IdMapping = [];
@@ -120,10 +122,6 @@ class CategoryImporter
                     if (!empty($categoryMediaPath) && array_key_exists('Web Kataloggruppen Hauptbild', $rawCategory->getMediaPaths())) {
                         try {
                             $mediaId = $this->mediaHelper->getMediaIdByPath($categoryMediaPath, CategoryDefinition::ENTITY_NAME, $context);
-
-                            if ($mediaId === null) {
-                                throw new \RuntimeException(sprintf('could not find media at the location: %s', $categoryMediaPath));
-                            }
                         } catch (\Throwable $exception) {
                             $this->notificationHelper->addNotification(
                                 $exception->getMessage(),
@@ -137,9 +135,9 @@ class CategoryImporter
                     $categoryData = [
                         'id'                     => $categoryIdSw6IdMapping[$rawCategory->getId()],
                         'swagDynamicAccessRules' => $this->getDynamicAccessRules($sortimentId, $context),
-                        'parentId'  => $parentId,
-                        'active'    => true,
-                        'cmsPageId' => $parentId === $rootCategoryId
+                        'parentId'               => $parentId,
+                        'active'                 => true,
+                        'cmsPageId'              => $parentId === $rootCategoryId
                             ? $this->configService->getString(Configuration::CONFIG_KEY_CATEGORY_MAIN_CMS_PAGE)
                             : $this->configService->getString(Configuration::CONFIG_KEY_CATEGORY_NORMAL_CMS_PAGE),
                         CategoryExtension::EXTENSION_NAME => [
@@ -180,12 +178,12 @@ class CategoryImporter
                 $elementId,
                 $isSuccess,
                 $notificationData,
-                $archivedFileName,
+                $catalogMetadata->getArchivedFilename(),
                 $context
             );
         }
 
-        $this->runService->finalizeRun($runStatus, $archivedFileName, $context);
+        $this->runService->finalizeRun($runStatus, $catalogMetadata->getArchivedFilename(), $context);
     }
 
     private function getCategoryId(string $uId, Context $context): string
