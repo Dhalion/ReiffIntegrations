@@ -254,6 +254,37 @@
       align-items: center;
       justify-content: center;
       width: 42px;
+
+      .loader,
+      .icon-checkmark {
+        display: none;
+      }
+
+      &:disabled {
+        background: none;
+        border: none;
+
+        .loader {
+          display: block;
+        }
+
+        .icon {
+          display: none;
+        }
+      }
+
+      &.table-buy-btn-added {
+        background-color: $color-green;
+        border-color: $color-green;
+
+        .icon-add-to-basket {
+          display: none;
+        }
+
+        .icon-checkmark {
+          display: flex;
+        }
+      }
     }
 
     &.table-buy-btn-all {
