@@ -111,6 +111,9 @@
                 }
             }
         },
+        "general": {
+            "loading": "Ladet..."
+        },
         "price": {
             "error": {
                 "ERROR_SAP": "Ihre persönlichen Preise können aktuell nicht angezeigt werden. Bei einer Bestellung werden diese dennoch berücksichtigt."
