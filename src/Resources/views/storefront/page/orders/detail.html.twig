@@ -96,6 +96,9 @@
                                               method="post"
                                               class="buy-widget buy-widget-by-number buy-widget-all"
                                               data-add-to-cart="true">
+                                            <input type="hidden" name="redirectTo" value="frontend.cart.offcanvas">
+                                            <input type="hidden" name="redirectParameters" data-redirect-parameters="false" value="" disabled>
+
                                             {% for lineItem in order.lineItems %}
                                                 {% if lineItem.productId %}
                                                     {% set displayBtn = true %}
