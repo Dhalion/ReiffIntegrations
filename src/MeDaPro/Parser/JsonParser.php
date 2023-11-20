@@ -328,7 +328,7 @@ class JsonParser
         if ($hasErrors) {
             $mailData = $notificationData;
 
-            foreach (array_unique($notificationErrors) as $key => $error) {
+            foreach (array_values(array_unique($notificationErrors)) as $key => $error) {
                 $mailData['error_' . $key] = $error;
             }
 
