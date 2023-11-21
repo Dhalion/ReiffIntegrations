@@ -12,7 +12,7 @@ class CatalogMetadata extends Struct
     protected ?string $sortimentId = null;
     protected string $languageCode;
     protected string $systemLanguageCode;
-    protected string $archivedFilename;
+    protected string $archivedFilename = '';
 
     public function __construct(
         string $catalogId,
