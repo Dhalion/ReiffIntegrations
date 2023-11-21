@@ -14,6 +14,7 @@ use ReiffIntegrations\MeDaPro\Parser\JsonParser;
 use ReiffIntegrations\Util\Configuration;
 use ReiffIntegrations\Util\Context\DebugState;
 use ReiffIntegrations\Util\Context\DryRunState;
+use ReiffIntegrations\Util\Context\ForceState;
 use ReiffIntegrations\Util\Mailer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -54,16 +55,16 @@ class CatalogImportCleanupCommand extends Command
     {
         $context = Context::createDefaultContext();
 
-        $importContext = new ImportCommandContext(false, false, false, $context);
-
         $style = new SymfonyStyle($input, $output);
 
-        if ($importContext->isDryRun()) {
-            $importContext->getContext()->addState(DryRunState::NAME);
+        if ($input->getOption('dry-run')) {
+            $context->addState(DryRunState::NAME);
         }
-
-        if ($importContext->isDebug()) {
-            $importContext->getContext()->addState(DebugState::NAME);
+        if ($input->getOption('debug')) {
+            $context->addState(DebugState::NAME);
+        }
+        if ($input->getOption('force')) {
+            $context->addState(ForceState::NAME);
         }
 
         $importBasePath = $this->systemConfigService->getString(Configuration::CONFIG_KEY_FILE_IMPORT_SOURCE_PATH);
@@ -90,31 +91,34 @@ class CatalogImportCleanupCommand extends Command
                 $style->info('Parsing products');
                 $products = $this->jsonParser->getProducts(
                     $file->getRealPath(),
-                    $catalogMetadata
+                    $catalogMetadata,
+                    $context
                 );
             } catch (\Throwable $t) {
                 $style->error($t->getMessage());
-                $this->mailer->sendErrorMail([$t], $file->getFilename(), $importContext->getContext());
+                $this->mailer->sendErrorMail([$t], $file->getFilename(), $context);
 
                 continue;
             }
 
             $style->info('Removing sortiment mapping from products');
-            $ruleId = $this->ruleProvider->getRuleIdBySortimentId($catalogMetadata->getSortimentId(), $importContext->getContext());
+
+            $ruleId = $this->ruleProvider->getRuleIdBySortimentId($catalogMetadata->getSortimentId(), $context);
             $this->sortmentRemoval->removeNotIncludedProductSortiments($catalogMetadata->getCatalogId(), $ruleId, $products->getAllProductNumbers());
-            $this->cleanUp($style, $importContext);
+
+            $this->cleanUp($style, $context);
         }
 
         return Command::SUCCESS;
     }
 
-    private function cleanUp(SymfonyStyle $style, ImportCommandContext $importContext): void
+    private function cleanUp(SymfonyStyle $style, Context $context): void
     {
         $activatorErrors = [];
         $style->info('Deactivating variants without assortment');
 
         try {
-            $this->productActivator->deleteVariants($importContext->getContext());
+            $this->productActivator->deleteVariants($context);
         } catch (\Throwable $throwable) {
             $activatorErrors[] = $throwable;
             $style->error($this->getExceptionAsString($throwable));
@@ -123,7 +127,7 @@ class CatalogImportCleanupCommand extends Command
         $style->info('Deactivating main products with all variants inactive');
 
         try {
-            $this->productActivator->deactivateMainProducts($importContext->getContext());
+            $this->productActivator->deactivateMainProducts($context);
         } catch (\Throwable $throwable) {
             $activatorErrors[] = $throwable;
             $style->error($this->getExceptionAsString($throwable));
@@ -132,14 +136,14 @@ class CatalogImportCleanupCommand extends Command
         $style->info('Deactivating categories with inactive all products');
 
         try {
-            $this->categoryActivator->deactivateCategories($importContext->getContext());
+            $this->categoryActivator->deactivateCategories($context);
         } catch (\Throwable $throwable) {
             $activatorErrors[] = $throwable;
             $style->error($this->getExceptionAsString($throwable));
         }
 
         if (count($activatorErrors) > 0) {
-            $this->mailer->sendErrorMail($activatorErrors, 'activating/deactivating products/categories', $importContext->getContext());
+            $this->mailer->sendErrorMail($activatorErrors, 'activating/deactivating products/categories', $context);
         }
     }
 

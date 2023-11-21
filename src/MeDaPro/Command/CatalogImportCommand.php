@@ -162,7 +162,6 @@ class CatalogImportCommand extends Command
                     $context
                 );
 
-                continue;
                 $style->info('Importing categories');
                 $this->categoryImporter->importCategories(
                     $categoryData,
