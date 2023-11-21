@@ -34,7 +34,7 @@ class SortmentRemoval
                 }
             }
 
-            if (count($productIdsToRemoveSortment) >= 500) {
+            if (count($productIdsToRemoveSortment) >= self::LIMIT) {
                 $batchArray[]               = $productIdsToRemoveSortment;
                 $productIdsToRemoveSortment = [];
             }
