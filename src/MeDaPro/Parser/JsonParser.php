@@ -316,13 +316,14 @@ class JsonParser
         }
         unset($variants);
 
-        try {
-            $this->validateMappedData($catalogMetadata);
-        } catch (\Throwable $exception) {
+        $errors = $this->validateMappedData($catalogMetadata);
+        if (!empty($errors)) {
             $runStatus = false;
             $hasErrors = true;
 
-            $notificationData['errors'][] = $exception->getMessage();
+            foreach (array_values($errors) as $key => $error) {
+                $notificationData['error_mapping_' . $key] = $error;
+            }
         }
 
         $this->runService->finalizeRun($runStatus, $catalogMetadata->getArchivedFilename(), $context);
@@ -374,12 +375,14 @@ class JsonParser
         return new CatalogMetadata($catalogId, $sortimentId, $language, $systemLanguageCode);
     }
 
-    private function validateMappedData(CatalogMetadata $catalogMetadata): void
+    private function validateMappedData(CatalogMetadata $catalogMetadata): array
     {
         $currentMappingKey = implode('_', array_filter([
             $catalogMetadata->getCatalogId(),
             $catalogMetadata->getSortimentId(),
         ]));
+
+        $errors = [];
 
         foreach (self::$propertyCounters as $mappingKey => $groupNames) {
             if ((string) $mappingKey !== $currentMappingKey) {
@@ -388,10 +391,12 @@ class JsonParser
 
             foreach ($groupNames as $groupName => $mappingByLanguage) {
                 if (count(array_unique($mappingByLanguage)) > 1) {
-                    throw new \RuntimeException(sprintf('Property amount in %s is not consistent', $groupName));
+                    $errors[] = sprintf('Property amount in %s is not consistent', $groupName);
                 }
             }
         }
+
+        return $errors;
     }
 
     private function getMappedId(
@@ -426,7 +431,7 @@ class JsonParser
         if (empty(self::$propertyMapping[$mappingKey][$groupName][$count])) {
             $error = 'Product %s: Could not find mapping for %s in %s. ImportFile with system default language may be missing.';
 
-            throw new \LogicException(sprintf($productNumber, $error, $optionValue, $groupName));
+            throw new \LogicException(sprintf($error, $productNumber, $optionValue, $groupName));
         }
 
         return self::$propertyMapping[$mappingKey][$groupName][$count];
