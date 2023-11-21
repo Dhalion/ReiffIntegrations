@@ -7,6 +7,7 @@ namespace ReiffIntegrations\MeDaPro\Helper;
 use K10rIntegrationHelper\NotificationSystem\DataAbstractionLayer\Notifications\NotificationCollection;
 use K10rIntegrationHelper\NotificationSystem\DataAbstractionLayer\Notifications\NotificationEntity;
 use K10rIntegrationHelper\NotificationSystem\NotificationService;
+use Monolog\Level;
 use Monolog\Logger;
 use ReiffIntegrations\MeDaPro\Struct\CatalogMetadata;
 use Shopware\Core\Framework\Context;
@@ -38,7 +39,7 @@ class NotificationHelper
             'id'                  => Uuid::randomHex(),
             'notificationType'    => $notificationType,
             'notificationLevel'   => (string) Logger::ERROR,
-            'notificationReason'  => Logger::getLevelName(Logger::ERROR),
+            'notificationReason'  => Level::Error,
             'notificationData'    => $notificationData,
             'notificationMessage' => $message,
             'notificationTime'    => new \DateTimeImmutable(),
@@ -53,9 +54,9 @@ class NotificationHelper
             return;
         }
 
-        $notications = new NotificationCollection($this->notifications);
+        $notifications = new NotificationCollection($this->notifications);
 
-        $this->notificationService->notifyBatch($notications, $context);
+        $this->notificationService->notifyBatch($notifications, $context);
 
         $this->notifications = [];
     }
