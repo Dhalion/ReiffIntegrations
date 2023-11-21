@@ -164,6 +164,8 @@ class JsonParser
             $mainProduct->setDataByKey('Bezeichnung', $catalogNodes[$firstVariant['raw']['variationGroupId']]['name']);
 
             foreach ($variants as $productNumber => &$product) {
+                $productNumber = (string) $productNumber;
+
                 $attributeType     = null;
                 $attributes        = ['text' => [], 'table' => []];
                 $structuredProduct = [];
@@ -224,7 +226,7 @@ class JsonParser
                         $groupId = md5(sprintf('%s-%s', PropertyGroupDefinition::ENTITY_NAME, $cleanKey));
 
                         try {
-                            $optionId = $this->getMappedId($catalogMetadata, $cleanKey, $value);
+                            $optionId = $this->getMappedId($catalogMetadata, $cleanKey, $value, $productNumber);
                         } catch (\Throwable $exception) {
                             $runStatus = false;
                             $hasErrors = true;
@@ -246,7 +248,7 @@ class JsonParser
                         $groupId = md5(sprintf('%s-%s', PropertyGroupDefinition::ENTITY_NAME, $cleanKey));
 
                         try {
-                            $optionId = $this->getMappedId($catalogMetadata, $cleanKey, $value);
+                            $optionId = $this->getMappedId($catalogMetadata, $cleanKey, $value, $productNumber);
                         } catch (\Throwable $exception) {
                             $runStatus = false;
                             $hasErrors = true;
@@ -392,7 +394,12 @@ class JsonParser
         }
     }
 
-    private function getMappedId(CatalogMetadata $catalogMetadata, string $groupName, string $optionValue): string
+    private function getMappedId(
+        CatalogMetadata $catalogMetadata,
+        string $groupName,
+        string $optionValue,
+        string $productNumber
+    ): string
     {
         $mappingKey = implode('_', array_filter([
             $catalogMetadata->getCatalogId(),
@@ -417,9 +424,9 @@ class JsonParser
         }
 
         if (empty(self::$propertyMapping[$mappingKey][$groupName][$count])) {
-            $error = 'Could not find mapping for %s in %s. ImportFile with system default language may be missing.';
+            $error = 'Product %s: Could not find mapping for %s in %s. ImportFile with system default language may be missing.';
 
-            throw new \LogicException(sprintf($error, $optionValue, $groupName));
+            throw new \LogicException(sprintf($productNumber, $error, $optionValue, $groupName));
         }
 
         return self::$propertyMapping[$mappingKey][$groupName][$count];
