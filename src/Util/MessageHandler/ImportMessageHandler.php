@@ -21,11 +21,6 @@ class ImportMessageHandler
     ) {
     }
 
-    public function handle(AbstractImportMessage $message): void
-    {
-        $this->__invoke($message);
-    }
-
     public function __invoke(AbstractImportMessage $message): void
     {
         $context = $message->getContext();
@@ -45,5 +40,10 @@ class ImportMessageHandler
                 $importHandler->notifyErrors(sprintf('%s: %s', get_class($message), $message->getArchivedFileName()), $context);
             }
         }
+    }
+
+    public function handle(AbstractImportMessage $message): void
+    {
+        $this->__invoke($message);
     }
 }

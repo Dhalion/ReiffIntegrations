@@ -7,7 +7,6 @@ namespace ReiffIntegrations\MeDaPro\Command;
 use ReiffIntegrations\MeDaPro\Cleaner\CategoryActivator;
 use ReiffIntegrations\MeDaPro\Cleaner\ProductActivator;
 use ReiffIntegrations\MeDaPro\Cleaner\SortmentRemoval;
-use ReiffIntegrations\MeDaPro\Command\Context\ImportCommandContext;
 use ReiffIntegrations\MeDaPro\DataProvider\RuleProvider;
 use ReiffIntegrations\MeDaPro\Finder\Finder;
 use ReiffIntegrations\MeDaPro\Parser\JsonParser;
@@ -60,9 +59,11 @@ class CatalogImportCleanupCommand extends Command
         if ($input->getOption('dry-run')) {
             $context->addState(DryRunState::NAME);
         }
+
         if ($input->getOption('debug')) {
             $context->addState(DebugState::NAME);
         }
+
         if ($input->getOption('force')) {
             $context->addState(ForceState::NAME);
         }

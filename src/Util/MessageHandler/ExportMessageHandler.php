@@ -19,14 +19,14 @@ class ExportMessageHandler
         $this->exportHandlers = $exportHandlers;
     }
 
-    public function handle(AbstractExportMessage $message): void
-    {
-        $this->__invoke($message);
-    }
-
     public function __invoke(AbstractExportMessage $message): void
     {
         $this->handleWithResult($message);
+    }
+
+    public function handle(AbstractExportMessage $message): void
+    {
+        $this->__invoke($message);
     }
 
     public function handleWithResult(AbstractExportMessage $message): string

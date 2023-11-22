@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace ReiffIntegrations\Util;
 
-use ReiffIntegrations\MeDaPro\Command\Context\ImportCommandContext;
 use ReiffIntegrations\Util\Context\ForceState;
 use Shopware\Core\Framework\Context;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;

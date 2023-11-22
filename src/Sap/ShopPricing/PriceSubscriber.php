@@ -108,7 +108,7 @@ class PriceSubscriber implements EventSubscriberInterface
 
         /** @var null|string $debtorNumber */
         $debtorNumber = $this->connection->fetchOne($query, [
-            'token' => $contextToken
+            'token' => $contextToken,
         ]);
 
         if (empty($debtorNumber)) {

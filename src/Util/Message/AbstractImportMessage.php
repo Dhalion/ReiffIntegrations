@@ -10,9 +10,9 @@ use Shopware\Core\Framework\Context;
 abstract class AbstractImportMessage
 {
     public function __construct(
-        private readonly string           $archivedFileName,
+        private readonly string $archivedFileName,
         private readonly ?CatalogMetadata $catalogMetadata,
-        private readonly Context          $context,
+        private readonly Context $context,
     ) {
     }
 

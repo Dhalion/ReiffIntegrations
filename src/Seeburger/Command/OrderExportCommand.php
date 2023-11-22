@@ -6,7 +6,6 @@ namespace ReiffIntegrations\Seeburger\Command;
 
 use K10rIntegrationHelper\Observability\RunService;
 use ReiffIntegrations\Sap\DataAbstractionLayer\CustomerExtension;
-use ReiffIntegrations\Seeburger\Command\Context\ExportCommandContext;
 use ReiffIntegrations\Seeburger\DataAbstractionLayer\OrderExtension;
 use ReiffIntegrations\Seeburger\DataAbstractionLayer\ReiffOrderEntity;
 use ReiffIntegrations\Seeburger\Provider\OrderProvider;
@@ -33,7 +32,6 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Messenger\Stamp\DelayStamp;
 
 class OrderExportCommand extends Command
 {
@@ -64,7 +62,7 @@ class OrderExportCommand extends Command
     {
         $debug  = (bool) $input->getOption('debug');
         $dryRun = (bool) $input->getOption('dry-run');
-        $limit   = $input->getOption('limit') ? (int) $input->getOption('limit') : null;
+        $limit  = $input->getOption('limit') ? (int) $input->getOption('limit') : null;
 
         $context = Context::createDefaultContext();
 
@@ -73,6 +71,7 @@ class OrderExportCommand extends Command
         if ($debug) {
             $context->addState(DebugState::NAME);
         }
+
         if ($dryRun) {
             $context->addState(DryRunState::NAME);
         }

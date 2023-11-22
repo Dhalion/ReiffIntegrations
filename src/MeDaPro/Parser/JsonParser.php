@@ -317,6 +317,7 @@ class JsonParser
         unset($variants);
 
         $errors = $this->validateMappedData($catalogMetadata);
+
         if (!empty($errors)) {
             $runStatus = false;
             $hasErrors = true;
@@ -404,8 +405,7 @@ class JsonParser
         string $groupName,
         string $optionValue,
         string $productNumber
-    ): string
-    {
+    ): string {
         $mappingKey = implode('_', array_filter([
             $catalogMetadata->getCatalogId(),
             $catalogMetadata->getSortimentId(),

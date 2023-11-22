@@ -79,7 +79,7 @@ class OrderExportHandler extends AbstractExportHandler
         $order = $this->getOrder($message->getOrderData()->getOrderId(), $context);
 
         $notificationData = [
-            'shopwareOrderId'        => $message->getOrderData()->getOrderId(),
+            'shopwareOrderId' => $message->getOrderData()->getOrderId(),
         ];
 
         $isSuccess = true;
@@ -111,7 +111,7 @@ class OrderExportHandler extends AbstractExportHandler
             $context
         );
 
-        if (null !== $exception) {
+        if ($exception !== null) {
             throw $exception;
         }
 
@@ -140,7 +140,7 @@ class OrderExportHandler extends AbstractExportHandler
             if (!$context->hasState(DryRunState::NAME)) {
                 $this->orderRepository->upsert([
                     [
-                        'id' => $order->getId(),
+                        'id'                           => $order->getId(),
                         OrderExtension::EXTENSION_NAME => [
                             'queuedAt' => null,
                         ],
@@ -148,7 +148,7 @@ class OrderExportHandler extends AbstractExportHandler
                 ], $context);
             }
 
-            $idoc = $this->orderIdocConverter->convert($order);
+            $idoc   = $this->orderIdocConverter->convert($order);
             $result = $this->toString($idoc);
 
             if (!$context->hasState(DebugState::NAME) && !$context->hasState(DryRunState::NAME)) {
@@ -158,7 +158,7 @@ class OrderExportHandler extends AbstractExportHandler
             if (!$context->hasState(DryRunState::NAME)) {
                 $this->orderRepository->upsert([
                     [
-                        'id' => $order->getId(),
+                        'id'                           => $order->getId(),
                         OrderExtension::EXTENSION_NAME => [
                             'exportedAt' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                         ],
