@@ -10,13 +10,11 @@ use Shopware\Core\Framework\Context;
 
 class OrderExportMessage extends AbstractExportMessage
 {
-    private OrderData $orderData;
-
-    public function __construct(OrderData $orderData, Context $context)
-    {
+    public function __construct(
+        private readonly OrderData $orderData,
+        Context $context
+    ) {
         parent::__construct($context);
-
-        $this->orderData = $orderData;
     }
 
     public function getOrderData(): OrderData
