@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class PropertiesDeleter
 {
-    public const LIMIT = 500;
+    private const LIMIT = 500;
 
     public function __construct(
         private readonly Connection $connection,
