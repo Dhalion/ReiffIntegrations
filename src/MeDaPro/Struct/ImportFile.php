@@ -9,15 +9,11 @@ use Symfony\Component\Finder\SplFileInfo;
 
 class ImportFile extends Struct
 {
-    protected SplFileInfo $file;
-    protected CatalogMetadata $catalogMetadata;
-    protected int $position = 0;
-
-    public function __construct(SplFileInfo $file, CatalogMetadata $catalogMetadata, int $position)
-    {
-        $this->file            = $file;
-        $this->catalogMetadata = $catalogMetadata;
-        $this->position        = $position;
+    public function __construct(
+        protected readonly SplFileInfo $file,
+        protected readonly CatalogMetadata $catalogMetadata,
+        protected readonly int $position
+    ) {
     }
 
     public function getFile(): SplFileInfo

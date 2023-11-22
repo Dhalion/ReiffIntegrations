@@ -8,33 +8,16 @@ use Shopware\Core\Framework\Struct\Struct;
 
 class CategoryStruct extends Struct
 {
-    protected string $id;
-    protected ?string $parentId = null;
-    protected string $uId;
-    protected string $type;
-    protected string $name;
-    protected string $description;
-    protected int $depth;
-    protected array $mediaPaths;
-
     public function __construct(
-        string $id,
-        ?string $parentId,
-        string $uId,
-        string $type,
-        string $name,
-        string $description,
-        int $depth,
-        array $mediaPaths
+        protected readonly string $id,
+        protected readonly ?string $parentId,
+        protected readonly string $uId,
+        protected readonly string $type,
+        protected readonly string $name,
+        protected readonly string $description,
+        protected readonly int $depth,
+        protected readonly array $mediaPaths
     ) {
-        $this->id          = $id;
-        $this->parentId    = $parentId;
-        $this->uId         = $uId;
-        $this->type        = $type;
-        $this->name        = $name;
-        $this->description = $description;
-        $this->depth       = $depth;
-        $this->mediaPaths  = $mediaPaths;
     }
 
     public function getId(): string

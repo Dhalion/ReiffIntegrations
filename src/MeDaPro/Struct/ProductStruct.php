@@ -8,30 +8,15 @@ use Shopware\Core\Framework\Struct\Struct;
 
 class ProductStruct extends Struct
 {
-    protected string $productNumber;
-    protected ProductCollection $variants;
-    protected array $data;
-    protected string $filePath;
-    protected ?string $sortimentId = null;
-    protected ?string $catalogId   = null;
-    protected array $crossSellingGroups;
-
     public function __construct(
-        string $productNumber,
-        ProductCollection $variants,
-        array $data,
-        string $filePath,
-        ?string $sortimentId,
-        ?string $catalogId,
-        array $crossSellingGroups = []
+        protected readonly string $productNumber,
+        protected readonly ProductCollection $variants,
+        protected readonly array $data,
+        protected readonly string $filePath,
+        protected readonly ?string $sortimentId,
+        protected readonly ?string $catalogId,
+        protected readonly array $crossSellingGroups = []
     ) {
-        $this->productNumber      = $productNumber;
-        $this->variants           = $variants;
-        $this->data               = $data;
-        $this->filePath           = $filePath;
-        $this->sortimentId        = $sortimentId;
-        $this->catalogId          = $catalogId;
-        $this->crossSellingGroups = $crossSellingGroups;
     }
 
     public function getProductNumber(): string

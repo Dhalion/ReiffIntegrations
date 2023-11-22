@@ -8,21 +8,12 @@ use Shopware\Core\Framework\Struct\Struct;
 
 class ProductsStruct extends Struct
 {
-    protected ProductCollection $products;
-    protected string $filePath;
-    protected array $properties;
-    protected array $manufacturers;
-
     public function __construct(
-        ProductCollection $products,
-        string $filePath,
-        array $properties,
-        array $manufacturers
+        protected readonly ProductCollection $products,
+        protected readonly string $filePath,
+        protected readonly array $properties,
+        protected readonly array $manufacturers
     ) {
-        $this->products      = $products;
-        $this->filePath      = $filePath;
-        $this->properties    = $properties;
-        $this->manufacturers = $manufacturers;
     }
 
     public function getProducts(): ProductCollection

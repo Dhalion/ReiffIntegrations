@@ -8,22 +8,14 @@ use Shopware\Core\Framework\Struct\Struct;
 
 class CatalogMetadata extends Struct
 {
-    protected string $catalogId;
-    protected ?string $sortimentId = null;
-    protected string $languageCode;
-    protected string $systemLanguageCode;
     protected string $archivedFilename = '';
 
     public function __construct(
-        string $catalogId,
-        ?string $sortimentId,
-        string $languageCode,
-        string $systemLanguageCode
+        protected readonly string $catalogId,
+        protected readonly ?string $sortimentId,
+        protected readonly string $languageCode,
+        protected readonly string $systemLanguageCode
     ) {
-        $this->catalogId          = $catalogId;
-        $this->sortimentId        = $sortimentId;
-        $this->languageCode       = $languageCode;
-        $this->systemLanguageCode = $systemLanguageCode;
     }
 
     public function getCatalogId(): string

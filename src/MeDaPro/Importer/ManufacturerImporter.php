@@ -67,8 +67,6 @@ class ManufacturerImporter
                 $context
             );
 
-            $notificationData['manufacturerImage'] = $manufacturer['media'] ?? null;
-
             $updateKey = md5(
                 ProductManufacturerDefinition::ENTITY_NAME .
                 $manufacturer['name'] .
@@ -102,6 +100,8 @@ class ManufacturerImporter
                                 $notificationData,
                                 $catalogMetadata
                             );
+
+                            $notificationData['manufacturerImage'] = $manufacturer['media'] ?? null;
                         }
                     }
 

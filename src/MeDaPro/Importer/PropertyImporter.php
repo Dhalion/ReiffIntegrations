@@ -51,6 +51,7 @@ class PropertyImporter
         );
 
         $runStatus = true;
+        $isSuccess = true;
 
         $notificationData = [
             'catalogId'        => $catalogMetadata->getCatalogId(),
@@ -133,8 +134,6 @@ class PropertyImporter
                 }
 
                 $this->entitySyncer->flush($context);
-
-                $isSuccess = true;
             } catch (\Throwable $exception) {
                 $isSuccess = false;
                 $runStatus = false;

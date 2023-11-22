@@ -18,6 +18,11 @@ class ProductImportMessage
     ) {
     }
 
+    public function getProduct(): ProductStruct
+    {
+        return $this->product;
+    }
+
     public function getCatalogMetadata(): CatalogMetadata
     {
         return $this->catalogMetadata;
@@ -26,11 +31,6 @@ class ProductImportMessage
     public function getContext(): Context
     {
         return $this->context;
-    }
-
-    public function getProduct(): ProductStruct
-    {
-        return $this->product;
     }
 
     public function getElementId(): string
