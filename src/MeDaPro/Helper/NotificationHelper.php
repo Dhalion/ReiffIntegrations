@@ -38,7 +38,7 @@ class NotificationHelper
         $notification->assign([
             'id'                  => Uuid::randomHex(),
             'notificationType'    => $notificationType,
-            'notificationLevel'   => Level::Error->toPsrLogLevel(),
+            'notificationLevel'   => Level::Error->value,
             'notificationReason'  => Level::Error->getName(),
             'notificationData'    => $notificationData,
             'notificationMessage' => $message,
