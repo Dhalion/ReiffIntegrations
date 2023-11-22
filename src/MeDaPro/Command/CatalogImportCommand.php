@@ -119,12 +119,12 @@ class CatalogImportCommand extends Command
             $this->removeTrailingComma($file);
 
             if (!$context->hasState(DebugState::NAME) && !$context->hasState(DryRunState::NAME)) {
-                $archivedFile = $this->archiver->archive($file->getFilename(), $context);
+                $archivedFile = $this->archiver->archive($file->getFilename(), $context)->getRealPath();
             } else {
                 $archivedFile = $file->getRealPath();
             }
 
-            $catalogMetadata->setArchivedFilename($archivedFile->getRealPath());
+            $catalogMetadata->setArchivedFilename($archivedFile);
 
             if (!$catalogMetadata->isValid()) {
                 $message = sprintf(
@@ -151,13 +151,13 @@ class CatalogImportCommand extends Command
             try {
                 $style->info('Parsing categories');
                 $categoryData = $this->jsonParser->getCategories(
-                    $archivedFile->getRealPath(),
+                    $archivedFile,
                     $catalogMetadata
                 );
 
                 $style->info('Parsing products');
                 $products = $this->jsonParser->getProducts(
-                    $archivedFile->getRealPath(),
+                    $archivedFile,
                     $catalogMetadata,
                     $context
                 );
