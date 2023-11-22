@@ -170,6 +170,8 @@ class ProductImportHandler
                 $catalogMetadata
             );
 
+            $this->notificationHelper->handleAsync($context);
+
             $isSuccess = false;
         }
 

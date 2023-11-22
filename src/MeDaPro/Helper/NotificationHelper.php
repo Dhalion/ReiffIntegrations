@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class NotificationHelper
 {
+    /** @var NotificationEntity[] $notification */
     private array $notifications = [];
 
     public function __construct(
@@ -57,6 +58,21 @@ class NotificationHelper
         $notifications = new NotificationCollection($this->notifications);
 
         $this->notificationService->notifyBatch($notifications, $context);
+
+        $this->notifications = [];
+    }
+
+    public function handleAsync(Context $context): void
+    {
+        if (empty($this->notifications)) {
+            return;
+        }
+
+        foreach ($this->notifications as $notification) {
+            $notification->setHandleAsync(true);
+
+            $this->notificationService->notify($notification, $context);
+        }
 
         $this->notifications = [];
     }
