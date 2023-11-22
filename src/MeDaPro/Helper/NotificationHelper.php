@@ -38,8 +38,8 @@ class NotificationHelper
         $notification->assign([
             'id'                  => Uuid::randomHex(),
             'notificationType'    => $notificationType,
-            'notificationLevel'   => Level::Error->value,
             'notificationReason'  => Level::Error->getName(),
+            'notificationLevel'   => Level::Error->value,
             'notificationData'    => $notificationData,
             'notificationMessage' => $message,
             'notificationTime'    => new \DateTimeImmutable(),
