@@ -11,7 +11,7 @@ class ProductStruct extends Struct
     public function __construct(
         protected readonly string $productNumber,
         protected readonly ProductCollection $variants,
-        protected readonly array $data,
+        protected array $data,
         protected readonly string $filePath,
         protected readonly ?string $sortimentId,
         protected readonly ?string $catalogId,
