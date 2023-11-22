@@ -39,7 +39,7 @@ class NotificationHelper
             'id'                  => Uuid::randomHex(),
             'notificationType'    => $notificationType,
             'notificationReason'  => Level::Error->getName(),
-            'notificationLevel'   => Level::Error->value,
+            'notificationLevel'   => (string) Level::Error->value,
             'notificationData'    => $notificationData,
             'notificationMessage' => $message,
             'notificationTime'    => new \DateTimeImmutable(),
