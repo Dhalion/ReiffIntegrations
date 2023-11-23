@@ -32,31 +32,32 @@ class MailSubscriber implements EventSubscriberInterface
     {
         try {
             $templateData = $event->getTemplateData();
-            $eventName = $templateData['eventName'] ?? null;
+            $eventName    = $templateData['eventName'] ?? null;
 
-            if($eventName !== self::DOUBLE_OPT_IN_EVENT) {
+            if ($eventName !== self::DOUBLE_OPT_IN_EVENT) {
                 return;
             }
 
             /** @var CustomerEntity $customer */
             $customer = $templateData['customer'] ?? null;
 
-            if(!$customer) {
+            if (!$customer) {
                 return;
             }
 
-            if($customer->getDefaultBillingAddressId() && !$customer->getDefaultBillingAddress()) {
+            if ($customer->getDefaultBillingAddressId() && !$customer->getDefaultBillingAddress()) {
                 $customer->setDefaultBillingAddress($this->getAddressById($customer->getDefaultBillingAddressId(), $event->getContext()));
             }
 
-            if($customer->getDefaultShippingAddressId() && !$customer->getDefaultShippingAddress()) {
+            if ($customer->getDefaultShippingAddressId() && !$customer->getDefaultShippingAddress()) {
                 $customer->setDefaultShippingAddress($this->getAddressById($customer->getDefaultShippingAddressId(), $event->getContext()));
             }
 
             $templateData['customer'] = $customer;
 
             $event->setTemplateData($templateData);
-        } catch(\Exception) {}
+        } catch (\Exception) {
+        }
     }
 
     private function getAddressById(string $addressId, Context $context): ?CustomerAddressEntity

@@ -9,13 +9,13 @@ use Shopware\Core\Framework\Struct\Struct;
 class ProductStruct extends Struct
 {
     public function __construct(
-        protected string $productNumber,
-        protected ProductCollection $variants,
+        protected readonly string $productNumber,
+        protected readonly ProductCollection $variants,
         protected array $data,
-        protected string $filePath,
-        protected ?string $sortimentId,
-        protected ?string $catalogId,
-        protected array $crossSellingGroups = []
+        protected readonly string $filePath,
+        protected readonly ?string $sortimentId,
+        protected readonly ?string $catalogId,
+        protected readonly array $crossSellingGroups = []
     ) {
     }
 

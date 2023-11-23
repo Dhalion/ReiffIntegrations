@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace ReiffIntegrations\Util;
 
+use ReiffIntegrations\Util\Context\DryRunState;
 use Shopware\Core\Framework\Api\Sync\SyncBehavior;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Api\Sync\SyncServiceInterface;
@@ -55,6 +56,12 @@ class EntitySyncer implements ResetInterface
 
     public function flush(Context $context): void
     {
+        if ($context->hasState(DryRunState::NAME)) {
+            dump($this->getOperations());
+
+            $this->reset();
+        }
+
         try {
             if (empty($this->operations)) {
                 return;

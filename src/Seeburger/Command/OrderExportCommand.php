@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace ReiffIntegrations\Seeburger\Command;
 
+use K10rIntegrationHelper\Observability\RunService;
 use ReiffIntegrations\Sap\DataAbstractionLayer\CustomerExtension;
-use ReiffIntegrations\Seeburger\Command\Context\ExportCommandContext;
 use ReiffIntegrations\Seeburger\DataAbstractionLayer\OrderExtension;
 use ReiffIntegrations\Seeburger\DataAbstractionLayer\ReiffOrderEntity;
 use ReiffIntegrations\Seeburger\Provider\OrderProvider;
-use ReiffIntegrations\Seeburger\Struct\OrderId;
+use ReiffIntegrations\Seeburger\Struct\OrderData;
 use ReiffIntegrations\Util\Configuration;
 use ReiffIntegrations\Util\Context\DebugState;
 use ReiffIntegrations\Util\Context\DryRunState;
@@ -24,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -36,29 +37,16 @@ class OrderExportCommand extends Command
 {
     protected static $defaultName = 'reiff:export:orders';
 
-    private MessageBusInterface $messageBus;
-    private ExportMessageHandler $messageHandler;
-    private AbstractExportHandler $exportHandler;
-    private EntityRepository $orderRepository;
-    private SystemConfigService $configService;
-    private EntityRepository $reiffOrderRepository;
-
     public function __construct(
-        MessageBusInterface $messageBus,
-        ExportMessageHandler $messageHandler,
-        AbstractExportHandler $exportHandler,
-        EntityRepository $orderRepository,
-        SystemConfigService $configService,
-        EntityRepository $reiffOrderRepository
+        private readonly MessageBusInterface $messageBus,
+        private readonly ExportMessageHandler $messageHandler,
+        private readonly AbstractExportHandler $exportHandler,
+        private readonly EntityRepository $orderRepository,
+        private readonly SystemConfigService $configService,
+        private readonly EntityRepository $reiffOrderRepository,
+        private readonly RunService $runService,
     ) {
         parent::__construct();
-
-        $this->messageBus           = $messageBus;
-        $this->messageHandler       = $messageHandler;
-        $this->exportHandler        = $exportHandler;
-        $this->orderRepository      = $orderRepository;
-        $this->configService        = $configService;
-        $this->reiffOrderRepository = $reiffOrderRepository;
     }
 
     protected function configure(): void
@@ -74,29 +62,26 @@ class OrderExportCommand extends Command
     {
         $debug  = (bool) $input->getOption('debug');
         $dryRun = (bool) $input->getOption('dry-run');
-        /** @phpstan-ignore-next-line */
-        $limit   = $input->getOption('limit') ? (int) $input->getOption('limit') : null;
-        $context = Context::createDefaultContext();
+        $limit  = $input->getOption('limit') ? (int) $input->getOption('limit') : null;
 
-        $context = new ExportCommandContext($debug, $dryRun, $limit, $context);
+        $context = Context::createDefaultContext();
 
         $style = new SymfonyStyle($input, $output);
 
-        if ($context->isDryRun()) {
-            $context->getContext()->addState(DryRunState::NAME);
+        if ($debug) {
+            $context->addState(DebugState::NAME);
         }
 
-        if ($context->isDebug()) {
-            $context->getContext()->addState(DebugState::NAME);
+        if ($dryRun) {
+            $context->addState(DryRunState::NAME);
         }
 
-        /** @phpstan-ignore-next-line */
         $orderNumber = (string) $input->getOption('orderNumber');
 
         if ($orderNumber) {
-            $orderIds = $this->getExportableOrderIdsForOrderNumber($orderNumber, $context->getContext());
+            $orderIds = $this->getExportableOrderIdsForOrderNumber($orderNumber, $context);
         } else {
-            $orderIds = $this->getExportableOrderIds($context->getLimit(), $context->getContext());
+            $orderIds = $this->getExportableOrderIds($limit, $context);
         }
 
         if ($orderIds->getTotal() === 0) {
@@ -105,15 +90,31 @@ class OrderExportCommand extends Command
             return self::INVALID;
         }
 
+        $this->runService->createRun(
+            'Export Orders',
+            'order_export',
+            $orderIds->getTotal(),
+            $context
+        );
+
         $style->writeln(sprintf('Found %s orders ready to export', $orderIds->getTotal()));
         $style->progressStart($orderIds->getTotal());
 
         /** @var string $orderId */
         foreach ($orderIds->getIds() as $orderId) {
-            $message = $this->exportHandler->getMessage(new OrderId($orderId), $context->getContext());
+            $elementId = Uuid::randomHex();
 
-            if (!$context->isDryRun()) {
-                $orderData = $this->getOrderData($orderId, $context->getContext());
+            $this->runService->createNewElement(
+                $elementId,
+                $orderId,
+                'order',
+                $context
+            );
+
+            $message = $this->exportHandler->getMessage(new OrderData($orderId, $elementId), $context);
+
+            if (!$dryRun) {
+                $orderData = $this->getOrderData($orderId, $context);
                 $this->orderRepository->upsert([
                     [
                         'id'                           => $orderId,
@@ -122,10 +123,10 @@ class OrderExportCommand extends Command
                             'exportTries' => $orderData->getExportTries() ? $orderData->getExportTries() + 1 : 1,
                         ],
                     ],
-                ], $context->getContext());
+                ], $context);
             }
 
-            if ($context->isDebug()) {
+            if ($debug) {
                 $iDoc = $this->messageHandler->handleWithResult($message);
 
                 $style->title($orderId);

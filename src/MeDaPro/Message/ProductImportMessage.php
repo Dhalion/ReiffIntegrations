@@ -6,22 +6,35 @@ namespace ReiffIntegrations\MeDaPro\Message;
 
 use ReiffIntegrations\MeDaPro\Struct\CatalogMetadata;
 use ReiffIntegrations\MeDaPro\Struct\ProductStruct;
-use ReiffIntegrations\Util\Message\AbstractImportMessage;
 use Shopware\Core\Framework\Context;
 
-class ProductImportMessage extends AbstractImportMessage
+class ProductImportMessage
 {
     public function __construct(
         private readonly ProductStruct $product,
-        string $archiveFileName,
-        CatalogMetadata $catalogMetadata,
-        Context $context
+        private readonly CatalogMetadata $catalogMetadata,
+        private readonly Context $context,
+        private readonly string $elementId,
     ) {
-        parent::__construct($archiveFileName, $catalogMetadata, $context);
     }
 
     public function getProduct(): ProductStruct
     {
         return $this->product;
+    }
+
+    public function getCatalogMetadata(): CatalogMetadata
+    {
+        return $this->catalogMetadata;
+    }
+
+    public function getContext(): Context
+    {
+        return $this->context;
+    }
+
+    public function getElementId(): string
+    {
+        return $this->elementId;
     }
 }

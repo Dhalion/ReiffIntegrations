@@ -5,23 +5,21 @@ declare(strict_types=1);
 namespace ReiffIntegrations\MeDaPro\ImportHandler;
 
 use Doctrine\DBAL\Connection;
-use Psr\Log\LoggerInterface;
+use K10rIntegrationHelper\Observability\RunService;
 use ReiffIntegrations\Installer\CustomFieldInstaller;
 use ReiffIntegrations\MeDaPro\DataAbstractionLayer\CategoryExtension;
 use ReiffIntegrations\MeDaPro\DataProvider\RuleProvider;
 use ReiffIntegrations\MeDaPro\Helper\MediaHelper;
+use ReiffIntegrations\MeDaPro\Helper\NotificationHelper;
+use ReiffIntegrations\MeDaPro\Importer\ManufacturerImporter;
 use ReiffIntegrations\MeDaPro\Message\ProductImportMessage;
+use ReiffIntegrations\MeDaPro\Parser\JsonParser;
 use ReiffIntegrations\MeDaPro\Struct\CatalogMetadata;
 use ReiffIntegrations\MeDaPro\Struct\ProductCollection;
 use ReiffIntegrations\MeDaPro\Struct\ProductStruct;
-use ReiffIntegrations\Util\Context\DryRunState;
 use ReiffIntegrations\Util\EntitySyncer;
-use ReiffIntegrations\Util\Handler\AbstractImportHandler;
-use ReiffIntegrations\Util\Mailer;
-use ReiffIntegrations\Util\Message\AbstractImportMessage;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexingMessage;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -35,13 +33,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
-use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\Unit\UnitEntity;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-class ProductImportHandler extends AbstractImportHandler
+#[AsMessageHandler(fromTransport: 'import')]
+class ProductImportHandler
 {
     public const DEFAULT_CONTENT_QUANTITY = 1;
     public const UNIT_MAPPING             = [
@@ -96,15 +94,14 @@ class ProductImportHandler extends AbstractImportHandler
         'Montageanleitung',
     ];
 
-    private const VISIBILITY_ID_PREFIX           = ProductVisibilityDefinition::ENTITY_NAME;
-    private const CONFIGURATOR_ID_PREFIX         = ProductConfiguratorSettingDefinition::ENTITY_NAME;
-    private const CROSSSELLING_ID_PREFIX         = ProductCrossSellingDefinition::ENTITY_NAME;
-    private const CROSSSELLING_PRODUCT_ID_PREFIX = ProductCrossSellingDefinition::ENTITY_NAME;
-    private const NEGATIVE_BOOL_VALUE            = 'nein';
-    private const POSITIVE_ANGEBOT_VALUE         = 'angebot';
-    private const POSITIVE_ANFRAGE_VALUE         = '1';
-    private const POSITIVE_NEUHEIT_VALUE         = 'neuheit';
-    private const POSITIVE_BOOL_VALUE            = 'ja';
+    private const VISIBILITY_ID_PREFIX   = ProductVisibilityDefinition::ENTITY_NAME;
+    private const CONFIGURATOR_ID_PREFIX = ProductConfiguratorSettingDefinition::ENTITY_NAME;
+    private const CROSSSELLING_ID_PREFIX = ProductCrossSellingDefinition::ENTITY_NAME;
+    private const NEGATIVE_BOOL_VALUE    = 'nein';
+    private const POSITIVE_ANGEBOT_VALUE = 'angebot';
+    private const POSITIVE_ANFRAGE_VALUE = '1';
+    private const POSITIVE_NEUHEIT_VALUE = 'neuheit';
+    private const POSITIVE_BOOL_VALUE    = 'ja';
 
     private ?string $taxId          = null;
     private ?string $salesChannelId = null;
@@ -118,11 +115,8 @@ class ProductImportHandler extends AbstractImportHandler
     private array $unitIds = [];
 
     public function __construct(
-        LoggerInterface $logger,
-        SystemConfigService $configService,
-        Mailer $mailer,
-        EntitySyncer $entitySyncer,
-        Connection $connection,
+        private readonly EntitySyncer $entitySyncer,
+        private readonly Connection $connection,
         private readonly EntityRepository $productRepository,
         private readonly EntityRepository $taxRepository,
         private readonly EntityRepository $salesChannelRepository,
@@ -132,167 +126,62 @@ class ProductImportHandler extends AbstractImportHandler
         private readonly EntityIndexer $productIndexer,
         private readonly EntityRepository $unitRepository,
         private readonly RuleProvider $ruleProvider,
+        private readonly RunService $runService,
+        private readonly NotificationHelper $notificationHelper,
     ) {
-        parent::__construct($logger, $configService, $mailer, $entitySyncer, $connection);
     }
 
-    public function supports(AbstractImportMessage $message): bool
-    {
-        return $message instanceof ProductImportMessage;
-    }
-
-    /**
-     * @param ProductStruct $struct
-     */
-    public function getMessage(
-        Struct $struct,
-        string $archiveFileName,
-        CatalogMetadata $catalogMetadata,
-        Context $context
-    ): ProductImportMessage
-    {
-        return new ProductImportMessage($struct, $archiveFileName, $catalogMetadata, $context);
-    }
-
-    public function __invoke(AbstractImportMessage $message): void
+    public function __invoke(ProductImportMessage $message): void
     {
         $this->handle($message);
     }
 
-    /**
-     * @param ProductImportMessage $message
-     */
-    public function handle(AbstractImportMessage $message): void
+    public function handle(ProductImportMessage $message): void
     {
         $context = $message->getContext();
         $context->addState(EntityIndexerRegistry::USE_INDEXING_QUEUE);
 
-        $productStruct = $message->getProduct();
+        $productStruct   = $message->getProduct();
         $catalogMetadata = $message->getCatalogMetadata();
 
-        if ($catalogMetadata === null) {
-            throw new \LogicException('catalogMetadata is null');
-        }
+        $notificationData = [
+            'catalogId'        => $catalogMetadata->getCatalogId(),
+            'sortimentId'      => $catalogMetadata->getSortimentId(),
+            'language'         => $catalogMetadata->getLanguageCode(),
+            'archivedFilename' => $catalogMetadata->getArchivedFileName(),
+            'productNumber'    => $message->getProduct()->getProductNumber(),
+        ];
 
-        $mainProduct   = $this->getMainProductData($productStruct, $catalogMetadata, $context);
+        $isSuccess = true;
 
-        if ($productStruct->getSortimentId()) {
-            $allVariantsInDefaultSortiment = true;
-            $variants                      = [];
-            foreach ($productStruct->getVariants() as $variantStruct) {
-                $variant = $this->getBaseProductData($variantStruct, $catalogMetadata, $context);
-
-                if (!$this->isInDefaultSortiment($variant)) {
-                    $allVariantsInDefaultSortiment = false;
-
-                    break;
-                }
-
-                $variants[] = $variant;
-            }
-
-            if ($allVariantsInDefaultSortiment && $this->isInDefaultSortiment($mainProduct)) {
-                // Skip further processing, just persist dynamic access rules, products were created via the default sortiment already
-                foreach (array_column($mainProduct['swagDynamicAccessRules'], 'id') as $ruleId) {
-                    $this->connection->executeQuery('REPLACE INTO `swag_dynamic_access_product_rule` (`product_id`, `product_version_id`, `rule_id`) VALUES(:productId, :versionId, :ruleId)', [
-                        'productId' => Uuid::fromHexToBytes($mainProduct['id']),
-                        'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-                        'ruleId'    => Uuid::fromHexToBytes($ruleId),
-                    ]);
-                }
-
-                foreach ($variants as $variant) {
-                    foreach (array_column($variant['swagDynamicAccessRules'], 'id') as $ruleId) {
-                        $this->connection->executeQuery('REPLACE INTO `swag_dynamic_access_product_rule` (`product_id`, `product_version_id`, `rule_id`) VALUES(:productId, :versionId, :ruleId)', [
-                            'productId' => Uuid::fromHexToBytes($variant['id']),
-                            'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-                            'ruleId'    => Uuid::fromHexToBytes($ruleId),
-                        ]);
-                    }
-                }
-
-                $this->finalizeProduct($context);
-
-                return;
-            }
-        }
-
-        /** @var string $mainCover */
-        $mainCover = $productStruct->getDataByKey('Web Groß Hauptbild');
-
-        if (!empty($mainCover) && $catalogMetadata->isSystemLanguage()) {
-            $mainCoverMediaId = $this->mediaHelper->getMediaIdByPath($mainCover, ProductDefinition::ENTITY_NAME, $context);
-
-            if ($mainCoverMediaId) {
-                $mainProduct['cover'] = [
-                    'mediaId' => $mainCoverMediaId,
-                ];
-            } else {
-                $this->addError(new \RuntimeException(sprintf('could not find product media at the location: %s', $mainCover)), $context);
-            }
-        }
-
-        if ($catalogMetadata->isSystemLanguage()) {
-            $this->addUnits($mainProduct, $productStruct, $context);
-
-            $this->cleanupMainProduct($mainProduct['id'], array_column($mainProduct['configuratorSettings'], 'id'));
-        }
-
-        $variants = [];
-
-        foreach ($productStruct->getVariants() as $variantStruct) {
-            $variant = array_merge(
-                $this->getBaseProductData($variantStruct, $catalogMetadata, $context),
-                [
-                    'parentId' => $mainProduct['id'],
-                ]
+        try {
+            $this->importProduct(
+                $productStruct,
+                $catalogMetadata,
+                $context
             );
 
-            if ($catalogMetadata->isSystemLanguage()) {
-                $this->cleanupProduct($variant['id']);
-                $this->handleMainProductChange($mainProduct['id'], $variant['id'], $context);
+            $this->finalizeProduct($context);
+        } catch (\Throwable $exception) {
+            $this->notificationHelper->addNotification(
+                $exception->getMessage(),
+                'product_import',
+                $notificationData,
+                $catalogMetadata
+            );
 
-                $variant['manufacturerNumber'] = $variantStruct->getDataByKey('Herstellerartikelnummer');
-                $variant['ean']                = $variantStruct->getDataByKey('EAN');
+            $this->notificationHelper->handleAsync($context);
 
-                $minPurchase = $variantStruct->getDataByKey('Mindestbestellmenge');
-
-                if ($productStruct->getCatalogId() === '1600') {
-                    $minPurchase = self::DEFAULT_CONTENT_QUANTITY;
-                }
-
-                $variant['minPurchase']   = ((int) $minPurchase > 0) ? (int) $minPurchase : 1;
-                $variant['purchaseSteps'] = $variant['minPurchase'];
-            }
-
-            $variant['crossSellings'] = $this->getCrossSellings($variantStruct, $catalogMetadata);
-
-            if ($catalogMetadata->isSystemLanguage()) {
-                if (is_array($variantStruct->getDataByKey('properties'))) {
-                    $this->addProperties($variant, $variantStruct, $context);
-                }
-
-                if (is_array($variantStruct->getDataByKey('options'))) {
-                    $this->addOptions($mainProduct, $variant, $variantStruct, $context);
-                }
-
-                $this->addMedia($variant, $variantStruct, $context);
-
-                $this->addUnits($variant, $variantStruct, $context);
-            }
-
-            $variants[] = $variant;
+            $isSuccess = false;
         }
 
-        $this->entitySyncer->addOperation(ProductDefinition::ENTITY_NAME, SyncOperation::ACTION_UPSERT, $mainProduct);
-        $this->entitySyncer->addOperations(ProductDefinition::ENTITY_NAME, SyncOperation::ACTION_UPSERT, $variants);
-
-        $this->finalizeProduct($context);
-    }
-
-    protected function getLogIdentifier(): string
-    {
-        return self::class;
+        $this->runService->markAsHandled(
+            $message->getElementId(),
+            $isSuccess,
+            $notificationData,
+            $catalogMetadata->getArchivedFilename(),
+            $context
+        );
     }
 
     private function getProductIdForNumber(string $productNumber, Context $context): ?string
@@ -366,19 +255,19 @@ class ProductImportHandler extends AbstractImportHandler
                 'description'  => $productStruct->getDataByKey('Beschreibung'),
                 'keywords'     => implode('; ', $keywords),
                 'customFields' => [
-                    CustomFieldInstaller::PRODUCT_ECLASS51                => $productStruct->getDataByKey('ECLASS 51'),
-                    CustomFieldInstaller::PRODUCT_ECLASS71                => $productStruct->getDataByKey('ECLASS 71'),
-                    CustomFieldInstaller::PRODUCT_MATERIALFRACHTGRUPPE    => $productStruct->getDataByKey('Materialfrachtgruppe SAP'),
-                    CustomFieldInstaller::PRODUCT_ANFRAGE                 => $productStruct->getDataByKey('Anfrage') === self::POSITIVE_ANFRAGE_VALUE,
-                    CustomFieldInstaller::PRODUCT_BANNER_OFFER            => $productStruct->getDataByKey('Banner_Angebot') === self::POSITIVE_ANGEBOT_VALUE,
-                    CustomFieldInstaller::PRODUCT_BANNER_NEW              => $productStruct->getDataByKey('Banner_Neuheit') === self::POSITIVE_NEUHEIT_VALUE,
-                    CustomFieldInstaller::PRODUCT_ABSCHNITT               => $productStruct->getDataByKey('Abschnitt') === self::POSITIVE_BOOL_VALUE,
-                    CustomFieldInstaller::PRODUCT_BUTTON_CAD              => ($productStruct->getDataByKey('Button CAD')) !== null && $productStruct->getDataByKey('Button CAD') !== self::NEGATIVE_BOOL_VALUE,
-                    CustomFieldInstaller::PRODUCT_BUTTON_ZUSCHNITT        => $productStruct->getDataByKey('Artikel konfigurieren') === self::POSITIVE_BOOL_VALUE,
-                    CustomFieldInstaller::PRODUCT_VIDEO                   => $productStruct->getDataByKey('Video'),
-                    CustomFieldInstaller::PRODUCT_SHIPPING_TIME           => (int) $productStruct->getDataByKey('TradePro Lieferzeit'),
-                    CustomFieldInstaller::PRODUCT_PRICE_BASE_QUANTITY     => (int) $productStruct->getDataByKey('Preismenge'),
-                    CustomFieldInstaller::PRODUCT_MANUFACTURER_NAME_LOGO  => $productStruct->getDataByKey('Logo-Zuordnung'),
+                    CustomFieldInstaller::PRODUCT_ECLASS51               => $productStruct->getDataByKey('ECLASS 51'),
+                    CustomFieldInstaller::PRODUCT_ECLASS71               => $productStruct->getDataByKey('ECLASS 71'),
+                    CustomFieldInstaller::PRODUCT_MATERIALFRACHTGRUPPE   => $productStruct->getDataByKey('Materialfrachtgruppe SAP'),
+                    CustomFieldInstaller::PRODUCT_ANFRAGE                => $productStruct->getDataByKey('Anfrage') === self::POSITIVE_ANFRAGE_VALUE,
+                    CustomFieldInstaller::PRODUCT_BANNER_OFFER           => $productStruct->getDataByKey('Banner_Angebot') === self::POSITIVE_ANGEBOT_VALUE,
+                    CustomFieldInstaller::PRODUCT_BANNER_NEW             => $productStruct->getDataByKey('Banner_Neuheit') === self::POSITIVE_NEUHEIT_VALUE,
+                    CustomFieldInstaller::PRODUCT_ABSCHNITT              => $productStruct->getDataByKey('Abschnitt') === self::POSITIVE_BOOL_VALUE,
+                    CustomFieldInstaller::PRODUCT_BUTTON_CAD             => $productStruct->getDataByKey('Button CAD') !== null && $productStruct->getDataByKey('Button CAD') !== self::NEGATIVE_BOOL_VALUE,
+                    CustomFieldInstaller::PRODUCT_BUTTON_ZUSCHNITT       => $productStruct->getDataByKey('Artikel konfigurieren') === self::POSITIVE_BOOL_VALUE,
+                    CustomFieldInstaller::PRODUCT_VIDEO                  => $productStruct->getDataByKey('Video'),
+                    CustomFieldInstaller::PRODUCT_SHIPPING_TIME          => (int) $productStruct->getDataByKey('TradePro Lieferzeit'),
+                    CustomFieldInstaller::PRODUCT_PRICE_BASE_QUANTITY    => (int) $productStruct->getDataByKey('Preismenge'),
+                    CustomFieldInstaller::PRODUCT_MANUFACTURER_NAME_LOGO => $productStruct->getDataByKey('Logo-Zuordnung'),
                 ],
             ],
         ];
@@ -416,16 +305,15 @@ class ProductImportHandler extends AbstractImportHandler
         ProductStruct $productStruct,
         CatalogMetadata $catalogMetadata,
         Context $context
-    ): array
-    {
-        $sortimentId = $productStruct->getSortimentId();
-        $isCloseout = $this->getIsCloseout($productStruct);
+    ): array {
+        $sortimentId  = $productStruct->getSortimentId();
+        $isCloseout   = $this->getIsCloseout($productStruct);
         $isNewArticle = false;
-        $productId = $this->getProductIdForNumber($productStruct->getProductNumber(), $context);
+        $productId    = $this->getProductIdForNumber($productStruct->getProductNumber(), $context);
 
         if (!$productId) {
             $isNewArticle = true;
-            $productId = Uuid::randomHex();
+            $productId    = Uuid::randomHex();
         }
 
         $data = [
@@ -451,10 +339,10 @@ class ProductImportHandler extends AbstractImportHandler
             ];
         }
 
-        $manufacturerName = $productStruct->getDataByKey('Hersteller');
+        $manufacturerName = $productStruct->getDataByKey(JsonParser::ATTRIBUTE_PREFIX_MANUFACTURER);
 
         if (!empty($manufacturerName) && is_string($manufacturerName)) {
-            $data['manufacturerId'] = md5(sprintf('%s-%s', ProductManufacturerDefinition::ENTITY_NAME, $manufacturerName));
+            $data['manufacturerId'] = ManufacturerImporter::generateManufacturerIdentity($manufacturerName);
         }
 
         return $data;
@@ -515,7 +403,7 @@ class ProductImportHandler extends AbstractImportHandler
             if ($position === null) {
                 $position = 0;
             } else {
-                $position++;
+                ++$position;
             }
 
             if (empty($productIds)) {
@@ -637,8 +525,12 @@ class ProductImportHandler extends AbstractImportHandler
     /**
      * @see self::PRODUCT_MEDIA_FIELDS Keep the constant in sync with any field changes you make here, otherwise there may be conflicts during import.
      */
-    private function addMedia(array &$variant, ProductStruct $productData, Context $context): void
-    {
+    private function addMedia(
+        array &$variant,
+        ProductStruct $productData,
+        Context $context,
+        CatalogMetadata $catalogMetadata
+    ): void {
         /** @var string[] $mediaPaths */
         $mediaPaths = [
             $productData->getDataByKey('Web Groß Hauptbild'),
@@ -657,65 +549,94 @@ class ProductImportHandler extends AbstractImportHandler
         $coverPath = (string) array_shift($mediaPaths);
 
         if (!empty($coverPath)) {
-            $mediaId = $this->mediaHelper->getMediaIdByPath($coverPath, ProductDefinition::ENTITY_NAME, $context);
+            try {
+                $mediaId = $this->mediaHelper->getMediaIdByPath($coverPath, ProductDefinition::ENTITY_NAME, $context);
 
-            if ($mediaId) {
-                $variant['cover'] = [
-                    'mediaId' => $mediaId,
-                ];
-            } else {
-                $this->addError(new \RuntimeException(sprintf('could not find product media at the location: %s', $coverPath)), $context);
+                if ($mediaId) {
+                    $variant['cover'] = [
+                        'mediaId' => $mediaId,
+                    ];
+                } else {
+                    throw new \RuntimeException(sprintf('could not find product media at the location: %s', $coverPath));
+                }
+            } catch (\Throwable $exception) {
+                // fail silently as the media file was already reported during the media import
             }
         }
 
-        $this->addProductMediaWithCustomFields($variant, $mediaPaths, [], $context);
-        $this->addProductMediaWithCustomFields(
-            $variant,
-            array_unique(
-                array_filter([
-                    $productData->getDataByKey('Gefahrstoffsymbol GHS01'),
-                    $productData->getDataByKey('Gefahrstoffsymbol GHS02'),
-                    $productData->getDataByKey('Gefahrstoffsymbol GHS03'),
-                    $productData->getDataByKey('Gefahrstoffsymbol GHS04'),
-                    $productData->getDataByKey('Gefahrstoffsymbol GHS05'),
-                    $productData->getDataByKey('Gefahrstoffsymbol GHS06'),
-                    $productData->getDataByKey('Gefahrstoffsymbol GHS07'),
-                    $productData->getDataByKey('Gefahrstoffsymbol GHS08'),
-                    $productData->getDataByKey('Gefahrstoffsymbol GHS09'),
-                ])
-            ),
-            [CustomFieldInstaller::MEDIA_GEFAHRSTOFF => true],
-            $context
-        );
-        $this->addProductMediaWithCustomFields(
-            $variant,
-            array_unique(
-                array_filter([
-                    $productData->getDataByKey('Web Piktogramm allg 1'),
-                    $productData->getDataByKey('Web Piktogramm allg 2'),
-                    $productData->getDataByKey('Web Piktogramm allg 3'),
-                    $productData->getDataByKey('Web Piktogramm allg 4'),
-                    $productData->getDataByKey('Web Piktogramm allg 5'),
-                    $productData->getDataByKey('Web Piktogramm allg 6'),
-                    $productData->getDataByKey('Web Piktogramm allg 7'),
-                ])
-            ),
-            [CustomFieldInstaller::MEDIA_PICTOGRAM => true],
-            $context
-        );
-        $this->addProductMediaWithCustomFields(
-            $variant,
-            array_unique(
-                array_filter([
-                    $productData->getDataByKey('Technisches Datenblatt'),
-                    $productData->getDataByKey('Sicherheitsdatenblatt DE') ?? $productData->getDataByKey('Sicherheitsdatenblatt'),
-                    $productData->getDataByKey('Sicherheitsdatenblatt EN'),
-                    $productData->getDataByKey('Montageanleitung'),
-                ])
-            ),
-            [CustomFieldInstaller::MEDIA_DOWNLOAD => true],
-            $context
-        );
+        $mediaFiles = [
+            [
+                'files'        => $mediaPaths,
+                'customFields' => [],
+            ],
+            [
+                'files' => array_unique(
+                    array_filter([
+                        $productData->getDataByKey('Gefahrstoffsymbol GHS01'),
+                        $productData->getDataByKey('Gefahrstoffsymbol GHS02'),
+                        $productData->getDataByKey('Gefahrstoffsymbol GHS03'),
+                        $productData->getDataByKey('Gefahrstoffsymbol GHS04'),
+                        $productData->getDataByKey('Gefahrstoffsymbol GHS05'),
+                        $productData->getDataByKey('Gefahrstoffsymbol GHS06'),
+                        $productData->getDataByKey('Gefahrstoffsymbol GHS07'),
+                        $productData->getDataByKey('Gefahrstoffsymbol GHS08'),
+                        $productData->getDataByKey('Gefahrstoffsymbol GHS09'),
+                    ])
+                ),
+                'customFields' => [CustomFieldInstaller::MEDIA_GEFAHRSTOFF => true],
+            ],
+            [
+                'files' => array_unique(
+                    array_filter([
+                        $productData->getDataByKey('Web Piktogramm allg 1'),
+                        $productData->getDataByKey('Web Piktogramm allg 2'),
+                        $productData->getDataByKey('Web Piktogramm allg 3'),
+                        $productData->getDataByKey('Web Piktogramm allg 4'),
+                        $productData->getDataByKey('Web Piktogramm allg 5'),
+                        $productData->getDataByKey('Web Piktogramm allg 6'),
+                        $productData->getDataByKey('Web Piktogramm allg 7'),
+                    ])
+                ),
+                'customFields' => [CustomFieldInstaller::MEDIA_PICTOGRAM => true],
+            ],
+            [
+                'files' => array_unique(
+                    array_filter([
+                        $productData->getDataByKey('Technisches Datenblatt'),
+                        $productData->getDataByKey('Sicherheitsdatenblatt DE') ?? $productData->getDataByKey('Sicherheitsdatenblatt'),
+                        $productData->getDataByKey('Sicherheitsdatenblatt EN'),
+                        $productData->getDataByKey('Montageanleitung'),
+                    ])
+                ),
+                'customFields' => [CustomFieldInstaller::MEDIA_DOWNLOAD => true],
+            ],
+        ];
+
+        foreach ($mediaFiles as $mediaFile) {
+            foreach ($mediaFile['files'] as $mediaPath) {
+                try {
+                    $mediaId = $this->mediaHelper->getMediaIdByPath($mediaPath, ProductDefinition::ENTITY_NAME, $context);
+
+                    if ($mediaId) {
+                        $variant['media'][] = [
+                            'customFields' => $mediaFile['customFields'],
+                            'media'        => [
+                                'id'           => $mediaId,
+                                'translations' => [
+                                    $catalogMetadata->getLanguageCode() => [
+                                        'customFields' => $mediaFile['customFields'],
+                                    ],
+                                ],
+                            ],
+                        ];
+                    } else {
+                        throw new \RuntimeException(sprintf('could not find product media at the location: %s', $mediaPath));
+                    }
+                } catch (\Throwable $exception) {
+                    // fail silently as the media file was already reported during the media import
+                }
+            }
+        }
     }
 
     private function addUnits(array &$product, ProductStruct $productData, Context $context): void
@@ -771,25 +692,6 @@ class ProductImportHandler extends AbstractImportHandler
         return $this->unitIds[$unitName];
     }
 
-    private function addProductMediaWithCustomFields(array &$product, array $mediaPaths, array $customFields, Context $context): void
-    {
-        foreach ($mediaPaths as $mediaPath) {
-            $mediaId = $this->mediaHelper->getMediaIdByPath($mediaPath, ProductDefinition::ENTITY_NAME, $context);
-
-            if ($mediaId) {
-                $product['media'][] = [
-                    'customFields' => $customFields,
-                    'media'        => [
-                        'id'           => $mediaId,
-                        'customFields' => $customFields,
-                    ],
-                ];
-            } else {
-                $this->addError(new \RuntimeException(sprintf('could not find product media at the location: %s', $mediaPath)), $context);
-            }
-        }
-    }
-
     private function getDynamicAccessRules(?string $sortimentId, Context $context): array
     {
         $ruleId = $this->ruleProvider->getRuleIdBySortimentId($sortimentId, $context);
@@ -807,15 +709,12 @@ class ProductImportHandler extends AbstractImportHandler
 
     private function finalizeProduct(Context $context): void
     {
-        if ($context->hasState(DryRunState::NAME)) {
-            dump($this->entitySyncer->getOperations());
-        } else {
-            $this->entitySyncer->flush($context);
+        $this->entitySyncer->flush($context);
 
-            foreach ($this->indexingMessages as $indexingMessage) {
-                $this->messageBus->dispatch($indexingMessage);
-            }
+        foreach ($this->indexingMessages as $indexingMessage) {
+            $this->messageBus->dispatch($indexingMessage);
         }
+
         $this->indexingMessages = [];
     }
 
@@ -855,6 +754,132 @@ class ProductImportHandler extends AbstractImportHandler
 
     private function getIsCloseout(ProductStruct $productStruct): bool
     {
-        return (bool)$productStruct->getDataByKey('Lagerverkauf');
+        return (bool) $productStruct->getDataByKey('Lagerverkauf');
+    }
+
+    private function importProduct(
+        ProductStruct $productStruct,
+        CatalogMetadata $catalogMetadata,
+        Context $context,
+    ): void {
+        $mainProduct = $this->getMainProductData($productStruct, $catalogMetadata, $context);
+
+        if ($productStruct->getSortimentId()) {
+            $allVariantsInDefaultSortiment = true;
+            $variants                      = [];
+            foreach ($productStruct->getVariants() as $variantStruct) {
+                $variant = $this->getBaseProductData($variantStruct, $catalogMetadata, $context);
+
+                if (!$this->isInDefaultSortiment($variant)) {
+                    $allVariantsInDefaultSortiment = false;
+
+                    break;
+                }
+
+                $variants[] = $variant;
+            }
+
+            if ($allVariantsInDefaultSortiment && $this->isInDefaultSortiment($mainProduct)) {
+                // Skip further processing, just persist dynamic access rules, products were created via the default sortiment already
+                foreach (array_column($mainProduct['swagDynamicAccessRules'], 'id') as $ruleId) {
+                    $this->connection->executeQuery('REPLACE INTO `swag_dynamic_access_product_rule` (`product_id`, `product_version_id`, `rule_id`) VALUES(:productId, :versionId, :ruleId)', [
+                        'productId' => Uuid::fromHexToBytes($mainProduct['id']),
+                        'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+                        'ruleId'    => Uuid::fromHexToBytes($ruleId),
+                    ]);
+                }
+
+                foreach ($variants as $variant) {
+                    foreach (array_column($variant['swagDynamicAccessRules'], 'id') as $ruleId) {
+                        $this->connection->executeQuery('REPLACE INTO `swag_dynamic_access_product_rule` (`product_id`, `product_version_id`, `rule_id`) VALUES(:productId, :versionId, :ruleId)', [
+                            'productId' => Uuid::fromHexToBytes($variant['id']),
+                            'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+                            'ruleId'    => Uuid::fromHexToBytes($ruleId),
+                        ]);
+                    }
+                }
+
+                $this->finalizeProduct($context);
+
+                return;
+            }
+        }
+
+        /** @var string $mainCover */
+        $mainCover = $productStruct->getDataByKey('Web Groß Hauptbild');
+
+        if (!empty($mainCover) && $catalogMetadata->isSystemLanguage()) {
+            try {
+                $mainCoverMediaId = $this->mediaHelper->getMediaIdByPath($mainCover, ProductDefinition::ENTITY_NAME, $context);
+
+                if ($mainCoverMediaId) {
+                    $mainProduct['cover'] = [
+                        'mediaId' => $mainCoverMediaId,
+                    ];
+                } else {
+                    throw new \RuntimeException(sprintf('could not find product media at the location: %s', $mainCover));
+                }
+            } catch (\Throwable $exception) {
+                // fail silently as the media file was already reported during the media import
+            }
+        }
+
+        if ($catalogMetadata->isSystemLanguage()) {
+            $this->addUnits($mainProduct, $productStruct, $context);
+
+            $this->cleanupMainProduct(
+                $mainProduct['id'],
+                array_column($mainProduct['configuratorSettings'], 'id')
+            );
+        }
+
+        $variants = [];
+
+        foreach ($productStruct->getVariants() as $variantStruct) {
+            $variant = array_merge(
+                $this->getBaseProductData($variantStruct, $catalogMetadata, $context),
+                [
+                    'parentId' => $mainProduct['id'],
+                ]
+            );
+
+            if ($catalogMetadata->isSystemLanguage()) {
+                $this->cleanupProduct($variant['id']);
+                $this->handleMainProductChange($mainProduct['id'], $variant['id'], $context);
+
+                $variant['manufacturerNumber'] = $variantStruct->getDataByKey('Herstellerartikelnummer');
+                $variant['ean']                = $variantStruct->getDataByKey('EAN');
+
+                $minPurchase = $variantStruct->getDataByKey('Mindestbestellmenge');
+
+                if ($productStruct->getCatalogId() === '1600') {
+                    $minPurchase = self::DEFAULT_CONTENT_QUANTITY;
+                }
+
+                $variant['minPurchase']   = ((int) $minPurchase > 0) ? (int) $minPurchase : 1;
+                $variant['purchaseSteps'] = $variant['minPurchase'];
+            }
+
+            $variant['crossSellings'] = $this->getCrossSellings($variantStruct, $catalogMetadata);
+
+            if ($catalogMetadata->isSystemLanguage()) {
+                if (is_array($variantStruct->getDataByKey('properties'))) {
+                    $this->addProperties($variant, $variantStruct, $context);
+                }
+
+                if (is_array($variantStruct->getDataByKey('options'))) {
+                    $this->addOptions($mainProduct, $variant, $variantStruct, $context);
+                }
+
+                $this->addMedia($variant, $variantStruct, $context, $catalogMetadata);
+
+                $this->addUnits($variant, $variantStruct, $context);
+            }
+
+            $variants[] = $variant;
+        }
+
+        $this->entitySyncer->addOperation(ProductDefinition::ENTITY_NAME, SyncOperation::ACTION_UPSERT, $mainProduct);
+        $this->entitySyncer->addOperations(ProductDefinition::ENTITY_NAME, SyncOperation::ACTION_UPSERT, $variants);
     }
 }

@@ -21,13 +21,13 @@ interface Configuration
     public const CONFIG_KEY_OFFER_API_URL     = 'ReiffIntegrations.config.offerApiUrl';
     public const CONFIG_KEY_OFFER_PDF_API_URL = 'ReiffIntegrations.config.offerPdfApiUrl';
 
-    public const CONFIG_KEY_ORDER_EXPORT_ARCHIVE_PATH      = 'ReiffIntegrations.config.pathOrderExportArchive';
-    public const CONFIG_KEY_ORDER_EXPORT_ERROR_PATH        = 'ReiffIntegrations.config.pathOrderExportError';
-    public const CONFIG_KEY_ORDER_EXPORT_MAX_ATTEMPTS      = 'ReiffIntegrations.config.orderExportMaxAttempts';
-    public const CONFIG_KEY_ORDER_EXPORT_MONITORING_PERIOD = 'ReiffIntegrations.config.orderExportMonitoringPeriod';
-    public const CONFIG_KEY_ORDER_EXPORT_URL               = 'ReiffIntegrations.config.orderExportUrl';
-    public const CONFIG_KEY_ORDERS_API_URL                 = 'ReiffIntegrations.config.ordersApiUrl';
-    public const CONFIG_KEY_ORDER_DETAILS_API_URL          = 'ReiffIntegrations.config.orderDetailsApiUrl';
+    public const CONFIG_KEY_ORDER_EXPORT_ARCHIVE_PATH        = 'ReiffIntegrations.config.pathOrderExportArchive';
+    public const CONFIG_KEY_ORDER_EXPORT_ERROR_PATH          = 'ReiffIntegrations.config.pathOrderExportError';
+    public const CONFIG_KEY_ORDER_EXPORT_MAX_ATTEMPTS        = 'ReiffIntegrations.config.orderExportMaxAttempts';
+    public const CONFIG_KEY_ORDER_EXPORT_MONITORING_PERIOD   = 'ReiffIntegrations.config.orderExportMonitoringPeriod';
+    public const CONFIG_KEY_ORDER_EXPORT_URL                 = 'ReiffIntegrations.config.orderExportUrl';
+    public const CONFIG_KEY_ORDERS_API_URL                   = 'ReiffIntegrations.config.ordersApiUrl';
+    public const CONFIG_KEY_ORDER_DETAILS_API_URL            = 'ReiffIntegrations.config.orderDetailsApiUrl';
     public const CONFIG_KEY_ORDER_IGNORED_PAYMENT_METHOD_IDS = 'ReiffIntegrations.config.paymentMethodIdsToIgnore';
 
     public const CONFIG_KEY_ROOT_CATEGORY            = 'ReiffIntegrations.config.rootCategory';

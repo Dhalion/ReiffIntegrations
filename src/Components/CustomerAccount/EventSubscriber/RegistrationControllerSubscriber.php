@@ -24,8 +24,7 @@ class RegistrationControllerSubscriber
             }
 
             $request->request?->set('createCustomerAccount', 'on');
-        } catch(\Exception) {
-
+        } catch (\Exception) {
         }
     }
 }

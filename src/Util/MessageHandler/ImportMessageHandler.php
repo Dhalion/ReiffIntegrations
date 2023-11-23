@@ -21,11 +21,6 @@ class ImportMessageHandler
     ) {
     }
 
-    public function handle(AbstractImportMessage $message): void
-    {
-        $this->__invoke($message);
-    }
-
     public function __invoke(AbstractImportMessage $message): void
     {
         $context = $message->getContext();
@@ -39,11 +34,16 @@ class ImportMessageHandler
                 }
 
                 if ($importHandler->hasErrors()) {
-                    $this->archiver->error($message->getArchiveFileName(), $context);
+                    $this->archiver->error($message->getArchivedFileName(), $context);
                 }
 
-                $importHandler->notifyErrors(sprintf('%s: %s', get_class($message), $message->getArchiveFileName()), $context);
+                $importHandler->notifyErrors(sprintf('%s: %s', get_class($message), $message->getArchivedFileName()), $context);
             }
         }
+    }
+
+    public function handle(AbstractImportMessage $message): void
+    {
+        $this->__invoke($message);
     }
 }

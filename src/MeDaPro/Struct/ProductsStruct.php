@@ -9,9 +9,10 @@ use Shopware\Core\Framework\Struct\Struct;
 class ProductsStruct extends Struct
 {
     public function __construct(
-        private readonly ProductCollection $products,
-        private readonly string $filePath,
-        private readonly array $properties,
+        protected readonly ProductCollection $products,
+        protected readonly string $filePath,
+        protected readonly array $properties,
+        protected readonly array $manufacturers
     ) {
     }
 
@@ -22,14 +23,14 @@ class ProductsStruct extends Struct
 
     public function getProductNumbers(): array
     {
-        return $this->products->map(function(ProductStruct $productStruct) {return $productStruct->getProductNumber();});
+        return $this->products->map(function (ProductStruct $productStruct) {return $productStruct->getProductNumber(); });
     }
 
     public function getVariantProductNumbers(): array
     {
         $variantNumbers = [];
-        foreach($this->getProducts() as $product) {
-            foreach($product->getVariants() as $variant) {
+        foreach ($this->getProducts() as $product) {
+            foreach ($product->getVariants() as $variant) {
                 $variantNumbers[] = $variant->getProductNumber();
             }
         }
@@ -50,5 +51,10 @@ class ProductsStruct extends Struct
     public function getProperties(): array
     {
         return $this->properties;
+    }
+
+    public function getManufacturers(): array
+    {
+        return $this->manufacturers;
     }
 }

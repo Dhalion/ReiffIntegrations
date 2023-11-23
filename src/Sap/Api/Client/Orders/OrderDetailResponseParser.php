@@ -298,7 +298,7 @@ class OrderDetailResponseParser
 
     private function removeLeadingZerosProductNumber(array &$lineItemsData): void
     {
-        foreach($lineItemsData as &$lineItemData) {
+        foreach ($lineItemsData as &$lineItemData) {
             $lineItemData['MATERIAL_NUMBER'] = ltrim($lineItemData['MATERIAL_NUMBER'], '0');
         }
     }
@@ -306,13 +306,13 @@ class OrderDetailResponseParser
     private function getProductsAvailability(array $lineItemsData, Context $context): array
     {
         $productsNumbers = [];
-        foreach($lineItemsData as $lineItemData) {
-            if(isset($lineItemData['MATERIAL_NUMBER'])) {
+        foreach ($lineItemsData as $lineItemData) {
+            if (isset($lineItemData['MATERIAL_NUMBER'])) {
                 $productsNumbers[$lineItemData['MATERIAL_NUMBER']] = null;
             }
         }
 
-        if(!$productsNumbers) {
+        if (!$productsNumbers) {
             return [];
         }
 
@@ -324,14 +324,14 @@ class OrderDetailResponseParser
               new EqualsFilter('isCloseout', 0),
               new AndFilter([
                   new EqualsFilter('isCloseout', 1),
-                  new RangeFilter('stock', [RangeFilter::GT => 0])
-              ])
-            ])
+                  new RangeFilter('stock', [RangeFilter::GT => 0]),
+              ]),
+            ]),
         ]));
 
         $products = $this->productRepository->search($criteria, $context);
 
-        foreach($products as $product) {
+        foreach ($products as $product) {
             $productsNumbers[$product->getProductNumber()] = $product->getId();
         }
 
