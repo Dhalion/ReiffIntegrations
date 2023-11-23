@@ -38,7 +38,7 @@ class MediaImporter
                 ]))
             ),
             'media_import',
-            null,
+            $productsStruct->getProducts()->count(),
             $context
         );
 

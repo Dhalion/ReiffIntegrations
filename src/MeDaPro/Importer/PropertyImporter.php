@@ -41,9 +41,12 @@ class PropertyImporter
 
         $this->runService->createRun(
             sprintf(
-                'Property Import (%s - %s)',
-                $catalogMetadata->getCatalogId(),
-                $catalogMetadata->getLanguageCode()
+                'Property Import (%s)',
+                implode('_', array_filter([
+                    $catalogMetadata->getSortimentId(),
+                    $catalogMetadata->getCatalogId(),
+                    $catalogMetadata->getLanguageCode(),
+                ]))
             ),
             'property_import',
             count($productsStruct->getProperties()),
