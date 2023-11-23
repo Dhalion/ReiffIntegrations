@@ -21,7 +21,7 @@
     "ext-simplexml": "*",
     "shopware/core": "^6.5",
     "halaxa/json-machine": "^1.1",
-    "reiff/integration-helper": "^1.0",
+    "reiff/integration-helper": "*",
     "store.shopware.com/maxiavariantstable6": "^2.1"
   },
   "require-dev": {
