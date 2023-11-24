@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
@@ -147,6 +148,11 @@ class OrderExportCommand extends Command
         $criteria->addFilter(new PrefixFilter(sprintf('orderCustomer.customer.%s.debtorNumber', CustomerExtension::EXTENSION_NAME), '4'));
         $criteria->addFilter(new EqualsFilter(sprintf('%s.queuedAt', OrderExtension::EXTENSION_NAME), null));
         $criteria->addFilter(new EqualsFilter(sprintf('%s.exportedAt', OrderExtension::EXTENSION_NAME), null));
+        $criteria->addAssociation('transactions.stateMachineState');
+        $criteria->addFilter(new OrFilter([
+            new EqualsFilter('transactions.stateMachineState.technicalName', 'paid'),
+            new EqualsFilter('transactions.stateMachineState.technicalName', 'authorized'),
+        ]));
 
         $maxExportTries = $this->configService->getInt(Configuration::CONFIG_KEY_ORDER_EXPORT_MAX_ATTEMPTS);
         $criteria->addFilter(
