@@ -35,6 +35,12 @@ class NotificationHelper
             'language'    => $catalogMetadata->getLanguageCode(),
         ]);
 
+        if (mb_strlen($message) > 255) {
+            $notificationData['completeMessage'] = $message;
+
+            $message = mb_substr($message, 0, 255);
+        }
+
         $notification = new NotificationEntity();
         $notification->assign([
             'id'                  => Uuid::randomHex(),
