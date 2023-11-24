@@ -155,6 +155,8 @@ class ProductImportHandler
         $isSuccess = true;
 
         try {
+            $this->runService->restartRunContext($context, $message->getElementId());
+
             $this->importProduct(
                 $productStruct,
                 $catalogMetadata,
