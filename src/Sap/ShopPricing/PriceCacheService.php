@@ -164,7 +164,7 @@ class PriceCacheService
     {
         $salesOrganisation = $priceData['sales_organisation'] ?? null;
 
-        if (null === $salesOrganisation) {
+        if (empty($salesOrganisation) || $salesOrganisation === '-') {
             $salesOrganisation = $this->systemConfigService->getString(
                 Configuration::CONFIG_KEY_API_FALLBACK_SALES_ORGANISATION
             );
@@ -190,7 +190,7 @@ class PriceCacheService
     {
         $debtorNumber = $priceData['debtor_number'] ?? null;
 
-        if (null === $debtorNumber) {
+        if (empty($debtorNumber) || $debtorNumber === '-') {
             $debtorNumber = $this->systemConfigService->getString(
                 Configuration::CONFIG_KEY_API_FALLBACK_DEBTOR_NUMBER
             );

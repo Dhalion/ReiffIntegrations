@@ -27,13 +27,13 @@ class ContractListClient extends AbstractApiClient
         $debtorNumber = $customer->getDebtorNumber();
         $salesOrganisation = $customer->getSalesOrganisation();
 
-        if (empty($debtorNumber)) {
+        if (empty($debtorNumber) || $debtorNumber === '-') {
             $debtorNumber = $this->systemConfigService->getString(
                 Configuration::CONFIG_KEY_API_FALLBACK_DEBTOR_NUMBER
             );
         }
 
-        if (empty($salesOrganisation)) {
+        if (empty($salesOrganisation) || $salesOrganisation === '-') {
             $salesOrganisation = $this->systemConfigService->getString(
                 Configuration::CONFIG_KEY_API_FALLBACK_SALES_ORGANISATION
             );

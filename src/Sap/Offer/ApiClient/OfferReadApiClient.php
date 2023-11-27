@@ -106,7 +106,7 @@ class OfferReadApiClient extends AbstractApiClient
     {
         $salesOrganisation = $reiffCustomer->getSalesOrganisation();
 
-        if (empty($salesOrganisation)) {
+        if (empty($salesOrganisation) || $salesOrganisation === '-') {
             $salesOrganisation = $this->systemConfigService->getString(
                 Configuration::CONFIG_KEY_API_FALLBACK_SALES_ORGANISATION
             );
