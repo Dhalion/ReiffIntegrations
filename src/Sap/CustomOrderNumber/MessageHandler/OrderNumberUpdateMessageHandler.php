@@ -9,6 +9,7 @@ use Doctrine\DBAL\ConnectionException;
 use Psr\Log\LoggerInterface;
 use ReiffIntegrations\Sap\CustomOrderNumber\Api\Client\OrderNumberApiClient;
 use ReiffIntegrations\Sap\CustomOrderNumber\Message\OrderNumberUpdateMessage;
+use ReiffIntegrations\Sap\CustomOrderNumber\Struct\OrderNumberUpdateStruct;
 use ReiffIntegrations\Util\Context\DryRunState;
 use Shopware\B2B\Common\Repository\NotFoundException;
 use Shopware\B2B\Common\UuidIdValue;
@@ -27,8 +28,8 @@ use Symfony\Component\Validator\ConstraintViolation;
 class OrderNumberUpdateMessageHandler
 {
     public function __construct(
-        protected readonly LoggerInterface $logger,
-        protected readonly Connection $connection,
+        private readonly LoggerInterface $logger,
+        private readonly Connection $connection,
         private readonly OrderNumberApiClient $orderNumberApiClient,
         private readonly OrderNumberCrudService $orderNumberCrudService,
         private readonly LoginContextService $loginContextService,

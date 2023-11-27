@@ -29,7 +29,7 @@ class UpdateCommand extends Command
 
     public function __construct(
         private readonly OrderNumberUpdateMessageHandler $messageHandler,
-        private MessageBusInterface $messageBus,
+        private readonly MessageBusInterface $messageBus,
         private readonly EntityRepository $reiffCustomerRepository
     ) {
         parent::__construct();
@@ -63,6 +63,7 @@ class UpdateCommand extends Command
             $style->info('Execution is in dry-run mode');
         }
 
+        /** @var ReiffCustomerCollection $customers */
         $customers = $this->getDebtorsForUpdate($debtorNumber, $context);
 
         $style->writeln(sprintf('Found %s customers for update', $customers->count()));
@@ -97,9 +98,6 @@ class UpdateCommand extends Command
         return Command::SUCCESS;
     }
 
-    /**
-     * @return EntityCollection|ReiffCustomerCollection
-     */
     private function getDebtorsForUpdate(?string $debtorNumber, Context $context): EntityCollection
     {
         $customerSearchCriteria = new Criteria();
