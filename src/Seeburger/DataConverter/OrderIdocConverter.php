@@ -13,7 +13,6 @@ use ReiffIntegrations\Seeburger\Struct\IdocColumn;
 use ReiffIntegrations\Seeburger\Struct\IdocColumnCollection;
 use ReiffIntegrations\Seeburger\Struct\IdocRow;
 use ReiffIntegrations\Seeburger\Struct\IdocRowCollection;
-use ReiffIntegrations\Util\Configuration;
 use Shopware\B2B\Order\BridgePlatform\OrderServiceDecorator;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -136,15 +135,14 @@ class OrderIdocConverter
 
         $paymentMethod = $transaction->getPaymentMethod();
 
-        if (!$paymentMethod ||
-            !isset($paymentMethod->getCustomFields()[CustomFieldInstaller::PAYMENT_TERMS_OF_PAYMENT]) ||
-            !$paymentMethod->getCustomFields()[CustomFieldInstaller::PAYMENT_TERMS_OF_PAYMENT]) {
-
+        if (!$paymentMethod
+            || !isset($paymentMethod->getCustomFields()[CustomFieldInstaller::PAYMENT_TERMS_OF_PAYMENT])
+            || !$paymentMethod->getCustomFields()[CustomFieldInstaller::PAYMENT_TERMS_OF_PAYMENT]) {
             return;
         }
 
         $termsOfPayment = $paymentMethod->getCustomFields()[CustomFieldInstaller::PAYMENT_TERMS_OF_PAYMENT];
-        $transactionId = $transaction->getCustomFields()['crefo_pay_transaction_id'] ?? 'UNDEFINED';
+        $transactionId  = $transaction->getCustomFields()['crefo_pay_transaction_id'] ?? 'UNDEFINED';
 
         $columns = $this->getBasicIdocColumns($identifier);
         $columns->add(new IdocColumn('QUALF', 3, $termsOfPayment));

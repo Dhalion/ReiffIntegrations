@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ReiffIntegrations\MeDaPro\Finder;
 
 use ReiffIntegrations\MeDaPro\Parser\JsonParser;
@@ -16,8 +18,6 @@ class Finder
     }
 
     /**
-     * @param string $importBasePath
-     *
      * @return ImportFile[]
      */
     public function fetchImportFiles(string $importBasePath): array
@@ -29,19 +29,15 @@ class Finder
 
         $files = [];
         foreach ($finder as $file) {
-            $position = 100;
-
             $metadata = $this->jsonParser->getCatalogMetadata(
                 $file->getFilenameWithoutExtension(),
                 $systemLanguageCode
             );
 
-            if ($systemLanguageCode === $metadata->getLanguageCode()) {
-                $position -= 80;
-            }
+            $position = (int) $metadata->getCatalogId() + (int) $metadata->getSortimentId();
 
-            if ($metadata->getSortimentId() !== null) {
-                $position += 20;
+            if ($systemLanguageCode === $metadata->getLanguageCode()) {
+                --$position;
             }
 
             $files[$file->getFilenameWithoutExtension()] = new ImportFile(
@@ -89,6 +85,7 @@ class Finder
                 if ($otherFile->getCatalogMetadata()->getCatalogId() !== $catalogMetadata->getCatalogId()) {
                     continue;
                 }
+
                 if ($otherFile->getCatalogMetadata()->getSortimentId() !== $catalogMetadata->getSortimentId()) {
                     continue;
                 }
@@ -97,11 +94,7 @@ class Finder
             }
 
             if (!$foundFile) {
-                throw new \LogicException(sprintf(
-                    'The SystemLanguage Catalog (%s) for the file %s is missing',
-                    $catalogMetadata->getSystemLanguageCode(),
-                    $importFile->getFile()->getFilename()
-                ));
+                throw new \LogicException(sprintf('The SystemLanguage Catalog (%s) for the file %s is missing', $catalogMetadata->getSystemLanguageCode(), $importFile->getFile()->getFilename()));
             }
         }
     }

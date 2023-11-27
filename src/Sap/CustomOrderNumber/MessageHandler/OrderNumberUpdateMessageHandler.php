@@ -9,7 +9,6 @@ use Doctrine\DBAL\ConnectionException;
 use Psr\Log\LoggerInterface;
 use ReiffIntegrations\Sap\CustomOrderNumber\Api\Client\OrderNumberApiClient;
 use ReiffIntegrations\Sap\CustomOrderNumber\Message\OrderNumberUpdateMessage;
-use ReiffIntegrations\Sap\CustomOrderNumber\Struct\OrderNumberUpdateStruct;
 use ReiffIntegrations\Util\Context\DryRunState;
 use Shopware\B2B\Common\Repository\NotFoundException;
 use Shopware\B2B\Common\UuidIdValue;
@@ -180,6 +179,7 @@ class OrderNumberUpdateMessageHandler
                 ++$iterator;
             }
         }
+
         return $crudData;
     }
 }

@@ -26,6 +26,7 @@
 
         <service id="ReiffIntegrations\Util\ImportArchiver">
             <argument type="service" id="ReiffIntegrations\Filesystem" />
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
         </service>
 
         <service id="ReiffIntegrations\Util\EntitySyncer">

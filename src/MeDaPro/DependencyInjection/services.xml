@@ -3,20 +3,24 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
+        <service id="ReiffIntegrations\MeDaPro\Helper\NotificationHelper">
+            <argument type="service" id="K10rIntegrationHelper\NotificationSystem\NotificationService" />
+        </service>
+
         <service id="ReiffIntegrations\MeDaPro\Command\CatalogImportCommand">
             <argument type="service" id="messenger.bus.shopware"/>
-            <argument type="service" id="ReiffIntegrations\Util\MessageHandler\ImportMessageHandler"/>
             <argument type="service" id="ReiffIntegrations\MeDaPro\Parser\JsonParser"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="ReiffIntegrations\Util\LockHandler"/>
-            <argument type="service" id="ReiffIntegrations\MeDaPro\ImportHandler\CategoryImportHandler"/>
+            <argument type="service" id="ReiffIntegrations\MeDaPro\Importer\CategoryImporter"/>
             <argument type="service" id="ReiffIntegrations\MeDaPro\ImportHandler\ProductImportHandler"/>
-            <argument type="service" id="ReiffIntegrations\MeDaPro\ImportHandler\PropertyImportHandler"/>
-            <argument type="service" id="ReiffIntegrations\MeDaPro\ImportHandler\ManufacturerImportHandler"/>
-            <argument type="service" id="ReiffIntegrations\MeDaPro\ImportHandler\MediaImportHandler"/>
-            <argument type="service" id="ReiffIntegrations\Util\Mailer"/>
+            <argument type="service" id="ReiffIntegrations\MeDaPro\Importer\PropertyImporter"/>
+            <argument type="service" id="ReiffIntegrations\MeDaPro\Importer\ManufacturerImporter"/>
+            <argument type="service" id="ReiffIntegrations\MeDaPro\Importer\MediaImporter"/>
             <argument type="service" id="ReiffIntegrations\Util\ImportArchiver"/>
             <argument type="service" id="ReiffIntegrations\MeDaPro\Finder\Finder"/>
+            <argument type="service" id="K10rIntegrationHelper\Observability\RunService"/>
+            <argument type="service" id="ReiffIntegrations\MeDaPro\Helper\NotificationHelper"/>
 
             <tag name="console.command"/>
         </service>
@@ -25,7 +29,6 @@
             <argument type="service" id="ReiffIntegrations\MeDaPro\Parser\JsonParser"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="ReiffIntegrations\Util\Mailer"/>
-            <argument type="service" id="ReiffIntegrations\Util\ImportArchiver"/>
             <argument type="service" id="ReiffIntegrations\MeDaPro\Cleaner\ProductActivator"/>
             <argument type="service" id="ReiffIntegrations\MeDaPro\Cleaner\CategoryActivator"/>
             <argument type="service" id="ReiffIntegrations\MeDaPro\Cleaner\SortmentRemoval"/>
@@ -41,7 +44,8 @@
         </service>
 
         <service id="ReiffIntegrations\MeDaPro\Parser\JsonParser">
-            <argument type="service" id="ReiffIntegrations\Util\LockHandler"/>
+            <argument type="service" id="K10rIntegrationHelper\Observability\RunService"/>
+            <argument type="service" id="ReiffIntegrations\MeDaPro\Helper\NotificationHelper"/>
         </service>
 
         <service id="ReiffIntegrations\MeDaPro\DataAbstractionLayer\CategoryExtension">
@@ -60,14 +64,15 @@
         <service id="ReiffIntegrations\MeDaPro\Helper\MediaHelper">
             <argument type="service" id="media.repository"/>
             <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
-            <argument type="service" id="shopware.filesystem.temp"/>
             <argument type="service" id="ReiffIntegrations\Filesystem"/>
-            <argument type="string">%shopware.filesystem.temp.config.root%</argument>
         </service>
 
         <service id="ReiffIntegrations\MeDaPro\DataProvider\RuleProvider">
             <argument type="service" id="rule_condition.repository"/>
         </service>
 
+        <service id="ReiffIntegrations\MeDaPro\Serializer\ProductStructNormalizer" public="true">
+            <tag name="serializer.normalizer" priority="55555"/>
+        </service>
     </services>
 </container>

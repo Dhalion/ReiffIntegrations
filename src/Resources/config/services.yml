@@ -10,8 +10,4 @@ framework:
             import:
                 dsn: "%messenger_import_dsn%"
         routing:
-            'ReiffIntegrations\MeDaPro\Message\CategoryImportMessage': import
-            'ReiffIntegrations\MeDaPro\Message\ManufacturerImportMessage': import
             'ReiffIntegrations\MeDaPro\Message\ProductImportMessage': import
-            'ReiffIntegrations\MeDaPro\Message\PropertyImportMessage': import
-            'ReiffIntegrations\Seeburger\Message\OrderExportMessage': export

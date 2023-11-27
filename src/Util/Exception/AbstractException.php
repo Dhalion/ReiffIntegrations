@@ -6,7 +6,7 @@ namespace ReiffIntegrations\Util\Exception;
 
 abstract class AbstractException extends \Exception
 {
-    public function __construct(string $message, ?\Throwable $previous = null)
+    public function __construct(string $message, \Throwable $previous = null)
     {
         if ($previous) {
             $message = sprintf("%s\n\n%s", $message, $previous->getMessage());

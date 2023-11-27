@@ -88,9 +88,9 @@ class CustomerWrittenEventSubscriber implements EventSubscriberInterface
     {
         $this->reiffCustomerRepository->upsert([
             [
-                'customerId' => $customerId,
-                'debtorNumber' => null
-            ]
+                'customerId'   => $customerId,
+                'debtorNumber' => null,
+            ],
         ], $context);
     }
 
@@ -98,9 +98,9 @@ class CustomerWrittenEventSubscriber implements EventSubscriberInterface
     {
         $this->customerRepository->upsert([
             [
-                'id' => $customerId,
-                'doubleOptInConfirmDate' => new \DateTimeImmutable()
-            ]
+                'id'                     => $customerId,
+                'doubleOptInConfirmDate' => new \DateTimeImmutable(),
+            ],
         ], $context);
     }
 }

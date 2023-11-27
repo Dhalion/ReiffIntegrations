@@ -253,7 +253,39 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      margin: 0 !important;
       width: 42px;
+
+      .loader,
+      .icon-checkmark {
+        display: none;
+      }
+
+      &:disabled {
+        background: none;
+        border: none;
+
+        .loader {
+          display: block;
+        }
+
+        .icon {
+          display: none;
+        }
+      }
+
+      &.table-buy-btn-added {
+        background-color: $color-green;
+        border-color: $color-green;
+
+        .icon-add-to-basket {
+          display: none;
+        }
+
+        .icon-checkmark {
+          display: flex;
+        }
+      }
     }
 
     &.table-buy-btn-all {
@@ -273,4 +305,5 @@
 .buy-widget-by-number {
   display: flex;
   justify-content: flex-end;
+  margin: 0 !important;
 }

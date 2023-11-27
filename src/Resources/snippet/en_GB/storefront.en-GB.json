@@ -110,6 +110,9 @@
                 }
             }
         },
+        "general": {
+            "loading": "Loading..."
+        },
         "price": {
             "error": {
                 "ERROR_SAP": "Your individual prices can't be displayed. They will still be taken into account when placing an order."

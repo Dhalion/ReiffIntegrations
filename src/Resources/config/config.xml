@@ -127,7 +127,7 @@
             <label lang="de-DE">Pfad zu den Import-Dateien</label>
             <placeholder>/tmp/imports</placeholder>
             <helpText>File imports from MeDaPro will be read from this directory.</helpText>
-            <helpText lang="de-DE">Dateiimporte von MeDaPro werden aus diesem Order eingelesen.</helpText>
+            <helpText lang="de-DE">Dateiimporte von MeDaPro werden aus diesem Ordner eingelesen.</helpText>
         </input-field>
 
         <input-field>
@@ -137,7 +137,7 @@
             <label lang="de-DE">Pfad zu den Import-Medien</label>
             <placeholder>/tmp/media</placeholder>
             <helpText>Media files will be read from this directory.</helpText>
-            <helpText lang="de-DE">Medien werden aus diesem Order eingelesen.</helpText>
+            <helpText lang="de-DE">Medien werden aus diesem Ordner eingelesen.</helpText>
         </input-field>
 
         <input-field>
