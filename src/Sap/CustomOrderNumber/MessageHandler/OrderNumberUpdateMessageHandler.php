@@ -62,7 +62,7 @@ class OrderNumberUpdateMessageHandler
      */
     public function getMessage(Struct $struct, Context $context): OrderNumberUpdateMessage
     {
-        return new OrderNumberUpdateMessage($struct, '', $context);
+        return new OrderNumberUpdateMessage($struct, $context);
     }
 
     private function getCrudData(OrderNumberUpdateStruct $updateStruct): array

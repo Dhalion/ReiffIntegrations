@@ -95,27 +95,18 @@ class OrderNumberApiClient extends AbstractApiClient
         curl_close($handle);
 
         if ($errorNumber !== 0 || $statusCode !== 200 || $response === false) {
-            $this->logRequestError($method, $url, $postData, (string) $response, $errorNumber);
+
+            $this->logger->error('API error during offers read', [
+                'method'     => $method,
+                'requestUrl' => $url,
+                'body'       => $postData,
+                'response'   => (string) $response,
+                'error'      => $errorNumber,
+            ]);
 
             return $this->responseParser->parseResponse(false, (string) $response);
         }
 
         return $this->responseParser->parseResponse(true, (string) $response);
-    }
-
-    private function logRequestError(
-        string $method,
-        string $exportUrl,
-        string $serializedData,
-        string $response,
-        int $errorNumber
-    ): void {
-        $this->logger->error('API error during offers read', [
-            'method'     => $method,
-            'requestUrl' => $exportUrl,
-            'body'       => $serializedData,
-            'response'   => $response,
-            'error'      => $errorNumber,
-        ]);
     }
 }

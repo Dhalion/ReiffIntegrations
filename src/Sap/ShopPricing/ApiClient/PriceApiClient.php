@@ -57,7 +57,6 @@ class PriceApiClient extends AbstractApiClient
             $salesOrganisation,
             $languageCode
         ));
-        return new ItemCollection();
 
         $method = self::METHOD_POST;
 
@@ -96,7 +95,14 @@ class PriceApiClient extends AbstractApiClient
         curl_close($handle);
 
         if ($errorNumber !== CURLE_OK || $statusCode !== 200 || $response === false) {
-            $this->logRequestError($method, $url, $postData, (string) $response, $errorNumber, $errorDescription);
+            $this->logger->error('API error during prices read', [
+                'method'           => $method,
+                'requestUrl'       => $url,
+                'body'             => $postData,
+                'response'         => (string) $response,
+                'errorNumber'      => $errorNumber,
+                'errorDescription' => $errorDescription,
+            ]);
 
             if ($errorNumber === CURLE_OPERATION_TIMEOUTED) {
                 throw new TimeoutException('request timeout');
@@ -175,23 +181,5 @@ class PriceApiClient extends AbstractApiClient
         }
 
         return $items;
-    }
-
-    private function logRequestError(
-        string $method,
-        string $exportUrl,
-        string $serializedData,
-        string $response,
-        int $errorNumber,
-        string $errorDescription,
-    ): void {
-        $this->logger->error('API error during prices read', [
-            'method'           => $method,
-            'requestUrl'       => $exportUrl,
-            'body'             => $serializedData,
-            'response'         => $response,
-            'errorNumber'      => $errorNumber,
-            'errorDescription' => $errorDescription,
-        ]);
     }
 }

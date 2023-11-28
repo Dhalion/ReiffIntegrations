@@ -164,7 +164,7 @@ class AvailabilityService
         /** @var null|ReiffCustomerEntity $reiffCustomer */
         $reiffCustomer = $context->getCustomer()?->getExtension(CustomerExtension::EXTENSION_NAME);
 
-        $salesOrganisation = $reiffCustomer->getSalesOrganisation();
+        $salesOrganisation = $reiffCustomer?->getSalesOrganisation();
 
         if (empty($salesOrganisation) || $salesOrganisation === '-') {
             $salesOrganisation = $this->systemConfigService->getString(

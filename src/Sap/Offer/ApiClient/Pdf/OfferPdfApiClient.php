@@ -36,7 +36,7 @@ class OfferPdfApiClient extends AbstractApiClient
         $method = self::METHOD_POST;
 
         $ignoreSsl = $this->systemConfigService->getBool(Configuration::CONFIG_KEY_API_IGNORE_SSL);
-        $url       = $this->systemConfigService->getString(Configuration::CONFIG_KEY_OFFER_PDF_API_URL);
+        $url = $this->systemConfigService->getString(Configuration::CONFIG_KEY_OFFER_PDF_API_URL);
 
         if (empty($url)) {
             return $this->responseParser->parseResponse(false, '');
@@ -53,34 +53,25 @@ class OfferPdfApiClient extends AbstractApiClient
 
         $handle = $this->getCurlHandle($url, $username, $password, $headerData, $method, $postData, $ignoreSsl);
 
-        $response    = curl_exec($handle);
+        $response = curl_exec($handle);
         $errorNumber = curl_errno($handle);
-        $statusCode  = curl_getinfo($handle, CURLINFO_HTTP_CODE);
+        $statusCode = curl_getinfo($handle, CURLINFO_HTTP_CODE);
 
         curl_close($handle);
 
         if ($errorNumber !== 0 || $statusCode !== 200 || $response === false) {
-            $this->logRequestError($method, $url, $postData, (string) $response, $errorNumber);
 
-            return $this->responseParser->parseResponse(false, (string) $response);
+            $this->logger->error('API error during order PDF read', [
+                'method' => $method,
+                'requestUrl' => $url,
+                'body' => $postData,
+                'response' => (string)$response,
+                'error' => $errorNumber,
+            ]);
+
+            return $this->responseParser->parseResponse(false, (string)$response);
         }
 
-        return $this->responseParser->parseResponse(true, (string) $response);
-    }
-
-    private function logRequestError(
-        string $method,
-        string $exportUrl,
-        string $serializedData,
-        string $response,
-        int $errorNumber
-    ): void {
-        $this->logger->error('API error during order PDF read', [
-            'method'     => $method,
-            'requestUrl' => $exportUrl,
-            'body'       => $serializedData,
-            'response'   => $response,
-            'error'      => $errorNumber,
-        ]);
+        return $this->responseParser->parseResponse(true, (string)$response);
     }
 }
