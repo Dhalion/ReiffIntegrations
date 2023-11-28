@@ -15,7 +15,7 @@ class OrderNumberUpdateMessage extends AbstractImportMessage
         string $archiveFileName,
         Context $context,
     ) {
-        parent::__construct($archiveFileName, $context);
+        parent::__construct($archiveFileName, null, $context);
     }
 
     public function getUpdateStruct(): OrderNumberUpdateStruct

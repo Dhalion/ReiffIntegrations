@@ -17,7 +17,7 @@ class OfferReadApiResponse
         bool $success,
         string $rawResponse,
         OfferDocumentCollection $documents,
-        ?string $returnMessage = null
+        string $returnMessage = null
     ) {
         $this->success       = $success;
         $this->rawResponse   = $rawResponse;

@@ -35,7 +35,7 @@ class DetailedPriceHandler
         string $salesChannelId,
         string $currencyId,
         ItemCollection $itemCollection,
-        ?string $debtorNumber = null
+        string $debtorNumber = null
     ): string {
         $prices = [];
         $units  = [];
@@ -64,7 +64,7 @@ class DetailedPriceHandler
         string $salesChannelId,
         string $currencyId,
         string $content,
-        ?string $debtorNumber = null
+        string $debtorNumber = null
     ): string {
         $isFallback = false;
 

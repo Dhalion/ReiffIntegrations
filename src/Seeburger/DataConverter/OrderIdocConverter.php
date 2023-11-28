@@ -47,6 +47,7 @@ class OrderIdocConverter
         $this->addDateRows($idoc, $order);
         $this->addPartnerInformation($idoc, $order);
         $this->addReferenceData($idoc, $order);
+        $this->addPaymentHeader($idoc, $order);
         $this->addDocumentHead($idoc, $order);
         $this->addObjectIdentification($order, $idoc);
         $idoc->validate();
@@ -116,6 +117,38 @@ class OrderIdocConverter
         $columns->add(new IdocColumn('RECIPNT_NO', 10, ''));
         $columns->add(new IdocColumn('KZAZU', 1, ''));
         $columns->add(new IdocColumn('AUTLF', 1, $this->isCompleteDelivery($orderCustomFields) ? 'X' : ''));
+
+        $idoc->add(new IdocRow($identifier, $columns));
+    }
+
+    private function addPaymentHeader(IdocRowCollection $idoc, OrderEntity $order): void
+    {
+        $identifier = 'E2EDK18';
+
+        $orderTransactions = $order->getTransactions();
+
+        if (!$orderTransactions) {
+            return;
+        }
+
+        $transaction = $orderTransactions->last();
+
+        $paymentMethod = $transaction->getPaymentMethod();
+
+        if (!$paymentMethod
+            || !isset($paymentMethod->getCustomFields()[CustomFieldInstaller::PAYMENT_TERMS_OF_PAYMENT])
+            || !$paymentMethod->getCustomFields()[CustomFieldInstaller::PAYMENT_TERMS_OF_PAYMENT]) {
+            return;
+        }
+
+        $termsOfPayment = $paymentMethod->getCustomFields()[CustomFieldInstaller::PAYMENT_TERMS_OF_PAYMENT];
+        $transactionId  = $transaction->getCustomFields()['crefo_pay_transaction_id'] ?? 'UNDEFINED';
+
+        $columns = $this->getBasicIdocColumns($identifier);
+        $columns->add(new IdocColumn('QUALF', 3, $termsOfPayment));
+        $columns->add(new IdocColumn('TAGE', 8, ''));
+        $columns->add(new IdocColumn('PRZNT', 8, ''));
+        $columns->add(new IdocColumn('ZTERM_TXT', 70, $transactionId));
 
         $idoc->add(new IdocRow($identifier, $columns));
     }

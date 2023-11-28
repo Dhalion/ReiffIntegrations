@@ -9,10 +9,10 @@ use Shopware\Core\Framework\Struct\Struct;
 class CatalogStruct extends Struct
 {
     public function __construct(
-        private readonly string $id,
-        private readonly CategoryCollection $categories,
-        private readonly string $filePath,
-        private readonly ?string $sortimentId,
+        protected readonly string $id,
+        protected readonly CategoryCollection $categories,
+        protected readonly string $filePath,
+        protected readonly ?string $sortimentId = null
     ) {
     }
 

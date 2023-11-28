@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace ReiffIntegrations\Util;
 
+use League\Flysystem\Filesystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use League\Flysystem\Local\LocalFilesystemAdapter as Local;
-use League\Flysystem\Filesystem;
 use League\Flysystem\MountManager;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\System\SystemConfig\SystemConfigService;

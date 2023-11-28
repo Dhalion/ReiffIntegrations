@@ -52,7 +52,7 @@ class CustomerWrittenEventSubscriber implements EventSubscriberInterface
                 $this->createCustomerExtension($payload['id'], $event->getContext());
             }
 
-            if(isset($payload['active']) && $payload['active'] === true && $event->getContext()->getScope() === Context::CRUD_API_SCOPE) {
+            if (isset($payload['active']) && $payload['active'] === true && $event->getContext()->getScope() === Context::CRUD_API_SCOPE) {
                 $this->confirmDoubleOptIn($payload['id'], $event->getContext());
             }
 
@@ -83,9 +83,9 @@ class CustomerWrittenEventSubscriber implements EventSubscriberInterface
     {
         $this->reiffCustomerRepository->upsert([
             [
-                'customerId' => $customerId,
-                'debtorNumber' => null
-            ]
+                'customerId'   => $customerId,
+                'debtorNumber' => null,
+            ],
         ], $context);
     }
 
@@ -93,9 +93,9 @@ class CustomerWrittenEventSubscriber implements EventSubscriberInterface
     {
         $this->customerRepository->upsert([
             [
-                'id' => $customerId,
-                'doubleOptInConfirmDate' => new \DateTimeImmutable()
-            ]
+                'id'                     => $customerId,
+                'doubleOptInConfirmDate' => new \DateTimeImmutable(),
+            ],
         ], $context);
     }
 }

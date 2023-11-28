@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace ReiffIntegrations\Seeburger\Handler;
 
 use Doctrine\DBAL\Connection;
+use K10rIntegrationHelper\Observability\RunService;
 use Psr\Log\LoggerInterface;
 use ReiffIntegrations\Seeburger\Client\SeeburgerClient;
 use ReiffIntegrations\Seeburger\DataAbstractionLayer\OrderExtension;
@@ -12,7 +13,7 @@ use ReiffIntegrations\Seeburger\DataConverter\OrderIdocConverter;
 use ReiffIntegrations\Seeburger\Helper\OrderHelper;
 use ReiffIntegrations\Seeburger\Message\OrderExportMessage;
 use ReiffIntegrations\Seeburger\Provider\OrderProvider;
-use ReiffIntegrations\Seeburger\Struct\OrderId;
+use ReiffIntegrations\Seeburger\Struct\OrderData;
 use ReiffIntegrations\Util\Configuration;
 use ReiffIntegrations\Util\Context\DebugState;
 use ReiffIntegrations\Util\Context\DryRunState;
@@ -46,6 +47,7 @@ class OrderExportHandler extends AbstractExportHandler
         private readonly Connection $connection,
         private readonly OrderIdocConverter $orderIdocConverter,
         private readonly SeeburgerClient $client,
+        private readonly RunService $runService,
     ) {
         parent::__construct($logger, $configService, $errorMailer, $archiver);
     }
@@ -56,7 +58,7 @@ class OrderExportHandler extends AbstractExportHandler
     }
 
     /**
-     * @param OrderId $struct
+     * @param OrderData $struct
      */
     public function getMessage(Struct $struct, Context $context): OrderExportMessage
     {
@@ -74,14 +76,66 @@ class OrderExportHandler extends AbstractExportHandler
             throw new \InvalidArgumentException();
         }
 
-        $order = $this->getOrder($message->getOrderId()->getOrderId(), $context);
+        $order = $this->getOrder($message->getOrderData()->getOrderId(), $context);
+
+        $notificationData = [
+            'shopwareOrderId' => $message->getOrderData()->getOrderId(),
+        ];
+
+        $isSuccess = true;
+        $exception = null;
 
         if (!$order) {
-            throw new \RuntimeException(sprintf('Order with ID %s not found', $message->getOrderId()->getOrderId()));
+            throw new \RuntimeException(sprintf('Order with ID %s not found', $message->getOrderData()->getOrderId()));
         }
+
         $this->orderId = $order->getId();
         $result        = '';
 
+        try {
+            $this->exportOrder($context, $order, $result);
+        } catch (\Throwable $throwable) {
+            $isSuccess = false;
+            $exception = $throwable;
+
+            $notificationData['error'] = $throwable->getMessage();
+        }
+
+        $notificationData['idoc'] = $result;
+
+        $this->runService->markAsHandled(
+            $message->getOrderData()->getElementId(),
+            $isSuccess,
+            $notificationData,
+            null,
+            $context
+        );
+
+        if ($exception !== null) {
+            throw $exception;
+        }
+
+        return $result;
+    }
+
+    public function notifyErrors(string $itemIdentifier, Context $context): void
+    {
+        if ($this->hasErrors() && !$context->hasState(DebugState::NAME) && !$context->hasState(DryRunState::NAME)) {
+            $this->orderRepository->upsert([
+                [
+                    'id'                           => $this->orderId,
+                    OrderExtension::EXTENSION_NAME => [
+                        'notifiedAt' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    ],
+                ],
+            ], $context);
+        }
+
+        parent::notifyErrors($itemIdentifier, $context);
+    }
+
+    public function exportOrder(Context $context, OrderEntity $order, string &$result): string
+    {
         $this->connection->transactional(function () use ($context, $order, &$result): void {
             if (!$context->hasState(DryRunState::NAME)) {
                 $this->orderRepository->upsert([
@@ -123,22 +177,6 @@ class OrderExportHandler extends AbstractExportHandler
         });
 
         return $result;
-    }
-
-    public function notifyErrors(string $itemIdentifier, Context $context): void
-    {
-        if ($this->hasErrors() && !$context->hasState(DebugState::NAME) && !$context->hasState(DryRunState::NAME)) {
-            $this->orderRepository->upsert([
-                [
-                    'id'                           => $this->orderId,
-                    OrderExtension::EXTENSION_NAME => [
-                        'notifiedAt' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                    ],
-                ],
-            ], $context);
-        }
-
-        parent::notifyErrors($itemIdentifier, $context);
     }
 
     protected function getLogIdentifier(): string

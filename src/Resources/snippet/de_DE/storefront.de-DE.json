@@ -46,13 +46,16 @@
                 }
             },
             "orders": {
+                "addAll": "Alle hinzufügen",
                 "error": {
                     "noOrderResponse": "Ihre Bestellungen können aktuell nicht abgerufen werden.",
                     "noDocument": "Das angefragte Dokument ist aktuell nicht verfügbar."
                 },
                 "filter": {
                     "fromDate": "Frühestes Auftragsdatum:",
-                    "toDate": "Spätestes Auftragsdatum:"
+                    "toDate": "Spätestes Auftragsdatum:",
+                    "searchLabel": "Suchen:",
+                    "searchReset": "Zurücksetzen"
                 },
                 "documents": {
                     "invoiceTitle": "Rechnungen",
@@ -66,6 +69,13 @@
                         "SHIP_TO": "Lieferadresse"
                     },
                     "changeBillingAddressTitle": "Änderung der Rechnungsadresse (reiff-tp.de)"
+                },
+                "sorting": {
+                    "orderDate": "Datum",
+                    "orderNumber": "Auftragsnummer",
+                    "orderStatus": "Status",
+                    "orderTotal": "Gesamtsumme",
+                    "refNumber": "Bestellnummer"
                 }
             }
         },
@@ -100,6 +110,9 @@
                     }
                 }
             }
+        },
+        "general": {
+            "loading": "Ladet..."
         },
         "price": {
             "error": {

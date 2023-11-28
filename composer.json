@@ -1,7 +1,7 @@
 {
   "name": "reiff/integrations",
   "description": "Integrations with external systems",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "type": "shopware-platform-plugin",
   "license": "Commercial",
   "minimum-stability": "dev",
@@ -21,6 +21,7 @@
     "ext-simplexml": "*",
     "shopware/core": "^6.5",
     "halaxa/json-machine": "^1.1",
+    "reiff/integration-helper": "*",
     "store.shopware.com/maxiavariantstable6": "^2.1"
   },
   "require-dev": {

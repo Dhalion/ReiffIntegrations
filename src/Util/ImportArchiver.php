@@ -8,6 +8,7 @@ use League\Flysystem\MountManager;
 use ReiffIntegrations\Util\Context\DebugState;
 use ReiffIntegrations\Util\Context\DryRunState;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class ImportArchiver
 {
@@ -15,10 +16,11 @@ class ImportArchiver
 
     public function __construct(
         private readonly MountManager $filesystem,
+        private readonly SystemConfigService $systemConfigService,
     ) {
     }
 
-    public function archive(string $filename, Context $context): string
+    public function archive(string $filename, Context $context): \SplFileInfo
     {
         $source = sprintf('%s://%s', FilesystemFactory::FILESYSTEM_PRODUCT_IMPORT_SOURCE, $filename);
 
@@ -36,7 +38,9 @@ class ImportArchiver
             $this->filesystem->move($source, $destination);
         }
 
-        return $destinationFilename;
+        $localFolder = $this->systemConfigService->get(Configuration::CONFIG_KEY_FILE_IMPORT_ARCHIVE_PATH);
+
+        return new \SplFileInfo(sprintf('%s/%s', $localFolder, $destinationFilename));
     }
 
     public function error(string $filename, Context $context): string
@@ -92,5 +96,4 @@ class ImportArchiver
             }
         }
     }
-
 }

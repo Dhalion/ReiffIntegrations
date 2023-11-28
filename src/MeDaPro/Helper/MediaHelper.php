@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace ReiffIntegrations\MeDaPro\Helper;
 
-use League\Flysystem\Filesystem;
 use League\Flysystem\MountManager;
 use ReiffIntegrations\MeDaPro\DataAbstractionLayer\MediaExtension;
 use ReiffIntegrations\MeDaPro\DataAbstractionLayer\ReiffMediaEntity;
@@ -22,26 +21,14 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class MediaHelper
 {
-    protected EntityRepository $mediaRepository;
-    protected MediaService $mediaService;
-    protected Filesystem $shopwareTempFilesystem;
-    protected MountManager $mountManager;
-    protected string $shopwareTempPath;
     /** @var array<string, string[]> */
     private array $mediaIdsByPathAndFolder = [];
 
     public function __construct(
-        EntityRepository $mediaRepository,
-        MediaService $mediaService,
-        Filesystem $shopwareTempFilesystem,
-        MountManager $mountManager,
-        string $shopwareTempPath
+        private readonly EntityRepository $mediaRepository,
+        private readonly MediaService $mediaService,
+        private readonly MountManager $mountManager,
     ) {
-        $this->mediaRepository        = $mediaRepository;
-        $this->mediaService           = $mediaService;
-        $this->shopwareTempFilesystem = $shopwareTempFilesystem;
-        $this->mountManager           = $mountManager;
-        $this->shopwareTempPath       = $shopwareTempPath;
     }
 
     public function getMediaIdByPath(string $path, string $folder, Context $context): ?string
@@ -51,14 +38,12 @@ class MediaHelper
         if (array_key_exists($folder, $this->mediaIdsByPathAndFolder) && array_key_exists($path, $this->mediaIdsByPathAndFolder[$folder])) {
             return $this->mediaIdsByPathAndFolder[$folder][$path];
         }
+
         $mediaEntity = $this->fetchExistingMedia($path, $context);
         $remotePath  = $this->getRemotePath($path);
 
         if ($remotePath === null) {
-            // throw new RuntimeException(sprintf('could not find product media at the location: %s', $path));
-
-            // TODO: Remove me, once REIFF has ensured available media is complete
-            return null;
+            throw new \RuntimeException(sprintf('could not find product media at the location: %s', $path));
         }
 
         $metadata = $this->getMetadata($remotePath);
@@ -72,12 +57,12 @@ class MediaHelper
         if ($mediaEntity === null) {
             try {
                 $mediaId = $this->createMedia($path, $remotePath, $hash, $folder, $context);
-            } catch(DuplicatedMediaFileNameException $exception) {
+            } catch (DuplicatedMediaFileNameException $exception) {
                 $fileExtension = pathinfo($remotePath, PATHINFO_EXTENSION);
-                $fileName = pathinfo($remotePath, PATHINFO_FILENAME);
-                $media = $this->getMediaFromFolder($fileName, $fileExtension, $folder, $context);
+                $fileName      = pathinfo($remotePath, PATHINFO_FILENAME);
+                $media         = $this->getMediaFromFolder($fileName, $fileExtension, $folder, $context);
 
-                if(!$media) {
+                if (!$media) {
                     throw $exception;
                 }
 
@@ -187,7 +172,7 @@ class MediaHelper
                     $mediaEntity->getId(),
                     false
                 );
-            }  catch(\Exception) {
+            } catch (\Exception) {
             }
 
             $updateData = [
@@ -247,15 +232,22 @@ class MediaHelper
         $mediaCriteria->addFilter(new EqualsFilter(sprintf('%s.originalPath', MediaExtension::EXTENSION_NAME), $path));
         $mediaCriteria->setLimit(1);
 
-        return $this->mediaRepository->search($mediaCriteria, $context)->first();
+        $result = $this->mediaRepository->search($mediaCriteria, $context)->first();
+
+        if (!$result instanceof MediaEntity) {
+            return null;
+        }
+
+        return $result;
     }
 
-    private function getMetadata(string $path): array {
+    private function getMetadata(string $path): array
+    {
         return [
             'lastModified' => $this->mountManager->lastModified($path),
-            'fileSize' => $this->mountManager->fileSize($path),
-            'visibility' => $this->mountManager->visibility($path),
-            'mimeType' => $this->mountManager->mimeType($path),
+            'fileSize'     => $this->mountManager->fileSize($path),
+            'visibility'   => $this->mountManager->visibility($path),
+            'mimeType'     => $this->mountManager->mimeType($path),
         ];
     }
 
@@ -266,30 +258,15 @@ class MediaHelper
             ->addFilter(new AndFilter([
                 new EqualsFilter('fileName', $fileName),
                 new EqualsFilter('fileExtension', $fileExtension),
-                new EqualsFilter('mediaFolder.defaultFolder.entity', $folder)
+                new EqualsFilter('mediaFolder.defaultFolder.entity', $folder),
             ]));
 
-        return $this->mediaRepository->search($criteria, $context)->first();
-    }
+        $result = $this->mediaRepository->search($criteria, $context)->first();
 
-    private function deleteMediaInFolder(string $fileName, string $fileExtension, string $folder, Context $context): void
-    {
-        $criteria = (new Criteria())
-            ->addAssociation('mediaFolder.defaultFolder')
-            ->addFilter(new AndFilter([
-                new EqualsFilter('fileName', $fileName),
-                new EqualsFilter('fileExtension', $fileExtension),
-                new EqualsFilter('mediaFolder.defaultFolder.entity', $folder)
-            ]));
-
-        $mediaId = $this->mediaRepository->searchIds($criteria, $context)->firstId();
-
-        if($mediaId) {
-            $this->mediaRepository->delete([
-                [
-                    $mediaId
-                ]
-            ], $context);
+        if (!$result instanceof MediaEntity) {
+            return null;
         }
+
+        return $result;
     }
 }
