@@ -42,7 +42,6 @@
             <label lang="de-DE">Fallback Sales Organization</label>
         </input-field>
 
-
         <input-field>
             <name>fallbackLanguageCode</name>
             <copyable>true</copyable>
