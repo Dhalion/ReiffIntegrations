@@ -123,7 +123,7 @@ class CategoryImporter
                         try {
                             $mediaId = $this->mediaHelper->getMediaIdByPath($categoryMediaPath, CategoryDefinition::ENTITY_NAME, $context);
                         } catch (\Throwable $exception) {
-                            $notificationData['exceptions'][] = $exception->getMessage();
+                            $notificationData['media_exception'] = $exception->getMessage();
 
                             $this->notificationHelper->addNotification(
                                 'Error during category media processing',
@@ -167,7 +167,7 @@ class CategoryImporter
                     $isSuccess = false;
                     $runStatus = false;
 
-                    $notificationData['exceptions'][] = $exception->getMessage();
+                    $notificationData['category_exception'] = $exception->getMessage();
 
                     $this->notificationHelper->addNotification(
                         'Error during category processing',
