@@ -81,7 +81,7 @@ class AvailabilityService
         if (!$circuitBreaker->isHit()) {
             try {
                 $salesOrganisation = $this->fetchSalesOrganisation($context);
-                $languageCode = $this->fetchLanguageCode($context);
+                $languageCode      = $this->fetchLanguageCode($context);
 
                 $uncachedAvailabilities = $this->apiClient->getAvailability(
                     $productNumbers,
@@ -152,7 +152,7 @@ class AvailabilityService
     {
         $languageCode = $context->getCustomer()?->getLanguage()?->getTranslationCode()?->getCode();
 
-        if (null === $languageCode) {
+        if ($languageCode === null) {
             $languageCode = $this->systemConfigService->getString(Configuration::CONFIG_KEY_API_FALLBACK_LANGUAGE_CODE);
         }
 

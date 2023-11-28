@@ -65,7 +65,7 @@ class ContractStatusClient extends AbstractApiClient
                 'method'     => $method,
                 'requestUrl' => $url,
                 'body'       => $postData,
-                'response'   => (string)  $response,
+                'response'   => (string) $response,
                 'error'      => $errorNumber,
             ]);
 

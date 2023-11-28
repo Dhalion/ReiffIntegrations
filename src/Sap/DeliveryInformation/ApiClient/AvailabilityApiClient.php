@@ -33,8 +33,7 @@ class AvailabilityApiClient extends AbstractApiClient
         array $productNumbers,
         string $salesOrganisation,
         string $languageCode
-    ): AvailabilityStructCollection
-    {
+    ): AvailabilityStructCollection {
         $template = '
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:sap-com:document:sap:rfc:functions">
                <soapenv:Header/>
@@ -95,7 +94,6 @@ class AvailabilityApiClient extends AbstractApiClient
         curl_close($handle);
 
         if ($errorNumber !== CURLE_OK || $statusCode !== 200 || $response === false) {
-
             $this->logger->error('API error during availability read', [
                 'method'           => $method,
                 'requestUrl'       => $url,

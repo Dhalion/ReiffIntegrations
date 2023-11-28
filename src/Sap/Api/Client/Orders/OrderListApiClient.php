@@ -4,14 +4,11 @@ declare(strict_types=1);
 
 namespace ReiffIntegrations\Sap\Api\Client\Orders;
 
-use DateTimeInterface;
 use Psr\Log\LoggerInterface;
 use ReiffIntegrations\Api\Client\AbstractApiClient;
-use ReiffIntegrations\Sap\DataAbstractionLayer\CustomerExtension;
 use ReiffIntegrations\Sap\DataAbstractionLayer\ReiffCustomerEntity;
 use ReiffIntegrations\Util\Configuration;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class OrderListApiClient extends AbstractApiClient
@@ -28,11 +25,10 @@ class OrderListApiClient extends AbstractApiClient
 
     public function getOrders(
         ReiffCustomerEntity $reiffCustomer,
-        DateTimeInterface $fromDate,
-        DateTimeInterface $toDate,
+        \DateTimeInterface $fromDate,
+        \DateTimeInterface $toDate,
         CustomerEntity $shopwareCustomer
-    ): OrderListApiResponse
-    {
+    ): OrderListApiResponse {
         $template = '
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:sap-com:document:sap:rfc:functions">
                 <soapenv:Header/>
@@ -52,8 +48,8 @@ class OrderListApiClient extends AbstractApiClient
             </soapenv:Envelope>
         ';
 
-        $languageCode = $this->fetchLanguageCode($shopwareCustomer);
-        $debtorNumber = $this->fetchDebtorNumber($reiffCustomer);
+        $languageCode      = $this->fetchLanguageCode($shopwareCustomer);
+        $debtorNumber      = $this->fetchDebtorNumber($reiffCustomer);
         $salesOrganisation = $this->fetchSalesOrganisation($reiffCustomer);
 
         $postData = trim(sprintf(
@@ -112,7 +108,7 @@ class OrderListApiClient extends AbstractApiClient
     {
         $languageCode = $shopwareCustomer->getLanguage()?->getTranslationCode()?->getCode();
 
-        if (null === $languageCode) {
+        if ($languageCode === null) {
             $languageCode = $this->systemConfigService->getString(Configuration::CONFIG_KEY_API_FALLBACK_LANGUAGE_CODE);
         }
 

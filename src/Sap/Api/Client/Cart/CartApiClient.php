@@ -14,7 +14,6 @@ use ReiffIntegrations\Sap\Struct\Price\ItemStruct;
 use ReiffIntegrations\Util\Configuration;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\System\Language\LanguageLoaderInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
@@ -188,7 +187,7 @@ class CartApiClient extends AbstractApiClient
     {
         $languageCode = $context->getCustomer()?->getLanguage()?->getTranslationCode()?->getCode();
 
-        if (null === $languageCode) {
+        if ($languageCode === null) {
             $languageCode = $this->systemConfigService->getString(Configuration::CONFIG_KEY_API_FALLBACK_LANGUAGE_CODE);
         }
 

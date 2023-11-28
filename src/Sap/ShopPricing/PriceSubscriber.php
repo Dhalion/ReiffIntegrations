@@ -66,7 +66,7 @@ class PriceSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $priceData   = $this->getPriceData($event->getRequest());
+        $priceData      = $this->getPriceData($event->getRequest());
         $languageId     = (string) $event->getRequest()->headers->get(PlatformRequest::HEADER_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM);
         $productNumbers = $this->fetchProductNumbers($content);
         $itemCollection = new ItemCollection();
@@ -130,7 +130,7 @@ class PriceSubscriber implements EventSubscriberInterface
 
         /** @var null|array $data */
         $data = $this->connection->fetchAssociative($query, [
-            'token' => $contextToken
+            'token' => $contextToken,
         ]);
 
         if (empty($data)) {

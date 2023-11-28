@@ -150,11 +150,11 @@ class OrderExportCommand extends Command
         $criteria->addFilter(new EqualsFilter(sprintf('%s.exportedAt', OrderExtension::EXTENSION_NAME), null));
 
         // commented, actually crefo pay doesn't set payment status as paid
-//        $criteria->addAssociation('transactions.stateMachineState');
-//        $criteria->addFilter(new OrFilter([
-//            new EqualsFilter('transactions.stateMachineState.technicalName', 'paid'),
-//            new EqualsFilter('transactions.stateMachineState.technicalName', 'authorized'),
-//        ]));
+        //        $criteria->addAssociation('transactions.stateMachineState');
+        //        $criteria->addFilter(new OrFilter([
+        //            new EqualsFilter('transactions.stateMachineState.technicalName', 'paid'),
+        //            new EqualsFilter('transactions.stateMachineState.technicalName', 'authorized'),
+        //        ]));
 
         $maxExportTries = $this->configService->getInt(Configuration::CONFIG_KEY_ORDER_EXPORT_MAX_ATTEMPTS);
         $criteria->addFilter(

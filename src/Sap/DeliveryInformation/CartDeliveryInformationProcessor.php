@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace ReiffIntegrations\Sap\DeliveryInformation;
 
 use ReiffIntegrations\Installer\CustomFieldInstaller;
-use ReiffIntegrations\Sap\DataAbstractionLayer\CustomerExtension;
-use ReiffIntegrations\Sap\DataAbstractionLayer\ReiffCustomerEntity;
 use ReiffIntegrations\Sap\DeliveryInformation\Struct\DeliveryCostsNotComputable;
 use ReiffIntegrations\Sap\DeliveryInformation\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -36,8 +34,7 @@ class CartDeliveryInformationProcessor implements CartDataCollectorInterface, Ca
         Cart $original,
         SalesChannelContext $context,
         CartBehavior $behavior
-    ): void
-    {
+    ): void {
         $productLineItems = $this->getProductLineItem($original);
 
         if ($productLineItems->count() === 0) {

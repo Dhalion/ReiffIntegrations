@@ -24,7 +24,7 @@ class ContractListClient extends AbstractApiClient
 
     public function getContracts(ReiffCustomerEntity $customer, ?\DateTimeInterface $fromDate, ?\DateTimeInterface $toDate): ContractListResponse
     {
-        $debtorNumber = $customer->getDebtorNumber();
+        $debtorNumber      = $customer->getDebtorNumber();
         $salesOrganisation = $customer->getSalesOrganisation();
 
         if (empty($debtorNumber) || $debtorNumber === '-') {

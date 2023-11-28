@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace ReiffIntegrations\Sap\CustomOrderNumber\Message;
 
 use ReiffIntegrations\Sap\CustomOrderNumber\Struct\OrderNumberUpdateStruct;
-use ReiffIntegrations\Util\Message\AbstractImportMessage;
 use Shopware\Core\Framework\Context;
 
 class OrderNumberUpdateMessage

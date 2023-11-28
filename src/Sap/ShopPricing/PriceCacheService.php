@@ -8,7 +8,6 @@ use ReiffIntegrations\Sap\Exception\TimeoutException;
 use ReiffIntegrations\Sap\ShopPricing\ApiClient\PriceApiClient;
 use ReiffIntegrations\Sap\Struct\Price\ItemCollection;
 use ReiffIntegrations\Util\Configuration;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -75,15 +74,14 @@ class PriceCacheService
     private function getUncachedPrices(
         array $priceData,
         array $productNumbers
-    ): ItemCollection
-    {
+    ): ItemCollection {
         $circuitBreaker = $this->cache->getItem(self::CACHE_CIRCUIT_BREAKER_TAG);
 
         if (!$circuitBreaker->isHit()) {
             try {
-                $debtorNumber = $this->fetchDebtorNumber($priceData);
+                $debtorNumber      = $this->fetchDebtorNumber($priceData);
                 $salesOrganisation = $this->fetchSalesOrganisation($priceData);
-                $languageCode = $this->fetchLanguageCode($priceData);
+                $languageCode      = $this->fetchLanguageCode($priceData);
 
                 return $this->client->getPrices(
                     $debtorNumber,
@@ -147,7 +145,7 @@ class PriceCacheService
     private function getCacheKey(array $priceData, string $productNumber): string
     {
         $salesOrganisation = $this->fetchSalesOrganisation($priceData);
-        $debtorNumber = $this->fetchDebtorNumber($priceData);
+        $debtorNumber      = $this->fetchDebtorNumber($priceData);
 
         $productNumber = str_replace(str_split(ItemInterface::RESERVED_CHARACTERS), '', $productNumber);
 
@@ -177,7 +175,7 @@ class PriceCacheService
     {
         $languageCode = $priceData['language_code'] ?? null;
 
-        if (null === $languageCode) {
+        if ($languageCode === null) {
             $languageCode = $this->systemConfigService->getString(
                 Configuration::CONFIG_KEY_API_FALLBACK_LANGUAGE_CODE
             );

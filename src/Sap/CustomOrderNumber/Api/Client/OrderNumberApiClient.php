@@ -32,7 +32,7 @@ class OrderNumberApiClient extends AbstractApiClient
 
     public function readOrderNumbers(OrderNumberUpdateStruct $updateStruct): OrderNumberApiResponse
     {
-        $debtorNumber = $updateStruct->getDebtorNumber();
+        $debtorNumber      = $updateStruct->getDebtorNumber();
         $salesOrganisation = $updateStruct->getSalesOrganisation();
 
         if (empty($debtorNumber) || $debtorNumber === '-') {
@@ -95,7 +95,6 @@ class OrderNumberApiClient extends AbstractApiClient
         curl_close($handle);
 
         if ($errorNumber !== 0 || $statusCode !== 200 || $response === false) {
-
             $this->logger->error('API error during offers read', [
                 'method'     => $method,
                 'requestUrl' => $url,

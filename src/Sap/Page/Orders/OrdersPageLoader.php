@@ -45,7 +45,7 @@ class OrdersPageLoader
 
         $customer = $salesChannelContext->getCustomer();
 
-        if (null === $customer) {
+        if ($customer === null) {
             return $page;
         }
 
@@ -145,7 +145,7 @@ class OrdersPageLoader
     {
         $languageCode = $context->getCustomer()?->getLanguage()?->getTranslationCode()?->getCode();
 
-        if (null === $languageCode) {
+        if ($languageCode === null) {
             $languageCode = $this->systemConfigService->getString(Configuration::CONFIG_KEY_API_FALLBACK_LANGUAGE_CODE);
         }
 

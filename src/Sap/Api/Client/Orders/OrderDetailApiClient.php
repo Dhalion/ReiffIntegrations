@@ -8,9 +8,7 @@ use Psr\Log\LoggerInterface;
 use ReiffIntegrations\Api\Client\AbstractApiClient;
 use ReiffIntegrations\Util\Configuration;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use function Symfony\Component\String\u;
 
 class OrderDetailApiClient extends AbstractApiClient
 {

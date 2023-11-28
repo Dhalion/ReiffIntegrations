@@ -32,8 +32,7 @@ class PriceApiClient extends AbstractApiClient
         string $salesOrganisation,
         string $languageCode,
         array $productNumbers,
-    ): ItemCollection
-    {
+    ): ItemCollection {
         $template = '
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:sap-com:document:sap:soap:functions:mc-style">
                <soapenv:Header/>

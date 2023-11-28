@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace ReiffIntegrations\Api\Client;
 
-use ReiffIntegrations\Util\Configuration;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
-
 abstract class AbstractApiClient
 {
     public const METHOD_POST = 'POST';
