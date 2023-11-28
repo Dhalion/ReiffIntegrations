@@ -64,7 +64,6 @@ class CartApiClient extends AbstractApiClient
             $language,
             $salesOrganisation
         ));
-        throw new TimeoutException('request timeout');
 
         $method = self::METHOD_POST;
 
@@ -100,10 +99,6 @@ class CartApiClient extends AbstractApiClient
                 'response'   => (string) $response,
                 'error'      => $errorNumber,
             ]);
-
-            if ($errorNumber === CURLE_OPERATION_TIMEOUTED) {
-                throw new TimeoutException('request timeout');
-            }
 
             return new ItemCollection();
         }

@@ -57,8 +57,6 @@ class PriceCartProcessor implements CartDataCollectorInterface, CartProcessorInt
             return;
         }
 
-        $this->removeSapCartData($original, $data);
-
         /** @var null|ReiffCustomerEntity $reiffCustomer */
         $reiffCustomer = $customer->getExtension(CustomerExtension::EXTENSION_NAME);
 
