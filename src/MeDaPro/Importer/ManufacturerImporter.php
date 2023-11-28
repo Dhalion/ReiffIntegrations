@@ -94,8 +94,10 @@ class ManufacturerImporter
                                 $context
                             );
                         } catch (\Throwable $exception) {
+                            $notificationData['exception'] = $exception->getMessage();
+
                             $this->notificationHelper->addNotification(
-                                $exception->getMessage(),
+                                'Error during manufacturer media processing',
                                 'manufacturer_import',
                                 $notificationData,
                                 $catalogMetadata

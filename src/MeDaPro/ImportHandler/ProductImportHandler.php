@@ -165,8 +165,10 @@ class ProductImportHandler
 
             $this->finalizeProduct($context);
         } catch (\Throwable $exception) {
+            $notificationData['exception'] = $exception->getMessage();
+
             $this->notificationHelper->addNotification(
-                $exception->getMessage(),
+                'Product import failed',
                 'product_import',
                 $notificationData,
                 $catalogMetadata
