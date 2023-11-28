@@ -891,16 +891,19 @@ class ProductImportHandler
 
     private function manufacturerExists(string $manufacturerName): bool
     {
-        static $manufacturerIds = null;
+        $manufacturer = $this->connection->fetchOne(
+            'SELECT LOWER(HEX(id)) AS id FROM product_manufacturer WHERE id = :id',
+            [
+                'id' => Uuid::fromHexToBytes(
+                    ManufacturerImporter::generateManufacturerIdentity($manufacturerName)
+                )
+            ]
+        );
 
-        if (null === $manufacturerIds) {
-            $manufacturers = $this->connection->fetchAllAssociative('SELECT LOWER(HEX(id)) AS id FROM product_manufacturer');
-
-            $manufacturerIds = array_column($manufacturers, 'id', 'id');
+        if (empty($manufacturer)) {
+            return false;
         }
 
-        $id = ManufacturerImporter::generateManufacturerIdentity($manufacturerName);
-
-        return array_key_exists($id, $manufacturerIds);
+        return true;
     }
 }
