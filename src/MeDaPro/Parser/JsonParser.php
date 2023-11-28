@@ -429,7 +429,7 @@ class JsonParser
         }
 
         if (empty(self::$propertyMapping[$mappingKey][$groupName][$count])) {
-            $error = 'Product %s: Could not find mapping for %s in %s. ImportFile with system default language may be missing.';
+            $error = 'Product %s: Could not find property mapping for %s in %s. ImportFile with system default language may be missing.';
 
             throw new \LogicException(sprintf($error, $productNumber, $optionValue, $groupName));
         }
