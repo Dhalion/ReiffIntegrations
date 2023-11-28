@@ -233,8 +233,10 @@ class CatalogImportCommand extends Command
                     }
                 }
             } catch (\Throwable $exception) {
+                $notificationData['exception'] = $exception->getMessage();
+
                 $this->notificationHelper->addNotification(
-                    $exception->getMessage(),
+                    'Product Import failed catastrophically',
                     'catalog_import',
                     $notificationData,
                     $catalogMetadata

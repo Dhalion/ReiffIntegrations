@@ -141,8 +141,10 @@ class PropertyImporter
                 $isSuccess = false;
                 $runStatus = false;
 
+                $notificationData['exception'] = $exception->getMessage();
+
                 $this->notificationHelper->addNotification(
-                    $exception->getMessage(),
+                    'Error during property processing',
                     'property_import',
                     $notificationData,
                     $catalogMetadata
