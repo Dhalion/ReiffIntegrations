@@ -35,7 +35,7 @@ class OrderListApiClient extends AbstractApiClient
     {
         $template = '
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:sap-com:document:sap:rfc:functions">
-            <soapenv:Header/>
+                <soapenv:Header/>
                 <soapenv:Body>
                     <urn:ZSHOP_LIST_ORDER>
                          <IS_ORDER_LIST_INPUT>

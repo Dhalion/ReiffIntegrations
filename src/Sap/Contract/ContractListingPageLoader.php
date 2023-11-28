@@ -79,7 +79,7 @@ class ContractListingPageLoader
     private function getBasicPage(Request $request, SalesChannelContext $salesChannelContext): Page
     {
         if (!$salesChannelContext->getCustomer()) {
-            throw new CustomerNotLoggedInException();
+            throw new CustomerNotLoggedInException(404, '404', 'Customer not logged in');
         }
 
         $page = $this->genericPageLoader->load($request, $salesChannelContext);

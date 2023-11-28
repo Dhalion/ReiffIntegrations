@@ -27,7 +27,7 @@ class OfferDetailPageLoader
         $customer = $salesChannelContext->getCustomer();
 
         if ($customer === null) {
-            throw new CustomerNotLoggedInException();
+            throw new CustomerNotLoggedInException(404, '404', 'Customer not logged in');
         }
 
         $page = $this->genericLoader->load($request, $salesChannelContext);

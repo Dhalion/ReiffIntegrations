@@ -64,6 +64,7 @@ class CartApiClient extends AbstractApiClient
             $language,
             $salesOrganisation
         ));
+        throw new TimeoutException('request timeout');
 
         $method = self::METHOD_POST;
 
@@ -71,7 +72,7 @@ class CartApiClient extends AbstractApiClient
         $url       = $this->systemConfigService->getString(Configuration::CONFIG_KEY_CART_API_URL);
 
         if (empty($url)) {
-            return new ItemCollection();
+            throw new TimeoutException('request timeout');
         }
 
         $username = $this->systemConfigService->getString(Configuration::CONFIG_KEY_API_USER_NAME);

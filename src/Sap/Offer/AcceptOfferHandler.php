@@ -97,7 +97,7 @@ class AcceptOfferHandler
         $customer = $context->getCustomer();
 
         if (!$customer) {
-            throw new CustomerNotLoggedInException();
+            throw new CustomerNotLoggedInException(404, '404', 'Customer not logged in');
         }
 
         $offerNumber = $offerDocumentStruct->getNumber();

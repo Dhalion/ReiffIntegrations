@@ -8,6 +8,7 @@ use Psr\Log\LoggerInterface;
 use ReiffIntegrations\Api\Client\AbstractApiClient;
 use ReiffIntegrations\Util\Configuration;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class OrderDetailApiClient extends AbstractApiClient
@@ -22,19 +23,25 @@ class OrderDetailApiClient extends AbstractApiClient
     ) {
     }
 
-    public function getOrder(string $orderNumber, Context $context): OrderDetailApiResponse
+    public function getOrder(string $orderNumber, Context $context, string $languageCode): OrderDetailApiResponse
     {
-        $postData = sprintf('<soapenv:Envelope
-                                xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
-                                xmlns:urn="urn:sap-com:document:sap:rfc:functions">
-                        <soapenv:Header/>
-                            <soapenv:Body>
-                                <urn:ZSHOP_ORDER_DETAILS>
-                                 <IV_CUSTOMER_ORDER_NUMBER>%s</IV_CUSTOMER_ORDER_NUMBER>
-                                 <IV_LANGUAGE>DE</IV_LANGUAGE>
-                              </urn:ZSHOP_ORDER_DETAILS>
-                            </soapenv:Body>
-                        </soapenv:Envelope>', $orderNumber);
+        $template = '
+            <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:sap-com:document:sap:rfc:functions">
+                <soapenv:Header/>
+                <soapenv:Body>
+                    <urn:ZSHOP_ORDER_DETAILS>
+                    <IV_CUSTOMER_ORDER_NUMBER>%s</IV_CUSTOMER_ORDER_NUMBER>
+                    <IV_LANGUAGE>%s</IV_LANGUAGE>
+                    </urn:ZSHOP_ORDER_DETAILS>
+                </soapenv:Body>
+            </soapenv:Envelope>
+        ';
+
+        $postData = sprintf(
+            $template,
+            $orderNumber,
+            $languageCode
+        );
 
         $method = self::METHOD_POST;
 

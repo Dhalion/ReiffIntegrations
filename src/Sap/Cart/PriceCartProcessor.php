@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace ReiffIntegrations\Sap\Cart;
 
 use ReiffIntegrations\Sap\Api\Client\Cart\CartApiClient;
+use ReiffIntegrations\Sap\CartError\SapNotAvavilableError;
 use ReiffIntegrations\Sap\DataAbstractionLayer\CustomerExtension;
 use ReiffIntegrations\Sap\DataAbstractionLayer\ReiffCustomerEntity;
 use ReiffIntegrations\Sap\Struct\CartHashStruct;
@@ -55,6 +56,8 @@ class PriceCartProcessor implements CartDataCollectorInterface, CartProcessorInt
 
             return;
         }
+
+        $this->removeSapCartData($original, $data);
 
         /** @var null|ReiffCustomerEntity $reiffCustomer */
         $reiffCustomer = $customer->getExtension(CustomerExtension::EXTENSION_NAME);
@@ -208,6 +211,10 @@ class PriceCartProcessor implements CartDataCollectorInterface, CartProcessorInt
 
         $data->remove(self::SAP_CART_HASH);
         $cart->removeExtension(CartHashStruct::NAME);
+
+        $cart->addErrors(
+            new SapNotAvavilableError()
+        );
     }
 
     private function getCartCacheKey(string $debtorNumber): string

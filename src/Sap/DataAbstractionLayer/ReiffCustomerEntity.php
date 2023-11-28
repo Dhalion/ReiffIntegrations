@@ -40,7 +40,15 @@ class ReiffCustomerEntity extends Entity
             return true;
         }
 
+        if ($this->salesOrganisation === '-') {
+            return true;
+        }
+
         if (empty($this->debtorNumber)) {
+            return true;
+        }
+
+        if ($this->debtorNumber === '-') {
             return true;
         }
 

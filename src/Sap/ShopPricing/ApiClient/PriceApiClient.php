@@ -57,6 +57,7 @@ class PriceApiClient extends AbstractApiClient
             $salesOrganisation,
             $languageCode
         ));
+        return new ItemCollection();
 
         $method = self::METHOD_POST;
 
