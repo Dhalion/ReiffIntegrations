@@ -99,7 +99,7 @@ class CartApiClient extends AbstractApiClient
                 'error'      => $errorNumber,
             ]);
 
-            return new ItemCollection();
+            throw new \RuntimeException('API error during prices read');
         }
 
         return $this->getCollection((string) $response);
