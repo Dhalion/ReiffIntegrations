@@ -19,6 +19,7 @@ use ReiffIntegrations\MeDaPro\Struct\ProductStruct;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
 use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class JsonParser
 {
@@ -327,6 +328,26 @@ class JsonParser
             }
         }
 
+        $elementId = Uuid::randomHex();
+        $this->runService->createNewElement(
+            $elementId,
+            implode('_', array_filter([
+                $catalogMetadata->getSortimentId(),
+                $catalogMetadata->getCatalogId(),
+                $catalogMetadata->getLanguageCode(),
+            ])),
+            'parse_products',
+            $context
+        );
+
+        $this->runService->markAsHandled(
+            $elementId,
+            !$hasErrors,
+            $notificationData,
+            $catalogMetadata->getArchivedFilename(),
+            $context
+        );
+
         $this->runService->finalizeRun($runStatus, $catalogMetadata->getArchivedFilename(), $context);
 
         if ($hasErrors) {
@@ -429,7 +450,7 @@ class JsonParser
         }
 
         if (empty(self::$propertyMapping[$mappingKey][$groupName][$count])) {
-            $error = 'Product %s: Could not find mapping for %s in %s. ImportFile with system default language may be missing.';
+            $error = 'Product %s: Could not find property mapping for %s in %s. ImportFile with system default language may be missing.';
 
             throw new \LogicException(sprintf($error, $productNumber, $optionValue, $groupName));
         }

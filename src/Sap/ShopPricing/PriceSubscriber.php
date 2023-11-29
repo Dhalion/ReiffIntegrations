@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use ReiffIntegrations\Sap\Struct\Price\ItemCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -99,20 +100,50 @@ class PriceSubscriber implements EventSubscriberInterface
 
         $contextToken = $request->getSession()->get('sw-context-token');
 
-        $query = '
-            SELECT reiff_customer.debtor_number
-            FROM reiff_customer
-            INNER JOIN sales_channel_api_context context ON context.customer_id = reiff_customer.customer_id
-            WHERE context.token = :token
-        ';
+        if(!$contextToken) {
+            return null;
+        }
 
-        /** @var null|string $debtorNumber */
-        $debtorNumber = $this->connection->fetchOne($query, [
-            'token' => $contextToken,
+        $sql = <<<SQL
+SELECT * FROM sales_channel_api_context WHERE token = :token
+SQL;
+        $tokenResult = $this->connection->fetchAllAssociative($sql, [
+           'token' => $contextToken
         ]);
 
-        if (empty($debtorNumber)) {
-            $debtorNumber = null;
+        if(count($tokenResult) === 0) {
+            return null;
+        }
+
+        $tokenRow = $tokenResult[0];
+        $customerId = null;
+
+        if(isset($tokenRow['customer_id']) && $tokenRow['customer_id']) {
+            $customerId = $tokenRow['customer_id'];
+        } else {
+            try {
+                $payloadArray = json_decode($tokenRow['payload'], true, JSON_THROW_ON_ERROR);
+                if(isset($payloadArray['customerId']) && $payloadArray['customerId']) {
+                    $customerId = Uuid::fromHexToBytes($payloadArray['customerId']);
+                }
+            } catch(\Exception) {
+                return null;
+            }
+        }
+
+        if(!$customerId) {
+            return null;
+        }
+
+        $sql = <<<SQL
+SELECT debtor_number FROM reiff_customer WHERE customer_id = :customerId
+SQL;
+        $debtorNumber = $this->connection->fetchOne($sql, [
+           'customerId' => $customerId
+        ]);
+
+        if(!$debtorNumber) {
+            return null;
         }
 
         return $debtorNumber;

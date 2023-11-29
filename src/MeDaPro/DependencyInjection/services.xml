@@ -71,5 +71,8 @@
             <argument type="service" id="rule_condition.repository"/>
         </service>
 
+        <service id="ReiffIntegrations\MeDaPro\Serializer\ProductStructNormalizer" public="true">
+            <tag name="serializer.normalizer" priority="55555"/>
+        </service>
     </services>
 </container>
