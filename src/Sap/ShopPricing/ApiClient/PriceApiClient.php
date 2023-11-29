@@ -24,9 +24,6 @@ class PriceApiClient extends AbstractApiClient
     ) {
     }
 
-    /**
-     * @throws TimeoutException
-     */
     public function getPrices(
         string $debtorNumber,
         string $salesOrganisation,
@@ -103,11 +100,7 @@ class PriceApiClient extends AbstractApiClient
                 'errorDescription' => $errorDescription,
             ]);
 
-            if ($errorNumber === CURLE_OPERATION_TIMEOUTED) {
-                throw new TimeoutException('request timeout');
-            }
-
-            return new ItemCollection();
+            throw new \RuntimeException('API error during prices read');
         }
 
         return $this->getCollection((string) $response);

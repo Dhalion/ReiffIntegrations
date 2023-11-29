@@ -72,10 +72,14 @@ class PriceSubscriber implements EventSubscriberInterface
         $itemCollection = new ItemCollection();
 
         if ($priceData !== null && !empty($productNumbers)) {
-            $itemCollection = $this->cache->fetchProductPrices(
-                $priceData,
-                $productNumbers
-            );
+            try {
+                $itemCollection = $this->cache->fetchProductPrices(
+                    $priceData,
+                    $productNumbers
+                );
+            } catch (\Throwable $exception) {
+                // Do nothing
+            }
         }
 
         if (str_contains($content, SimplePriceHandler::PRICE_PLACEHOLDER) || str_contains($content, SimplePriceHandler::PRICE_FORMATTED_PLACEHOLDER)) {
