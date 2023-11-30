@@ -165,8 +165,10 @@ class ProductImportHandler
 
             $this->finalizeProduct($context);
         } catch (\Throwable $exception) {
+            $notificationData['exception'] = $exception->getMessage();
+
             $this->notificationHelper->addNotification(
-                $exception->getMessage(),
+                'Product import failed',
                 'product_import',
                 $notificationData,
                 $catalogMetadata
@@ -344,6 +346,10 @@ class ProductImportHandler
         $manufacturerName = $productStruct->getDataByKey(JsonParser::ATTRIBUTE_PREFIX_MANUFACTURER);
 
         if (!empty($manufacturerName) && is_string($manufacturerName)) {
+            if (!$this->manufacturerExists($manufacturerName)) {
+                throw new \RuntimeException(sprintf('Manufacturer %s is missing', $manufacturerName));
+            }
+
             $data['manufacturerId'] = ManufacturerImporter::generateManufacturerIdentity($manufacturerName);
         }
 
@@ -883,5 +889,23 @@ class ProductImportHandler
 
         $this->entitySyncer->addOperation(ProductDefinition::ENTITY_NAME, SyncOperation::ACTION_UPSERT, $mainProduct);
         $this->entitySyncer->addOperations(ProductDefinition::ENTITY_NAME, SyncOperation::ACTION_UPSERT, $variants);
+    }
+
+    private function manufacturerExists(string $manufacturerName): bool
+    {
+        $manufacturer = $this->connection->fetchOne(
+            'SELECT LOWER(HEX(id)) AS id FROM product_manufacturer WHERE id = :id',
+            [
+                'id' => Uuid::fromHexToBytes(
+                    ManufacturerImporter::generateManufacturerIdentity($manufacturerName)
+                )
+            ]
+        );
+
+        if (empty($manufacturer)) {
+            return false;
+        }
+
+        return true;
     }
 }
