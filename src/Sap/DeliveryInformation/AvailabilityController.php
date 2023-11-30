@@ -37,7 +37,7 @@ class AvailabilityController extends StorefrontController
             return new JsonResponse(['success' => false]);
         }
 
-        $availabilitySearchResult = $this->availabilityService->fetchAvailabilities($productNumbers);
+        $availabilitySearchResult = $this->availabilityService->fetchAvailabilities($productNumbers, $context);
 
         if ($availabilitySearchResult->count() === 0) {
             return new JsonResponse(['success' => false]);

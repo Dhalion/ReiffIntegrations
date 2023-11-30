@@ -90,6 +90,10 @@ class Finder
                     continue;
                 }
 
+                if (!$otherFile->getCatalogMetadata()->isSystemLanguage()) {
+                    continue;
+                }
+
                 $foundFile = true;
             }
 

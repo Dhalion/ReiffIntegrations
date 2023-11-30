@@ -64,7 +64,12 @@ class ContractListingPageLoader
             }
         }
 
-        $contractResult = $this->contractListClient->getContracts((string) $customerData->getDebtorNumber(), $page->getFromDate(), $page->getToDate());
+        $contractResult = $this->contractListClient->getContracts(
+            $customerData,
+            $page->getFromDate(),
+            $page->getToDate()
+        );
+
         $page->setSuccess($contractResult->isSuccess());
         $page->setContracts($contractResult->getContracts());
 
@@ -74,7 +79,7 @@ class ContractListingPageLoader
     private function getBasicPage(Request $request, SalesChannelContext $salesChannelContext): Page
     {
         if (!$salesChannelContext->getCustomer()) {
-            throw new CustomerNotLoggedInException();
+            throw new CustomerNotLoggedInException(404, '404', 'Customer not logged in');
         }
 
         $page = $this->genericPageLoader->load($request, $salesChannelContext);
