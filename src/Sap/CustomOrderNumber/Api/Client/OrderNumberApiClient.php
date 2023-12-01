@@ -6,6 +6,7 @@ namespace ReiffIntegrations\Sap\CustomOrderNumber\Api\Client;
 
 use Psr\Log\LoggerInterface;
 use ReiffIntegrations\Api\Client\AbstractApiClient;
+use ReiffIntegrations\Sap\CustomOrderNumber\Struct\OrderNumberUpdateStruct;
 use ReiffIntegrations\Util\Configuration;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
@@ -29,34 +30,52 @@ class OrderNumberApiClient extends AbstractApiClient
         $this->responseParser      = $responseParser;
     }
 
-    public function readOrderNumbers(string $debtorNumber): OrderNumberApiResponse
+    public function readOrderNumbers(OrderNumberUpdateStruct $updateStruct): OrderNumberApiResponse
     {
+        $debtorNumber      = $updateStruct->getDebtorNumber();
+        $salesOrganisation = $updateStruct->getSalesOrganisation();
+
+        if (empty($debtorNumber) || $debtorNumber === '-') {
+            $debtorNumber = $this->systemConfigService->getString(
+                Configuration::CONFIG_KEY_API_FALLBACK_DEBTOR_NUMBER
+            );
+        }
+
+        if (empty($salesOrganisation) || $salesOrganisation === '-') {
+            $salesOrganisation = $this->systemConfigService->getString(
+                Configuration::CONFIG_KEY_API_FALLBACK_SALES_ORGANISATION
+            );
+        }
+
         if (empty($debtorNumber)) {
             return $this->responseParser->parseResponse(false, '');
         }
 
-        $postData = sprintf(
-            '<soapenv:Envelope
-                                xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
-                                xmlns:urn="urn:sap-com:document:sap:rfc:functions">
-                        <soapenv:Header/>
-                            <soapenv:Body>
-                                <urn:ZSHOP_GET_CUSTOMER_MATERIAL>
-                                    <I_CUSTOMER>%s</I_CUSTOMER>
-                                    <DISTRIBUTION_CHANNEL>10</DISTRIBUTION_CHANNEL>
-                                    <I_SALES_ORGANISATION>1004</I_SALES_ORGANISATION>
-                                    <I_LANGUAGE>DE</I_LANGUAGE>
-                                </urn:ZSHOP_GET_CUSTOMER_MATERIAL>
-                            </soapenv:Body>
-                        </soapenv:Envelope>',
-            $debtorNumber
-        );
+        $template = '
+            <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:sap-com:document:sap:rfc:functions">
+                <soapenv:Header/>
+                <soapenv:Body>
+                    <urn:ZSHOP_GET_CUSTOMER_MATERIAL>
+                        <I_CUSTOMER>%s</I_CUSTOMER>
+                        <DISTRIBUTION_CHANNEL>10</DISTRIBUTION_CHANNEL>
+                        <I_SALES_ORGANISATION>%s</I_SALES_ORGANISATION>
+                        <I_LANGUAGE>DE</I_LANGUAGE>
+                    </urn:ZSHOP_GET_CUSTOMER_MATERIAL>
+                </soapenv:Body>
+            </soapenv:Envelope>
+            ';
+
+        $postData = trim(sprintf(
+            $template,
+            $debtorNumber,
+            $salesOrganisation
+        ));
 
         $method    = self::METHOD_POST;
         $ignoreSsl = $this->systemConfigService->getBool(Configuration::CONFIG_KEY_API_IGNORE_SSL);
         $url       = $this->systemConfigService->getString(Configuration::CONFIG_KEY_API_ORDER_NUMBER_URL);
 
-        $userName = $this->systemConfigService->getString(Configuration::CONFIG_KEY_API_USER_NAME);
+        $username = $this->systemConfigService->getString(Configuration::CONFIG_KEY_API_USER_NAME);
         $password = $this->systemConfigService->getString(Configuration::CONFIG_KEY_API_PASSWORD);
 
         $headerData = [
@@ -65,7 +84,7 @@ class OrderNumberApiClient extends AbstractApiClient
             'Content-length: ' . strlen($postData),
         ];
 
-        $handle = $this->getCurlHandle($url, $userName, $password, $headerData, $method, $postData, $ignoreSsl);
+        $handle = $this->getCurlHandle($url, $username, $password, $headerData, $method, $postData, $ignoreSsl);
 
         curl_setopt($handle, CURLOPT_COOKIE, 'sap-usercontext=sap-client%3D' . self::SAP_CLIENT_NR);
 
@@ -76,27 +95,17 @@ class OrderNumberApiClient extends AbstractApiClient
         curl_close($handle);
 
         if ($errorNumber !== 0 || $statusCode !== 200 || $response === false) {
-            $this->logRequestError($method, $url, $postData, (string) $response, $errorNumber);
+            $this->logger->error('API error during offers read', [
+                'method'     => $method,
+                'requestUrl' => $url,
+                'body'       => $postData,
+                'response'   => (string) $response,
+                'error'      => $errorNumber,
+            ]);
 
             return $this->responseParser->parseResponse(false, (string) $response);
         }
 
         return $this->responseParser->parseResponse(true, (string) $response);
-    }
-
-    private function logRequestError(
-        string $method,
-        string $exportUrl,
-        string $serializedData,
-        string $response,
-        int $errorNumber
-    ): void {
-        $this->logger->error('API error during offers read', [
-            'method'     => $method,
-            'requestUrl' => $exportUrl,
-            'body'       => $serializedData,
-            'response'   => $response,
-            'error'      => $errorNumber,
-        ]);
     }
 }

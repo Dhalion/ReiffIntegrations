@@ -22,7 +22,7 @@ class AccountOfferPageLoader
     public function load(Request $request, SalesChannelContext $salesChannelContext): AccountOfferPage
     {
         if ($salesChannelContext->getCustomer() === null) {
-            throw new CustomerNotLoggedInException();
+            throw new CustomerNotLoggedInException(404, '404', 'Customer not logged in');
         }
 
         $page = $this->genericLoader->load($request, $salesChannelContext);

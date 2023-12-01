@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace ReiffIntegrations\Sap\Cart;
 
 use ReiffIntegrations\Sap\Api\Client\Cart\CartApiClient;
+use ReiffIntegrations\Sap\CartError\SapNotAvavilableError;
 use ReiffIntegrations\Sap\DataAbstractionLayer\CustomerExtension;
 use ReiffIntegrations\Sap\DataAbstractionLayer\ReiffCustomerEntity;
 use ReiffIntegrations\Sap\Struct\CartHashStruct;
@@ -73,9 +74,7 @@ class PriceCartProcessor implements CartDataCollectorInterface, CartProcessorInt
             return;
         }
 
-        $debtorNumber = $reiffCustomer->getDebtorNumber();
-
-        if (!$debtorNumber) {
+        if (!$reiffCustomer->getDebtorNumber()) {
             $this->removeSapCartData($original, $data);
 
             return;
@@ -83,7 +82,7 @@ class PriceCartProcessor implements CartDataCollectorInterface, CartProcessorInt
 
         /** @var null|CartHashStruct $previousCartHash */
         $previousCartHash = $original->getExtension(CartHashStruct::NAME);
-        $cartCached       = $this->cache->getItem($this->getCartCacheKey($debtorNumber));
+        $cartCached       = $this->cache->getItem($this->getCartCacheKey($reiffCustomer->getDebtorNumber()));
         $cartHash         = $this->getCartHash($original);
 
         if (
@@ -97,7 +96,7 @@ class PriceCartProcessor implements CartDataCollectorInterface, CartProcessorInt
             )
         ) {
             try {
-                $sapCart = $this->client->getPrices($original, $debtorNumber);
+                $sapCart = $this->client->getPrices($original, $reiffCustomer, $context);
                 $data->set(self::SAP_CART_HASH, $cartHash);
                 $roundingConfig = $context->getItemRounding();
 
@@ -210,6 +209,10 @@ class PriceCartProcessor implements CartDataCollectorInterface, CartProcessorInt
 
         $data->remove(self::SAP_CART_HASH);
         $cart->removeExtension(CartHashStruct::NAME);
+
+        $cart->addErrors(
+            new SapNotAvavilableError()
+        );
     }
 
     private function getCartCacheKey(string $debtorNumber): string

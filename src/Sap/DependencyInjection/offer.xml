@@ -11,14 +11,14 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\Processor"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderPersister"/>
             <argument type="service" id="ReiffIntegrations\Sap\Offer\ApiClient\OfferReadApiClient"/>
-            <argument type="service" id="ReiffIntegrations\Logger"/>
+            <argument type="service" id="monolog.logger.reiff_integrations"/>
         </service>
 
         <service id="ReiffIntegrations\Sap\Offer\OfferController" public="true" decorates="b2b_offer.controller">
             <argument type="service" id="ReiffIntegrations\Sap\Offer\Page\AccountOfferPageLoader"/>
             <argument type="service" id="ReiffIntegrations\Sap\Offer\Page\OfferDetailPageLoader"/>
             <argument type="service" id="ReiffIntegrations\Sap\Offer\ApiClient\OfferReadApiClient"/>
-            <argument type="service" id="ReiffIntegrations\Logger"/>
+            <argument type="service" id="monolog.logger.reiff_integrations"/>
             <argument type="service" id="ReiffIntegrations\Sap\Offer\ApiClient\Pdf\OfferPdfApiClient"/>
             <argument type="service" id="ReiffIntegrations\Sap\Offer\AcceptOfferHandler"/>
 
@@ -34,22 +34,22 @@
 
         <service id="ReiffIntegrations\Sap\Offer\ApiClient\OfferReadApiClient">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="ReiffIntegrations\Logger"/>
+            <argument type="service" id="monolog.logger.reiff_integrations"/>
             <argument type="service" id="ReiffIntegrations\Sap\Offer\ApiClient\OfferResponseParser"/>
         </service>
 
         <service id="ReiffIntegrations\Sap\Offer\ApiClient\OfferResponseParser">
-            <argument type="service" id="ReiffIntegrations\Logger"/>
+            <argument type="service" id="monolog.logger.reiff_integrations"/>
         </service>
 
         <service id="ReiffIntegrations\Sap\Offer\ApiClient\Pdf\OfferPdfApiClient">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="ReiffIntegrations\Logger"/>
+            <argument type="service" id="monolog.logger.reiff_integrations"/>
             <argument type="service" id="ReiffIntegrations\Sap\Offer\ApiClient\Pdf\OfferPdfResponseParser"/>
         </service>
 
         <service id="ReiffIntegrations\Sap\Offer\ApiClient\Pdf\OfferPdfResponseParser">
-            <argument type="service" id="ReiffIntegrations\Logger"/>
+            <argument type="service" id="monolog.logger.reiff_integrations"/>
         </service>
 
         <service id="ReiffIntegrations\Sap\Offer\Page\AccountOfferPageLoader">
@@ -59,7 +59,7 @@
         <service id="ReiffIntegrations\Sap\Offer\Page\OfferDetailPageLoader">
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="ReiffIntegrations\Sap\Offer\ApiClient\OfferReadApiClient"/>
-            <argument type="service" id="ReiffIntegrations\Logger"/>
+            <argument type="service" id="monolog.logger.reiff_integrations"/>
         </service>
     </services>
 </container>

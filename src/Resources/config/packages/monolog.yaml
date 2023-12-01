@@ -1,0 +1,2 @@
+monolog:
+    channels: ['reiff_integrations']
