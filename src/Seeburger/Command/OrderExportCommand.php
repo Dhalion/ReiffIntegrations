@@ -149,11 +149,12 @@ class OrderExportCommand extends Command
         $criteria->addFilter(new EqualsFilter(sprintf('%s.queuedAt', OrderExtension::EXTENSION_NAME), null));
         $criteria->addFilter(new EqualsFilter(sprintf('%s.exportedAt', OrderExtension::EXTENSION_NAME), null));
 
-        $criteria->addAssociation('transactions.stateMachineState');
-        $criteria->addFilter(new OrFilter([
-            new EqualsFilter('transactions.stateMachineState.technicalName', 'paid'),
-            new EqualsFilter('transactions.stateMachineState.technicalName', 'authorized'),
-        ]));
+// disabled, actually we are having problems that CrefoPay can't set status paid after payment.
+//        $criteria->addAssociation('transactions.stateMachineState');
+//        $criteria->addFilter(new OrFilter([
+//            new EqualsFilter('transactions.stateMachineState.technicalName', 'paid'),
+//            new EqualsFilter('transactions.stateMachineState.technicalName', 'authorized'),
+//        ]));
 
         $maxExportTries = $this->configService->getInt(Configuration::CONFIG_KEY_ORDER_EXPORT_MAX_ATTEMPTS);
         $criteria->addFilter(
