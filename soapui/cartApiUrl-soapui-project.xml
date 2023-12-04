@@ -1,0 +1,579 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<con:soapui-project id="06bf5c48-f4d2-4bd1-beda-3cb8528ff8cd" activeEnvironment="Default" name="cartApiUrl" resourceRoot="" soapui-version="5.7.2" xmlns:con="http://eviware.com/soapui/config"><con:settings/><con:interface xsi:type="con:WsdlInterface" id="54681c33-4527-4924-aac1-9c8e52114936" wsaVersion="NONE" name="ZSHOP_BN_SALES_PRICE_SIMULATE" type="wsdl" bindingName="{urn:sap-com:document:sap:rfc:functions}ZSHOP_BN_SALES_PRICE_SIMULATE" soapVersion="1_1" anonymous="optional" definition="https://127.0.0.1:7777/sap/bc/srt/wsdl/flv_10002A111AD1/bndg_url/sap/bc/srt/rfc/sap/zshop_sales_price_simulate/100/zshop_ws_sales_price_simulate/zshop_bn_sales_price_simulate?sap-client=100" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache/><con:endpoints><con:endpoint>https://sapqa202.reiff:9000/sap/bc/srt/rfc/sap/zshop_sales_price_simulate/100/zshop_ws_sales_price_simulate/zshop_bn_sales_price_simulate</con:endpoint></con:endpoints><con:operation id="00801552-48b3-45c7-9795-3a9a849e5a78" isOneWay="false" action="urn:sap-com:document:sap:rfc:functions:ZSHOP_SALES_PRICE_SIMULATE:ZSHOP_SALES_PRICE_SIMULATERequest" name="ZSHOP_SALES_PRICE_SIMULATE" bindingOperationName="ZSHOP_SALES_PRICE_SIMULATE" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="69e11be4-b961-4b05-a518-e0b16d8b9351" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>https://sapqa202.reiff:9000/sap/bc/srt/rfc/sap/zshop_sales_price_simulate/100/zshop_ws_sales_price_simulate/zshop_bn_sales_price_simulate</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:sap-com:document:sap:rfc:functions">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <urn:ZSHOP_SALES_PRICE_SIMULATE>
+         <!--Optional:-->
+         <IT_ITEMS>
+            <!--Zero or more repetitions:-->
+            <item>
+               <KUNNR>?</KUNNR>
+               <MATNR>?</MATNR>
+               <MGAME>?</MGAME>
+               <VRKME>?</VRKME>
+               <DATUM_PRICE>?</DATUM_PRICE>
+            </item>
+         </IT_ITEMS>
+         <!--Optional:-->
+         <IV_DISTRIBUTION_CHANNEL>?</IV_DISTRIBUTION_CHANNEL>
+         <!--Optional:-->
+         <IV_DIVISION>?</IV_DIVISION>
+         <!--Optional:-->
+         <IV_SALES_ORGANISATION>?</IV_SALES_ORGANISATION>
+         <!--Optional:-->
+         <IV_SESSION_LANGUAGE>?</IV_SESSION_LANGUAGE>
+      </urn:ZSHOP_SALES_PRICE_SIMULATE>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="urn:sap-com:document:sap:rfc:functions:ZSHOP_SALES_PRICE_SIMULATE:ZSHOP_SALES_PRICE_SIMULATERequest"/></con:call></con:operation></con:interface><con:interface xsi:type="con:WsdlInterface" id="ae0ee601-9c6d-4b43-af1e-110634801da6" wsaVersion="NONE" name="ZSHOP_BN_SALES_PRICE_SIMULATE_soap12" type="wsdl" bindingName="{urn:sap-com:document:sap:rfc:functions}ZSHOP_BN_SALES_PRICE_SIMULATE_soap12" soapVersion="1_2" anonymous="optional" definition="https://127.0.0.1:7777/sap/bc/srt/wsdl/flv_10002A111AD1/bndg_url/sap/bc/srt/rfc/sap/zshop_sales_price_simulate/100/zshop_ws_sales_price_simulate/zshop_bn_sales_price_simulate?sap-client=100" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="https://127.0.0.1:7777/sap/bc/srt/wsdl/flv_10002A111AD1/bndg_url/sap/bc/srt/rfc/sap/zshop_sales_price_simulate/100/zshop_ws_sales_price_simulate/zshop_bn_sales_price_simulate?sap-client=100"><con:part><con:url>https://127.0.0.1:7777/sap/bc/srt/wsdl/flv_10002A111AD1/bndg_url/sap/bc/srt/rfc/sap/zshop_sales_price_simulate/100/zshop_ws_sales_price_simulate/zshop_bn_sales_price_simulate?sap-client=100</con:url><con:content><![CDATA[<wsdl:definitions targetNamespace="urn:sap-com:document:sap:rfc:functions" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsoap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="urn:sap-com:document:sap:rfc:functions" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
+  <wsdl:documentation>
+    <sidl:sidl xmlns:sidl="http://www.sap.com/2007/03/sidl"/>
+  </wsdl:documentation>
+  <wsp:UsingPolicy wsdl:required="true"/>
+  <wsp:Policy wsu:Id="BN__ZSHOP_BN_SALES_PRICE_SIMULATE">
+    <wsp:ExactlyOne>
+      <wsp:All>
+        <sapattahnd:Enabled xmlns:sapattahnd="http://www.sap.com/710/features/attachment/">false</sapattahnd:Enabled>
+        <saptrnbnd:OptimizedMimeSerialization wsp:Optional="true" xmlns:saptrnbnd="http://schemas.xmlsoap.org/ws/2004/09/policy/optimizedmimeserialization"/>
+        <wsaw:UsingAddressing wsp:Optional="true" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl"/>
+        <wsp:All>
+          <sp:TransportBinding xmlns:sp="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702" xmlns:sapsp="http://www.sap.com/webas/630/soap/features/security/policy" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512" xmlns:wsu="http://schemas.xmlsoap.org/ws/2002/07/utility" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex">
+            <wsp:Policy>
+              <sp:TransportToken>
+                <wsp:Policy>
+                  <sp:HttpsToken>
+                    <wsp:Policy>
+                      <sp:HttpBasicAuthentication/>
+                    </wsp:Policy>
+                  </sp:HttpsToken>
+                </wsp:Policy>
+              </sp:TransportToken>
+              <sp:AlgorithmSuite>
+                <wsp:Policy>
+                  <sp:Basic128Rsa15/>
+                </wsp:Policy>
+              </sp:AlgorithmSuite>
+              <sp:Layout>
+                <wsp:Policy>
+                  <sp:Strict/>
+                </wsp:Policy>
+              </sp:Layout>
+            </wsp:Policy>
+          </sp:TransportBinding>
+        </wsp:All>
+      </wsp:All>
+      <wsp:All>
+        <sapattahnd:Enabled xmlns:sapattahnd="http://www.sap.com/710/features/attachment/">false</sapattahnd:Enabled>
+        <saptrnbnd:OptimizedXMLTransfer uri="http://xml.sap.com/2006/11/esi/esp/binxml" wsp:Optional="true" xmlns:saptrnbnd="http://www.sap.com/webas/710/soap/features/transportbinding/"/>
+        <wsaw:UsingAddressing wsp:Optional="true" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl"/>
+        <wsp:All>
+          <sp:TransportBinding xmlns:sp="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702" xmlns:sapsp="http://www.sap.com/webas/630/soap/features/security/policy" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512" xmlns:wsu="http://schemas.xmlsoap.org/ws/2002/07/utility" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex">
+            <wsp:Policy>
+              <sp:TransportToken>
+                <wsp:Policy>
+                  <sp:HttpsToken>
+                    <wsp:Policy>
+                      <sp:HttpBasicAuthentication/>
+                    </wsp:Policy>
+                  </sp:HttpsToken>
+                </wsp:Policy>
+              </sp:TransportToken>
+              <sp:AlgorithmSuite>
+                <wsp:Policy>
+                  <sp:Basic128Rsa15/>
+                </wsp:Policy>
+              </sp:AlgorithmSuite>
+              <sp:Layout>
+                <wsp:Policy>
+                  <sp:Strict/>
+                </wsp:Policy>
+              </sp:Layout>
+            </wsp:Policy>
+          </sp:TransportBinding>
+        </wsp:All>
+      </wsp:All>
+    </wsp:ExactlyOne>
+  </wsp:Policy>
+  <wsp:Policy wsu:Id="BN__ZSHOP_BN_SALES_PRICE_SIMULATE_soap12">
+    <wsp:ExactlyOne>
+      <wsp:All>
+        <sapattahnd:Enabled xmlns:sapattahnd="http://www.sap.com/710/features/attachment/">false</sapattahnd:Enabled>
+        <saptrnbnd:OptimizedMimeSerialization wsp:Optional="true" xmlns:saptrnbnd="http://schemas.xmlsoap.org/ws/2004/09/policy/optimizedmimeserialization"/>
+        <wsaw:UsingAddressing wsp:Optional="true" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl"/>
+        <wsp:All>
+          <sp:TransportBinding xmlns:sp="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702" xmlns:sapsp="http://www.sap.com/webas/630/soap/features/security/policy" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512" xmlns:wsu="http://schemas.xmlsoap.org/ws/2002/07/utility" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex">
+            <wsp:Policy>
+              <sp:TransportToken>
+                <wsp:Policy>
+                  <sp:HttpsToken>
+                    <wsp:Policy>
+                      <sp:HttpBasicAuthentication/>
+                    </wsp:Policy>
+                  </sp:HttpsToken>
+                </wsp:Policy>
+              </sp:TransportToken>
+              <sp:AlgorithmSuite>
+                <wsp:Policy>
+                  <sp:Basic128Rsa15/>
+                </wsp:Policy>
+              </sp:AlgorithmSuite>
+              <sp:Layout>
+                <wsp:Policy>
+                  <sp:Strict/>
+                </wsp:Policy>
+              </sp:Layout>
+            </wsp:Policy>
+          </sp:TransportBinding>
+        </wsp:All>
+      </wsp:All>
+      <wsp:All>
+        <sapattahnd:Enabled xmlns:sapattahnd="http://www.sap.com/710/features/attachment/">false</sapattahnd:Enabled>
+        <saptrnbnd:OptimizedXMLTransfer uri="http://xml.sap.com/2006/11/esi/esp/binxml" wsp:Optional="true" xmlns:saptrnbnd="http://www.sap.com/webas/710/soap/features/transportbinding/"/>
+        <wsaw:UsingAddressing wsp:Optional="true" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl"/>
+        <wsp:All>
+          <sp:TransportBinding xmlns:sp="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702" xmlns:sapsp="http://www.sap.com/webas/630/soap/features/security/policy" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512" xmlns:wsu="http://schemas.xmlsoap.org/ws/2002/07/utility" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex">
+            <wsp:Policy>
+              <sp:TransportToken>
+                <wsp:Policy>
+                  <sp:HttpsToken>
+                    <wsp:Policy>
+                      <sp:HttpBasicAuthentication/>
+                    </wsp:Policy>
+                  </sp:HttpsToken>
+                </wsp:Policy>
+              </sp:TransportToken>
+              <sp:AlgorithmSuite>
+                <wsp:Policy>
+                  <sp:Basic128Rsa15/>
+                </wsp:Policy>
+              </sp:AlgorithmSuite>
+              <sp:Layout>
+                <wsp:Policy>
+                  <sp:Strict/>
+                </wsp:Policy>
+              </sp:Layout>
+            </wsp:Policy>
+          </sp:TransportBinding>
+        </wsp:All>
+      </wsp:All>
+    </wsp:ExactlyOne>
+  </wsp:Policy>
+  <wsp:Policy wsu:Id="IF__ZSHOP_SALES_PRICE_SIMULATE">
+    <wsp:ExactlyOne>
+      <wsp:All>
+        <sapsession:Session xmlns:sapsession="http://www.sap.com/webas/630/soap/features/session/">
+          <sapsession:enableSession>false</sapsession:enableSession>
+        </sapsession:Session>
+        <sapcentraladmin:CentralAdministration wsp:Optional="true" xmlns:sapcentraladmin="http://www.sap.com/webas/700/soap/features/CentralAdministration/">
+          <sapcentraladmin:BusinessApplicationID>16B610D34E021EDCB5BA2656952B86B6</sapcentraladmin:BusinessApplicationID>
+        </sapcentraladmin:CentralAdministration>
+      </wsp:All>
+    </wsp:ExactlyOne>
+  </wsp:Policy>
+  <wsp:Policy wsu:Id="OP__ZSHOP_SALES_PRICE_SIMULATE">
+    <wsp:ExactlyOne>
+      <wsp:All>
+        <saptrhnw05:required xmlns:saptrhnw05="http://www.sap.com/NW05/soap/features/transaction/">no</saptrhnw05:required>
+        <sapcomhnd:enableCommit xmlns:sapcomhnd="http://www.sap.com/NW05/soap/features/commit/">false</sapcomhnd:enableCommit>
+        <sapblock:enableBlocking xmlns:sapblock="http://www.sap.com/NW05/soap/features/blocking/">true</sapblock:enableBlocking>
+        <saprmnw05:enableWSRM xmlns:saprmnw05="http://www.sap.com/NW05/soap/features/wsrm/">false</saprmnw05:enableWSRM>
+      </wsp:All>
+    </wsp:ExactlyOne>
+  </wsp:Policy>
+  <wsdl:types>
+    <xsd:schema attributeFormDefault="qualified" targetNamespace="urn:sap-com:document:sap:rfc:functions">
+      <xsd:simpleType name="RfcException.Message.Number">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="3"/>
+          <xsd:pattern value="\d*"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="char1">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="1"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="char10">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="10"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="char18">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="18"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="char2">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="2"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="char20">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="20"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="char220">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="220"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="char30">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="30"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="char32">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="32"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="char35">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="35"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="char4">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="4"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="char40">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="40"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="char50">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="50"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="cuky5">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="5"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="curr11.2">
+        <xsd:restriction base="xsd:decimal">
+          <xsd:totalDigits value="11"/>
+          <xsd:fractionDigits value="2"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="curr13.2">
+        <xsd:restriction base="xsd:decimal">
+          <xsd:totalDigits value="13"/>
+          <xsd:fractionDigits value="2"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="curr15.2">
+        <xsd:restriction base="xsd:decimal">
+          <xsd:totalDigits value="15"/>
+          <xsd:fractionDigits value="2"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="date10">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="10"/>
+          <xsd:pattern value="\d\d\d\d-\d\d-\d\d"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="decimal5.0">
+        <xsd:restriction base="xsd:decimal">
+          <xsd:totalDigits value="5"/>
+          <xsd:fractionDigits value="0"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="numeric2">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="2"/>
+          <xsd:pattern value="\d*"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="numeric3">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="3"/>
+          <xsd:pattern value="\d*"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="numeric4">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="4"/>
+          <xsd:pattern value="\d*"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="numeric6">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="6"/>
+          <xsd:pattern value="\d*"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="quantum13.3">
+        <xsd:restriction base="xsd:decimal">
+          <xsd:totalDigits value="13"/>
+          <xsd:fractionDigits value="3"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="quantum15.3">
+        <xsd:restriction base="xsd:decimal">
+          <xsd:totalDigits value="15"/>
+          <xsd:fractionDigits value="3"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="unit3">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="3"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:complexType name="ZSHOP_FULL_PRICE_IMP_STR">
+        <xsd:sequence>
+          <xsd:element name="KUNNR" type="tns:char10"/>
+          <xsd:element name="MATNR" type="tns:char18"/>
+          <xsd:element name="MGAME" type="tns:quantum13.3"/>
+          <xsd:element name="VRKME" type="tns:unit3"/>
+          <xsd:element name="DATUM_PRICE" type="tns:date10"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="ZSHOP_FULL_PRICE_EXPORT_STR">
+        <xsd:sequence>
+          <xsd:element name="KUNNR" type="tns:char10"/>
+          <xsd:element name="MATNR" type="tns:char18"/>
+          <xsd:element name="KDMAT" type="tns:char35"/>
+          <xsd:element name="VRKME" type="tns:unit3"/>
+          <xsd:element name="PRICE" type="tns:ZSHOP_KOMP_TAB"/>
+          <xsd:element name="SCALE" type="tns:COND_SCALE_T"/>
+          <xsd:element name="STOCK" type="tns:ZSHOP_STOCK_T"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="CONDSCALE">
+        <xsd:sequence>
+          <xsd:element name="KNUMH" type="tns:char10"/>
+          <xsd:element name="KOPOS" type="tns:numeric2"/>
+          <xsd:element name="KLFN1" type="tns:numeric4"/>
+          <xsd:element name="KSTBW" type="tns:curr15.2"/>
+          <xsd:element name="KSTBM" type="tns:quantum15.3"/>
+          <xsd:element name="KBETR" type="tns:curr11.2"/>
+          <xsd:element name="KZBZG" type="tns:char1"/>
+          <xsd:element name="UPDKZ" type="tns:char1"/>
+          <xsd:element name="KLFKA" type="tns:char1"/>
+          <xsd:element name="RV13AKONWA" type="tns:cuky5"/>
+          <xsd:element name="KONPKMEIN" type="tns:unit3"/>
+          <xsd:element name="KONPKONWS" type="tns:cuky5"/>
+          <xsd:element name="KONPKONMS" type="tns:unit3"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="ZSHOP_STOCK">
+        <xsd:sequence>
+          <xsd:element name="LGMNG" type="tns:quantum13.3"/>
+          <xsd:element name="LMEIN" type="tns:unit3"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="ZSHOP_KOMP_STR">
+        <xsd:sequence>
+          <xsd:element name="MGAME" type="tns:quantum13.3"/>
+          <xsd:element name="VRKME" type="tns:unit3"/>
+          <xsd:element name="NETPR" type="tns:curr11.2"/>
+          <xsd:element name="WAERK" type="tns:cuky5"/>
+          <xsd:element name="KPEIN" type="tns:decimal5.0"/>
+          <xsd:element name="KMEIN" type="tns:unit3"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="ZSHOP_HEADER_PRICE">
+        <xsd:sequence>
+          <xsd:element name="ADD_HEADER_PRICE" type="tns:curr13.2"/>
+          <xsd:element name="ADD_HEADER_PRICE_CURRENCY" type="tns:cuky5"/>
+          <xsd:element name="ADD_SHIPPING_COSTS" type="tns:char1"/>
+          <xsd:element name="ADD_HEADER_PRICE_TEXT" type="tns:char40"/>
+          <xsd:element name="ADD_SHIPPING_COSTS_TEXT" type="tns:char40"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="BAPIRET2">
+        <xsd:sequence>
+          <xsd:element name="TYPE" type="tns:char1"/>
+          <xsd:element name="ID" type="tns:char20"/>
+          <xsd:element name="NUMBER" type="tns:numeric3"/>
+          <xsd:element name="MESSAGE" type="tns:char220"/>
+          <xsd:element name="LOG_NO" type="tns:char20"/>
+          <xsd:element name="LOG_MSG_NO" type="tns:numeric6"/>
+          <xsd:element name="MESSAGE_V1" type="tns:char50"/>
+          <xsd:element name="MESSAGE_V2" type="tns:char50"/>
+          <xsd:element name="MESSAGE_V3" type="tns:char50"/>
+          <xsd:element name="MESSAGE_V4" type="tns:char50"/>
+          <xsd:element name="PARAMETER" type="tns:char32"/>
+          <xsd:element name="ROW" type="xsd:int"/>
+          <xsd:element name="FIELD" type="tns:char30"/>
+          <xsd:element name="SYSTEM" type="tns:char10"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="RfcException.Message">
+        <xsd:sequence>
+          <xsd:element name="ID" type="xsd:string"/>
+          <xsd:element name="Number" type="tns:RfcException.Message.Number"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="ZSHOP_SALES_PRICE_SIMULATE.RfcException">
+        <xsd:sequence>
+          <xsd:element name="Name" type="tns:ZSHOP_SALES_PRICE_SIMULATE.RfcExceptions"/>
+          <xsd:element name="Text" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="Message" type="tns:RfcException.Message" minOccurs="0"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="ZSHOP_FULL_PRICE_IMP_TAB">
+        <xsd:sequence>
+          <xsd:element name="item" type="tns:ZSHOP_FULL_PRICE_IMP_STR" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="ZSHOP_FULL_PRICE_EXPORT_TAB">
+        <xsd:sequence>
+          <xsd:element name="item" type="tns:ZSHOP_FULL_PRICE_EXPORT_STR" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="COND_SCALE_T">
+        <xsd:sequence>
+          <xsd:element name="item" type="tns:CONDSCALE" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="ZSHOP_STOCK_T">
+        <xsd:sequence>
+          <xsd:element name="item" type="tns:ZSHOP_STOCK" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="ZSHOP_KOMP_TAB">
+        <xsd:sequence>
+          <xsd:element name="item" type="tns:ZSHOP_KOMP_STR" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="BAPIRET2_TAB">
+        <xsd:sequence>
+          <xsd:element name="item" type="tns:BAPIRET2" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:simpleType name="ZSHOP_SALES_PRICE_SIMULATE.RfcExceptions">
+        <xsd:restriction base="xsd:string">
+          <xsd:enumeration value="CALCULATION_SCHEME_NOT_C"/>
+          <xsd:enumeration value="KUNNR_NOT_FOUND"/>
+          <xsd:enumeration value="MATERIAL_NOT_FOUND"/>
+          <xsd:enumeration value="NO_AUTHORITY"/>
+          <xsd:enumeration value="NO_BUKRS_FOUND"/>
+          <xsd:enumeration value="NO_INPUT"/>
+          <xsd:enumeration value="NO_SALES_PRICE_FOUND"/>
+          <xsd:enumeration value="NO_SALES_UNIT_FOUND"/>
+          <xsd:enumeration value="ORG_STRUCTURE_NOT_COMPLE"/>
+          <xsd:enumeration value="OTHER_ERROR"/>
+          <xsd:enumeration value="PRICING_ERROR"/>
+          <xsd:enumeration value="VKORG_NOT_FOUND"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:element name="ZSHOP_SALES_PRICE_SIMULATE.Exception" type="tns:ZSHOP_SALES_PRICE_SIMULATE.RfcException"/>
+      <xsd:element name="ZSHOP_SALES_PRICE_SIMULATE">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="IT_ITEMS" type="tns:ZSHOP_FULL_PRICE_IMP_TAB" minOccurs="0"/>
+            <xsd:element name="IV_DISTRIBUTION_CHANNEL" type="tns:char2" minOccurs="0"/>
+            <xsd:element name="IV_DIVISION" type="tns:char2" minOccurs="0"/>
+            <xsd:element name="IV_SALES_ORGANISATION" type="tns:char4" minOccurs="0"/>
+            <xsd:element name="IV_SESSION_LANGUAGE" type="tns:char2" minOccurs="0"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="ZSHOP_SALES_PRICE_SIMULATEResponse">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="ES_HEADER_PRICE" type="tns:ZSHOP_HEADER_PRICE"/>
+            <xsd:element name="ET_FULL_PRICE" type="tns:ZSHOP_FULL_PRICE_EXPORT_TAB"/>
+            <xsd:element name="ET_RETURN" type="tns:BAPIRET2_TAB"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="ZSHOP_SALES_PRICE_SIMULATE">
+    <wsdl:part name="parameters" element="tns:ZSHOP_SALES_PRICE_SIMULATE"/>
+  </wsdl:message>
+  <wsdl:message name="ZSHOP_SALES_PRICE_SIMULATEResponse">
+    <wsdl:part name="parameter" element="tns:ZSHOP_SALES_PRICE_SIMULATEResponse"/>
+  </wsdl:message>
+  <wsdl:message name="ZSHOP_SALES_PRICE_SIMULATE.Exception">
+    <wsdl:part name="ZSHOP_SALES_PRICE_SIMULATE.Exception" element="tns:ZSHOP_SALES_PRICE_SIMULATE.Exception"/>
+  </wsdl:message>
+  <wsdl:portType name="ZSHOP_SALES_PRICE_SIMULATE">
+    <wsp:Policy>
+      <wsp:PolicyReference URI="#IF__ZSHOP_SALES_PRICE_SIMULATE"/>
+    </wsp:Policy>
+    <wsdl:operation name="ZSHOP_SALES_PRICE_SIMULATE">
+      <wsp:Policy>
+        <wsp:PolicyReference URI="#OP__ZSHOP_SALES_PRICE_SIMULATE"/>
+      </wsp:Policy>
+      <wsdl:input message="tns:ZSHOP_SALES_PRICE_SIMULATE"/>
+      <wsdl:output message="tns:ZSHOP_SALES_PRICE_SIMULATEResponse"/>
+      <wsdl:fault name="ZSHOP_SALES_PRICE_SIMULATE.Exception" message="tns:ZSHOP_SALES_PRICE_SIMULATE.Exception"/>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="ZSHOP_BN_SALES_PRICE_SIMULATE" type="tns:ZSHOP_SALES_PRICE_SIMULATE">
+    <wsp:Policy>
+      <wsp:PolicyReference URI="#BN__ZSHOP_BN_SALES_PRICE_SIMULATE"/>
+    </wsp:Policy>
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+    <wsdl:operation name="ZSHOP_SALES_PRICE_SIMULATE">
+      <soap:operation soapAction="urn:sap-com:document:sap:rfc:functions:ZSHOP_SALES_PRICE_SIMULATE:ZSHOP_SALES_PRICE_SIMULATERequest" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ZSHOP_SALES_PRICE_SIMULATE.Exception">
+        <soap:fault name="ZSHOP_SALES_PRICE_SIMULATE.Exception" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="ZSHOP_BN_SALES_PRICE_SIMULATE_soap12" type="tns:ZSHOP_SALES_PRICE_SIMULATE">
+    <wsp:Policy>
+      <wsp:PolicyReference URI="#BN__ZSHOP_BN_SALES_PRICE_SIMULATE_soap12"/>
+    </wsp:Policy>
+    <wsoap12:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+    <wsdl:operation name="ZSHOP_SALES_PRICE_SIMULATE">
+      <wsoap12:operation soapAction="urn:sap-com:document:sap:rfc:functions:ZSHOP_SALES_PRICE_SIMULATE:ZSHOP_SALES_PRICE_SIMULATERequest" style="document"/>
+      <wsdl:input>
+        <wsoap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <wsoap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ZSHOP_SALES_PRICE_SIMULATE.Exception">
+        <wsoap12:fault name="ZSHOP_SALES_PRICE_SIMULATE.Exception" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="ZSHOP_WS_SALES_PRICE_SIMULATE">
+    <wsdl:port name="ZSHOP_BN_SALES_PRICE_SIMULATE" binding="tns:ZSHOP_BN_SALES_PRICE_SIMULATE">
+      <soap:address location="https://sapqa202.reiff:9000/sap/bc/srt/rfc/sap/zshop_sales_price_simulate/100/zshop_ws_sales_price_simulate/zshop_bn_sales_price_simulate"/>
+    </wsdl:port>
+    <wsdl:port name="ZSHOP_BN_SALES_PRICE_SIMULATE_soap12" binding="tns:ZSHOP_BN_SALES_PRICE_SIMULATE_soap12">
+      <wsoap12:address location="https://sapqa202.reiff:9000/sap/bc/srt/rfc/sap/zshop_sales_price_simulate/100/zshop_ws_sales_price_simulate/zshop_bn_sales_price_simulate"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>]]></con:content><con:type>http://schemas.xmlsoap.org/wsdl/</con:type></con:part></con:definitionCache><con:endpoints><con:endpoint>https://sapqa202.reiff:9000/sap/bc/srt/rfc/sap/zshop_sales_price_simulate/100/zshop_ws_sales_price_simulate/zshop_bn_sales_price_simulate</con:endpoint></con:endpoints><con:operation id="19af8e0e-54c7-4f3f-89ee-39255fe84f02" isOneWay="false" action="urn:sap-com:document:sap:rfc:functions:ZSHOP_SALES_PRICE_SIMULATE:ZSHOP_SALES_PRICE_SIMULATERequest" name="ZSHOP_SALES_PRICE_SIMULATE" bindingOperationName="ZSHOP_SALES_PRICE_SIMULATE" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="67fef8b4-da06-4a49-8230-d48d0960b47e" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>https://sapqa202.reiff:9000/sap/bc/srt/rfc/sap/zshop_sales_price_simulate/100/zshop_ws_sales_price_simulate/zshop_bn_sales_price_simulate</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:urn="urn:sap-com:document:sap:rfc:functions">
+   <soap:Header/>
+   <soap:Body>
+      <urn:ZSHOP_SALES_PRICE_SIMULATE>
+         <!--Optional:-->
+         <IT_ITEMS>
+            <!--Zero or more repetitions:-->
+            <item>
+               <KUNNR>?</KUNNR>
+               <MATNR>?</MATNR>
+               <MGAME>?</MGAME>
+               <VRKME>?</VRKME>
+               <DATUM_PRICE>?</DATUM_PRICE>
+            </item>
+         </IT_ITEMS>
+         <!--Optional:-->
+         <IV_DISTRIBUTION_CHANNEL>?</IV_DISTRIBUTION_CHANNEL>
+         <!--Optional:-->
+         <IV_DIVISION>?</IV_DIVISION>
+         <!--Optional:-->
+         <IV_SALES_ORGANISATION>?</IV_SALES_ORGANISATION>
+         <!--Optional:-->
+         <IV_SESSION_LANGUAGE>?</IV_SESSION_LANGUAGE>
+      </urn:ZSHOP_SALES_PRICE_SIMULATE>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="urn:sap-com:document:sap:rfc:functions/ZSHOP_SALES_PRICE_SIMULATE/ZSHOP_SALES_PRICE_SIMULATERequest"/></con:call></con:operation></con:interface><con:properties/><con:wssContainer/><con:oAuth2ProfileContainer/><con:oAuth1ProfileContainer/><con:sensitiveInformation/></con:soapui-project>

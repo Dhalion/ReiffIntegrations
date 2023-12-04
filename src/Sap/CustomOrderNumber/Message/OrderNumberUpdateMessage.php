@@ -5,21 +5,23 @@ declare(strict_types=1);
 namespace ReiffIntegrations\Sap\CustomOrderNumber\Message;
 
 use ReiffIntegrations\Sap\CustomOrderNumber\Struct\OrderNumberUpdateStruct;
-use ReiffIntegrations\Util\Message\AbstractImportMessage;
 use Shopware\Core\Framework\Context;
 
-class OrderNumberUpdateMessage extends AbstractImportMessage
+class OrderNumberUpdateMessage
 {
     public function __construct(
         private readonly OrderNumberUpdateStruct $updateStruct,
-        string $archiveFileName,
-        Context $context,
+        private readonly Context $context,
     ) {
-        parent::__construct($archiveFileName, null, $context);
     }
 
     public function getUpdateStruct(): OrderNumberUpdateStruct
     {
         return $this->updateStruct;
+    }
+
+    public function getContext(): Context
+    {
+        return $this->context;
     }
 }
