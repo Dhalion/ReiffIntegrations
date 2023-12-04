@@ -5,7 +5,7 @@
     <services>
         <service id="ReiffIntegrations\Seeburger\Handler\OrderExportHandler">
             <argument type="service" id="ReiffIntegrations\Util\ExportArchiver"/>
-            <argument type="service" id="monolog.logger.reiff_integrations"/>
+            <argument type="service" id="ReiffIntegrations\Logger"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="ReiffIntegrations\Util\Mailer"/>
             <argument type="service" id="order.repository"/>

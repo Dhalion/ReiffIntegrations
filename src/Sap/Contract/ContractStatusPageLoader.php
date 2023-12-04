@@ -23,15 +23,14 @@ class ContractStatusPageLoader
     public function __construct(
         private readonly GenericPageLoaderInterface $genericPageLoader,
         private readonly ContractStatusClient $contractStatusClient,
-        private readonly Connection $connection
+        protected readonly Connection $connection
     ) {
     }
 
     public function load(string $contractNumber, Request $request, SalesChannelContext $salesChannelContext): ContractStatusPage
     {
         $page = $this->getBasicPage($request, $salesChannelContext);
-
-        /** @var ContractStatusPage $page */
+        /** @var \ReiffIntegrations\Sap\Contract\ContractStatusPage $page */
         $page = ContractStatusPage::createFrom($page);
 
         $contractStatusResult = $this->contractStatusClient->getContractStatus($contractNumber, $salesChannelContext->getContext());
@@ -50,7 +49,7 @@ class ContractStatusPageLoader
     private function getBasicPage(Request $request, SalesChannelContext $salesChannelContext): Page
     {
         if (!$salesChannelContext->getCustomer()) {
-            throw new CustomerNotLoggedInException(404, '404', 'Customer not logged in');
+            throw new CustomerNotLoggedInException();
         }
 
         $page = $this->genericPageLoader->load($request, $salesChannelContext);

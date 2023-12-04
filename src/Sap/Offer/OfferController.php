@@ -65,7 +65,7 @@ class OfferController extends StorefrontController
                 return $this->renderStorefront('@Storefront/storefront/component/k10r-offer/error-response.html.twig');
             }
 
-            $apiResponse = $this->apiClient->readOffers($customerData);
+            $apiResponse = $this->apiClient->readOffers((string) $customerData->getDebtorNumber());
         } catch (\Throwable $throwable) {
             // TODO: discuss about direct information to REIFF
             $this->logger->error(

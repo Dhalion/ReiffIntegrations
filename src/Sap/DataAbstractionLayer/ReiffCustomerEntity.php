@@ -19,9 +19,19 @@ class ReiffCustomerEntity extends Entity
         return $this->customer;
     }
 
+    public function setCustomer(?CustomerEntity $customer): void
+    {
+        $this->customer = $customer;
+    }
+
     public function getCustomerId(): ?string
     {
         return $this->customerId;
+    }
+
+    public function setCustomerId(string $customerId): void
+    {
+        $this->customerId = $customerId;
     }
 
     public function getDebtorNumber(): ?string
@@ -29,33 +39,18 @@ class ReiffCustomerEntity extends Entity
         return $this->debtorNumber;
     }
 
+    public function setDebtorNumber(?string $debtorNumber): void
+    {
+        $this->debtorNumber = $debtorNumber;
+    }
+
     public function getSalesOrganisation(): ?string
     {
         return $this->salesOrganisation;
     }
 
-    public function hasIncompleteFields(): bool
+    public function setSalesOrganisation(?string $salesOrganisation): void
     {
-        if (empty($this->salesOrganisation)) {
-            return true;
-        }
-
-        if ($this->salesOrganisation === '-') {
-            return true;
-        }
-
-        if (empty($this->debtorNumber)) {
-            return true;
-        }
-
-        if ($this->debtorNumber === '-') {
-            return true;
-        }
-
-        if (empty($this->customerId)) {
-            return true;
-        }
-
-        return false;
+        $this->salesOrganisation = $salesOrganisation;
     }
 }

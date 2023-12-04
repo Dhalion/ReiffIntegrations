@@ -24,35 +24,21 @@ class PriceApiClient extends AbstractApiClient
     ) {
     }
 
-    public function getPrices(
-        string $debtorNumber,
-        string $salesOrganisation,
-        string $languageCode,
-        array $productNumbers,
-    ): ItemCollection {
-        $template = '
-            <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:sap-com:document:sap:soap:functions:mc-style">
-               <soapenv:Header/>
-               <soapenv:Body>
-                  <urn:ZshopGetMaterialFullPrice>
-                     <ItItems>
-                        %s
-                     </ItItems>
-                     <IvDistributionChannel>10</IvDistributionChannel>
-                     <IvDivision>00</IvDivision>
-                     <IvSalesOrganisation>%s</IvSalesOrganisation>
-                     <IvSessionLanguage>%s</IvSessionLanguage>
-                  </urn:ZshopGetMaterialFullPrice>
-               </soapenv:Body>
-            </soapenv:Envelope>
-        ';
-
-        $postData = trim(sprintf(
-            $template,
-            $this->getPriceRequests($productNumbers, $debtorNumber),
-            $salesOrganisation,
-            $languageCode
-        ));
+    /**
+     * @throws TimeoutException
+     */
+    public function getPrices(array $productNumbers, string $debtorNumber): ItemCollection
+    {
+        $postData = sprintf('<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:itb="http://www.itb-web.de/">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <itb:GetItemScales>
+         <PriceRequests>
+             %s
+         </PriceRequests>
+      </itb:GetItemScales>
+   </soapenv:Body>
+</soapenv:Envelope>', $this->getPriceRequests($productNumbers, $debtorNumber));
 
         $method = self::METHOD_POST;
 
@@ -69,19 +55,7 @@ class PriceApiClient extends AbstractApiClient
             'Content-length: ' . strlen($postData),
         ];
 
-        $username = $this->systemConfigService->getString(Configuration::CONFIG_KEY_API_USER_NAME);
-        $password = $this->systemConfigService->getString(Configuration::CONFIG_KEY_API_PASSWORD);
-
-        $handle = $this->getCurlHandle(
-            $url,
-            $username,
-            $password,
-            $headerData,
-            $method,
-            $postData,
-            $ignoreSsl,
-            self::API_TIMEOUT_IN_SECONDS
-        );
+        $handle = $this->getCurlHandle($url, '', '', $headerData, $method, $postData, $ignoreSsl, self::API_TIMEOUT_IN_SECONDS);
 
         $response         = curl_exec($handle);
         $errorNumber      = curl_errno($handle);
@@ -91,16 +65,13 @@ class PriceApiClient extends AbstractApiClient
         curl_close($handle);
 
         if ($errorNumber !== CURLE_OK || $statusCode !== 200 || $response === false) {
-            $this->logger->error('API error during prices read', [
-                'method'           => $method,
-                'requestUrl'       => $url,
-                'body'             => $postData,
-                'response'         => (string) $response,
-                'errorNumber'      => $errorNumber,
-                'errorDescription' => $errorDescription,
-            ]);
+            $this->logRequestError($method, $url, $postData, (string) $response, $errorNumber, $errorDescription);
 
-            throw new \RuntimeException('API error during prices read');
+            if ($errorNumber === CURLE_OPERATION_TIMEOUTED) {
+                throw new TimeoutException('request timeout');
+            }
+
+            return new ItemCollection();
         }
 
         return $this->getCollection((string) $response);
@@ -111,22 +82,16 @@ class PriceApiClient extends AbstractApiClient
         $requests = [];
 
         foreach ($productNumbers as $productNumber) {
-            $template = '
-                <item>
-                    <Kunnr>%s</Kunnr>
-                    <Matnr>%s</Matnr>
-                    <Mgame>%s</Mgame>
-                    <Vrkme></Vrkme>
-                    <DatumPrice></DatumPrice>
-                </item>
-            ';
-
-            $requests[] = trim(sprintf(
-                $template,
+            $requests[] = sprintf(
+                '<ArticleRequestInformation>
+               <UserID>%s</UserID>
+               <ItemNumber>%s</ItemNumber>
+               <Quantity>%d</Quantity>
+            </ArticleRequestInformation>',
                 $debtorNumber,
                 $productNumber,
                 self::PRICE_QUANTITY
-            ));
+            );
         }
 
         return implode("\n", $requests);
@@ -173,5 +138,23 @@ class PriceApiClient extends AbstractApiClient
         }
 
         return $items;
+    }
+
+    private function logRequestError(
+        string $method,
+        string $exportUrl,
+        string $serializedData,
+        string $response,
+        int $errorNumber,
+        string $errorDescription,
+    ): void {
+        $this->logger->error('API error during prices read', [
+            'method'           => $method,
+            'requestUrl'       => $exportUrl,
+            'body'             => $serializedData,
+            'response'         => $response,
+            'errorNumber'      => $errorNumber,
+            'errorDescription' => $errorDescription,
+        ]);
     }
 }

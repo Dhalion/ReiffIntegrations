@@ -63,7 +63,7 @@ class AcceptOfferHandler
         }
 
         try {
-            $apiResponse = $this->apiClient->readOffers($customerData);
+            $apiResponse = $this->apiClient->readOffers((string) $customerData->getDebtorNumber());
         } catch (\Throwable $throwable) {
             // TODO: discuss about direct information to REIFF
             $this->logger->error(
@@ -97,7 +97,7 @@ class AcceptOfferHandler
         $customer = $context->getCustomer();
 
         if (!$customer) {
-            throw new CustomerNotLoggedInException(404, '404', 'Customer not logged in');
+            throw new CustomerNotLoggedInException();
         }
 
         $offerNumber = $offerDocumentStruct->getNumber();

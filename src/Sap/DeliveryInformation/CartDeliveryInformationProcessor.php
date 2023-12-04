@@ -29,12 +29,8 @@ class CartDeliveryInformationProcessor implements CartDataCollectorInterface, Ca
     ) {
     }
 
-    public function collect(
-        CartDataCollection $data,
-        Cart $original,
-        SalesChannelContext $context,
-        CartBehavior $behavior
-    ): void {
+    public function collect(CartDataCollection $data, Cart $original, SalesChannelContext $context, CartBehavior $behavior): void
+    {
         $productLineItems = $this->getProductLineItem($original);
 
         if ($productLineItems->count() === 0) {
@@ -82,7 +78,7 @@ class CartDeliveryInformationProcessor implements CartDataCollectorInterface, Ca
         }
 
         $filtered            = array_unique($productNumbers);
-        $availabilityResults = $this->availabilityService->fetchAvailabilities($filtered, $context);
+        $availabilityResults = $this->availabilityService->fetchAvailabilities($filtered);
 
         foreach ($productLineItems as $lineItem) {
             /** @var null|DeliveryInformation $deliveryExtension */

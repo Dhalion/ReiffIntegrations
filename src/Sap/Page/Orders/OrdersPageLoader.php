@@ -9,12 +9,10 @@ use ReiffIntegrations\Sap\Api\Client\Orders\OrderDetailApiClient;
 use ReiffIntegrations\Sap\Api\Client\Orders\OrderListApiClient;
 use ReiffIntegrations\Sap\DataAbstractionLayer\CustomerExtension;
 use ReiffIntegrations\Sap\DataAbstractionLayer\ReiffCustomerEntity;
-use ReiffIntegrations\Util\Configuration;
 use ReiffIntegrations\Util\Traits\UnitDataTrait;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Shopware\Storefront\Page\Page;
 use Symfony\Component\HttpFoundation\Request;
@@ -31,8 +29,7 @@ class OrdersPageLoader
         private readonly GenericPageLoaderInterface $genericPageLoader,
         private readonly OrderListApiClient $orderListClient,
         private readonly OrderDetailApiClient $orderDetailClient,
-        private readonly Connection $connection,
-        private readonly SystemConfigService $systemConfigService
+        protected readonly Connection $connection
     ) {
     }
 
@@ -43,11 +40,8 @@ class OrdersPageLoader
         /** @var OrdersPage $page */
         $page = OrdersPage::createFrom($page);
 
+        /** @var CustomerEntity $customer See $this::getBasicPage() */
         $customer = $salesChannelContext->getCustomer();
-
-        if ($customer === null) {
-            return $page;
-        }
 
         /** @var null|ReiffCustomerEntity $customerData */
         $customerData = $customer->getExtension(CustomerExtension::EXTENSION_NAME);
@@ -80,13 +74,7 @@ class OrdersPageLoader
             }
         }
 
-        $orderResult = $this->orderListClient->getOrders(
-            $customerData,
-            $page->getFromDate(),
-            $page->getToDate(),
-            $customer
-        );
-
+        $orderResult = $this->orderListClient->getOrders((string) $customerData->getDebtorNumber(), $page->getFromDate(), $page->getToDate());
         $page->setSuccess($orderResult->isSuccess());
         $page->setOrders($orderResult->getOrders());
 
@@ -105,12 +93,7 @@ class OrdersPageLoader
         /** @var ReiffCustomerEntity $customerData */
         $customerData = $customer->getExtension(CustomerExtension::EXTENSION_NAME);
 
-        $order = $this->orderDetailClient->getOrder(
-            $orderNumber,
-            $salesChannelContext->getContext(),
-            $this->fetchLanguageCode($salesChannelContext)
-        )->getOrder();
-
+        $order = $this->orderDetailClient->getOrder($orderNumber, $salesChannelContext->getContext())->getOrder();
         $page->setOrder($order);
 
         // Make sure the order belongs to our current customer
@@ -132,23 +115,12 @@ class OrdersPageLoader
     private function getBasicPage(SalesChannelContext $salesChannelContext, Request $request): Page
     {
         if (!$salesChannelContext->getCustomer()) {
-            throw new CustomerNotLoggedInException(404, '404', 'Customer not logged in');
+            throw new CustomerNotLoggedInException();
         }
 
         $page = $this->genericPageLoader->load($request, $salesChannelContext);
         $page->getMetaInformation()?->setRobots('noindex,follow');
 
         return $page;
-    }
-
-    private function fetchLanguageCode(SalesChannelContext $context): string
-    {
-        $languageCode = $context->getCustomer()?->getLanguage()?->getTranslationCode()?->getCode();
-
-        if ($languageCode === null) {
-            $languageCode = $this->systemConfigService->getString(Configuration::CONFIG_KEY_API_FALLBACK_LANGUAGE_CODE);
-        }
-
-        return $languageCode;
     }
 }

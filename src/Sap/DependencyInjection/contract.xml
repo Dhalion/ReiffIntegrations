@@ -22,12 +22,12 @@
 
         <service id="ReiffIntegrations\Sap\Contract\ApiClient\ContractListClient">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="monolog.logger.reiff_integrations"/>
+            <argument type="service" id="ReiffIntegrations\Logger"/>
             <argument type="service" id="ReiffIntegrations\Sap\Contract\ApiClient\ContractListResponseParser"/>
         </service>
 
         <service id="ReiffIntegrations\Sap\Contract\ApiClient\ContractListResponseParser">
-            <argument type="service" id="monolog.logger.reiff_integrations"/>
+            <argument type="service" id="ReiffIntegrations\Logger"/>
         </service>
 
         <service id="ReiffIntegrations\Sap\Contract\ContractStatusPageLoader">
@@ -38,12 +38,12 @@
 
         <service id="ReiffIntegrations\Sap\Contract\ApiClient\ContractStatusClient">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="monolog.logger.reiff_integrations"/>
+            <argument type="service" id="ReiffIntegrations\Logger"/>
             <argument type="service" id="ReiffIntegrations\Sap\Contract\ApiClient\ContractStatusResponseParser"/>
         </service>
 
         <service id="ReiffIntegrations\Sap\Contract\ApiClient\ContractStatusResponseParser">
-            <argument type="service" id="monolog.logger.reiff_integrations"/>
+            <argument type="service" id="ReiffIntegrations\Logger"/>
             <argument type="service" id="country.repository"/>
         </service>
     </services>

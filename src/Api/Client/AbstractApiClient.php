@@ -6,8 +6,8 @@ namespace ReiffIntegrations\Api\Client;
 
 abstract class AbstractApiClient
 {
-    public const METHOD_POST = 'POST';
-    public const METHOD_GET  = 'GET';
+    public const METHOD_POST = 'post';
+    public const METHOD_GET  = 'get';
 
     protected function getCurlHandle(
         string $url,

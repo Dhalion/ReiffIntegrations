@@ -6,9 +6,7 @@ namespace ReiffIntegrations\Sap\Api\Client\Orders;
 
 use Psr\Log\LoggerInterface;
 use ReiffIntegrations\Api\Client\AbstractApiClient;
-use ReiffIntegrations\Sap\DataAbstractionLayer\ReiffCustomerEntity;
 use ReiffIntegrations\Util\Configuration;
-use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class OrderListApiClient extends AbstractApiClient
@@ -23,43 +21,26 @@ class OrderListApiClient extends AbstractApiClient
     ) {
     }
 
-    public function getOrders(
-        ReiffCustomerEntity $reiffCustomer,
-        \DateTimeInterface $fromDate,
-        \DateTimeInterface $toDate,
-        CustomerEntity $shopwareCustomer
-    ): OrderListApiResponse {
-        $template = '
-            <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:sap-com:document:sap:rfc:functions">
-                <soapenv:Header/>
-                <soapenv:Body>
-                    <urn:ZSHOP_LIST_ORDER>
-                         <IS_ORDER_LIST_INPUT>
-                            <CUSTOMER>%s</CUSTOMER>
-                            <SALES_ORGANISATION>%s</SALES_ORGANISATION>
-                            <DISTRIBUTION_CHANNEL>10</DISTRIBUTION_CHANNEL>
-                            <DIVISION>00</DIVISION>
-                            <DATE_FROM>%s</DATE_FROM>
-                            <DATE_TO>%s</DATE_TO>
-                            <LANGUAGE>%s</LANGUAGE>
-                         </IS_ORDER_LIST_INPUT>
-                      </urn:ZSHOP_LIST_ORDER>
-                </soapenv:Body>
-            </soapenv:Envelope>
-        ';
-
-        $languageCode      = $this->fetchLanguageCode($shopwareCustomer);
-        $debtorNumber      = $this->fetchDebtorNumber($reiffCustomer);
-        $salesOrganisation = $this->fetchSalesOrganisation($reiffCustomer);
-
-        $postData = trim(sprintf(
-            $template,
-            $debtorNumber,
-            $salesOrganisation,
-            $fromDate->format('Y-m-d'),
-            $toDate->format('Y-m-d'),
-            $languageCode
-        ));
+    public function getOrders(string $customerNumber, \DateTimeInterface $fromDate, \DateTimeInterface $toDate): OrderListApiResponse
+    {
+        $postData = sprintf('<soapenv:Envelope
+                                xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                                xmlns:urn="urn:sap-com:document:sap:rfc:functions">
+                        <soapenv:Header/>
+                            <soapenv:Body>
+                                <urn:ZSHOP_LIST_ORDER>
+                                     <IS_ORDER_LIST_INPUT>
+                                        <CUSTOMER>%s</CUSTOMER>
+                                        <SALES_ORGANISATION>1004</SALES_ORGANISATION>
+                                        <DISTRIBUTION_CHANNEL>10</DISTRIBUTION_CHANNEL>
+                                        <DIVISION>00</DIVISION>
+                                        <DATE_FROM>%s</DATE_FROM>
+                                        <DATE_TO>%s</DATE_TO>
+                                        <LANGUAGE>DE</LANGUAGE>
+                                     </IS_ORDER_LIST_INPUT>
+                                  </urn:ZSHOP_LIST_ORDER>
+                            </soapenv:Body>
+                        </soapenv:Envelope>', $customerNumber, $fromDate->format('Y-m-d'), $toDate->format('Y-m-d'));
 
         $method = self::METHOD_POST;
 
@@ -70,7 +51,7 @@ class OrderListApiClient extends AbstractApiClient
             return $this->responseParser->parseResponse(false, '');
         }
 
-        $username = $this->systemConfigService->getString(Configuration::CONFIG_KEY_API_USER_NAME);
+        $userName = $this->systemConfigService->getString(Configuration::CONFIG_KEY_API_USER_NAME);
         $password = $this->systemConfigService->getString(Configuration::CONFIG_KEY_API_PASSWORD);
 
         $headerData = [
@@ -79,7 +60,7 @@ class OrderListApiClient extends AbstractApiClient
             'Content-length: ' . strlen($postData),
         ];
 
-        $handle = $this->getCurlHandle($url, $username, $password, $headerData, $method, $postData, $ignoreSsl);
+        $handle = $this->getCurlHandle($url, $userName, $password, $headerData, $method, $postData, $ignoreSsl);
 
         curl_setopt($handle, CURLOPT_COOKIE, 'sap-usercontext=sap-client%3D' . self::SAP_CLIENT_NR);
 
@@ -90,13 +71,7 @@ class OrderListApiClient extends AbstractApiClient
         curl_close($handle);
 
         if ($errorNumber !== 0 || $statusCode !== 200 || $response === false) {
-            $this->logger->error('API error during orders read', [
-                'method'     => $method,
-                'requestUrl' => $url,
-                'body'       => $postData,
-                'response'   => (string) $response,
-                'error'      => $errorNumber,
-            ]);
+            $this->logRequestError($method, $url, $postData, (string) $response, $errorNumber);
 
             return $this->responseParser->parseResponse(false, (string) $response);
         }
@@ -104,40 +79,19 @@ class OrderListApiClient extends AbstractApiClient
         return $this->responseParser->parseResponse(true, (string) $response);
     }
 
-    private function fetchLanguageCode(CustomerEntity $shopwareCustomer): string
-    {
-        $languageCode = $shopwareCustomer->getLanguage()?->getTranslationCode()?->getCode();
-
-        if ($languageCode === null) {
-            $languageCode = $this->systemConfigService->getString(Configuration::CONFIG_KEY_API_FALLBACK_LANGUAGE_CODE);
-        }
-
-        return strtoupper(substr($languageCode, 0, 2));
-    }
-
-    private function fetchSalesOrganisation(ReiffCustomerEntity $reiffCustomer): string
-    {
-        $salesOrganisation = $reiffCustomer->getSalesOrganisation();
-
-        if (empty($salesOrganisation) || $salesOrganisation === '-') {
-            $salesOrganisation = $this->systemConfigService->getString(
-                Configuration::CONFIG_KEY_API_FALLBACK_SALES_ORGANISATION
-            );
-        }
-
-        return $salesOrganisation;
-    }
-
-    private function fetchDebtorNumber(ReiffCustomerEntity $reiffCustomer): string
-    {
-        $debtorNumber = $reiffCustomer->getDebtorNumber();
-
-        if (empty($debtorNumber)) {
-            $debtorNumber = $this->systemConfigService->getString(
-                Configuration::CONFIG_KEY_API_FALLBACK_DEBTOR_NUMBER
-            );
-        }
-
-        return $debtorNumber;
+    private function logRequestError(
+        string $method,
+        string $exportUrl,
+        string $serializedData,
+        string $response,
+        int $errorNumber
+    ): void {
+        $this->logger->error('API error during orders read', [
+            'method'     => $method,
+            'requestUrl' => $exportUrl,
+            'body'       => $serializedData,
+            'response'   => $response,
+            'error'      => $errorNumber,
+        ]);
     }
 }

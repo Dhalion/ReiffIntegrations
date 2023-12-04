@@ -12,7 +12,6 @@ use ReiffIntegrations\Sap\Struct\OrderDocumentCollection;
 use ReiffIntegrations\Sap\Struct\OrderDocumentStruct;
 use ReiffIntegrations\Sap\Struct\OrderLineItemCollection;
 use ReiffIntegrations\Sap\Struct\OrderLineItemStruct;
-use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -306,20 +305,20 @@ class OrderDetailResponseParser
 
     private function getProductsAvailability(array $lineItemsData, Context $context): array
     {
-        $productNumbers = [];
+        $productsNumbers = [];
         foreach ($lineItemsData as $lineItemData) {
             if (isset($lineItemData['MATERIAL_NUMBER'])) {
-                $productNumbers[$lineItemData['MATERIAL_NUMBER']] = null;
+                $productsNumbers[$lineItemData['MATERIAL_NUMBER']] = null;
             }
         }
 
-        if (!$productNumbers) {
+        if (!$productsNumbers) {
             return [];
         }
 
         $criteria = new Criteria();
         $criteria->addFilter(new AndFilter([
-            new EqualsAnyFilter('productNumber', array_keys($productNumbers)),
+            new EqualsAnyFilter('productNumber', array_keys($productsNumbers)),
             new EqualsFilter('active', 1),
             new MultiFilter(MultiFilter::CONNECTION_OR, [
               new EqualsFilter('isCloseout', 0),
@@ -330,13 +329,12 @@ class OrderDetailResponseParser
             ]),
         ]));
 
-        /** @var ProductEntity[] $products */
         $products = $this->productRepository->search($criteria, $context);
 
         foreach ($products as $product) {
-            $productNumbers[$product->getProductNumber()] = $product->getId();
+            $productsNumbers[$product->getProductNumber()] = $product->getId();
         }
 
-        return $productNumbers;
+        return $productsNumbers;
     }
 }

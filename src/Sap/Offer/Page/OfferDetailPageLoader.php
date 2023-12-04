@@ -27,7 +27,7 @@ class OfferDetailPageLoader
         $customer = $salesChannelContext->getCustomer();
 
         if ($customer === null) {
-            throw new CustomerNotLoggedInException(404, '404', 'Customer not logged in');
+            throw new CustomerNotLoggedInException();
         }
 
         $page = $this->genericLoader->load($request, $salesChannelContext);
@@ -43,7 +43,7 @@ class OfferDetailPageLoader
                 return $page;
             }
 
-            $apiResponse = $this->apiClient->readOffers($customerData);
+            $apiResponse = $this->apiClient->readOffers((string) $customerData->getDebtorNumber());
         } catch (\Throwable $throwable) {
             // TODO: discuss about direct information to REIFF
             $this->logger->error(

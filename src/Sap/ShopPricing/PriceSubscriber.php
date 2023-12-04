@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use ReiffIntegrations\Sap\Struct\Price\ItemCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -66,30 +67,17 @@ class PriceSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $priceData      = $this->getPriceData($event->getRequest());
+        $debtorNumber   = $this->getDebtorNumber($event->getRequest());
         $languageId     = (string) $event->getRequest()->headers->get(PlatformRequest::HEADER_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM);
         $productNumbers = $this->fetchProductNumbers($content);
         $itemCollection = new ItemCollection();
 
-        if ($priceData !== null && !empty($productNumbers)) {
-            try {
-                $itemCollection = $this->cache->fetchProductPrices(
-                    $priceData,
-                    $productNumbers
-                );
-            } catch (\Throwable $exception) {
-                // Do nothing
-            }
+        if ($debtorNumber !== null && !empty($productNumbers)) {
+            $itemCollection = $this->cache->fetchProductPrices($debtorNumber, $productNumbers);
         }
 
         if (str_contains($content, SimplePriceHandler::PRICE_PLACEHOLDER) || str_contains($content, SimplePriceHandler::PRICE_FORMATTED_PLACEHOLDER)) {
-            $content = $this->simplePriceHandler->handleSinglePrices(
-                $content,
-                $languageId,
-                $productNumbers,
-                $itemCollection,
-                $priceData['debtor_number'] ?? null
-            );
+            $content = $this->simplePriceHandler->handleSinglePrices($content, $languageId, $productNumbers, $itemCollection, $debtorNumber);
         }
 
         if (str_contains($content, DetailedPriceHandler::PRICE_SWITCH_PLACEHOLDER_FORMATTED) || str_contains($content, DetailedPriceHandler::PRICE_SWITCH_PLACEHOLDER_FALLBACK)) {
@@ -99,49 +87,66 @@ class PriceSubscriber implements EventSubscriberInterface
             /** @var string $currencyId */
             $currencyId = $requestAttributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID);
 
-            $content = $this->detailedPriceHandler->handleSwitchPrices(
-                $content,
-                $productNumbers,
-                $salesChannelId,
-                $currencyId,
-                $itemCollection,
-                $priceData['debtor_number']
-            );
+            $content = $this->detailedPriceHandler->handleSwitchPrices($content, $productNumbers, $salesChannelId, $currencyId, $itemCollection, $debtorNumber);
         }
 
         $response->setContent($content);
         $event->setResponse($response);
     }
 
-    private function getPriceData(Request $request): ?array
+    private function getDebtorNumber(Request $request): ?string
     {
         $this->restartSession($request);
 
         $contextToken = $request->getSession()->get('sw-context-token');
 
-        $query = '
-            SELECT
-                reiff_customer.debtor_number as debtor_number,
-                reiff_customer.sales_organisation as sales_organisation,
-                locale.code as language_code
-            FROM reiff_customer
-            LEFT JOIN sales_channel_api_context context ON UNHEX(JSON_UNQUOTE(JSON_EXTRACT(context.payload, "$.customerId"))) = reiff_customer.customer_id
-            LEFT JOIN customer ON reiff_customer.customer_id = customer.id
-            LEFT JOIN language ON customer.language_id = language.id
-            LEFT JOIN locale ON language.translation_code_id = locale.id
-            WHERE context.token = :token
-        ';
-
-        /** @var null|array $data */
-        $data = $this->connection->fetchAssociative($query, [
-            'token' => $contextToken,
-        ]);
-
-        if (empty($data)) {
+        if(!$contextToken) {
             return null;
         }
 
-        return $data;
+        $sql = <<<SQL
+SELECT * FROM sales_channel_api_context WHERE token = :token
+SQL;
+        $tokenResult = $this->connection->fetchAllAssociative($sql, [
+           'token' => $contextToken
+        ]);
+
+        if(count($tokenResult) === 0) {
+            return null;
+        }
+
+        $tokenRow = $tokenResult[0];
+        $customerId = null;
+
+        if(isset($tokenRow['customer_id']) && $tokenRow['customer_id']) {
+            $customerId = $tokenRow['customer_id'];
+        } else {
+            try {
+                $payloadArray = json_decode($tokenRow['payload'], true, JSON_THROW_ON_ERROR);
+                if(isset($payloadArray['customerId']) && $payloadArray['customerId']) {
+                    $customerId = Uuid::fromHexToBytes($payloadArray['customerId']);
+                }
+            } catch(\Exception) {
+                return null;
+            }
+        }
+
+        if(!$customerId) {
+            return null;
+        }
+
+        $sql = <<<SQL
+SELECT debtor_number FROM reiff_customer WHERE customer_id = :customerId
+SQL;
+        $debtorNumber = $this->connection->fetchOne($sql, [
+           'customerId' => $customerId
+        ]);
+
+        if(!$debtorNumber) {
+            return null;
+        }
+
+        return $debtorNumber;
     }
 
     private function fetchProductNumbers(string $content): array

@@ -8,12 +8,13 @@ use Shopware\Core\Framework\Struct\Struct;
 
 class CatalogMetadata extends Struct
 {
+    protected string $archivedFilename = '';
+
     public function __construct(
         protected readonly string $catalogId,
         protected readonly ?string $sortimentId,
         protected readonly string $languageCode,
-        protected readonly string $systemLanguageCode,
-        protected string $archivedFilename = ''
+        protected readonly string $systemLanguageCode
     ) {
     }
 

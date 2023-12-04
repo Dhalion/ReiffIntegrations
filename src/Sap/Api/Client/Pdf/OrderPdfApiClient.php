@@ -58,13 +58,7 @@ class OrderPdfApiClient extends AbstractApiClient
         curl_close($handle);
 
         if ($errorNumber !== 0 || $statusCode !== 200 || $response === false) {
-            $this->logger->error('API error during order PDF read', [
-                'method'     => $method,
-                'requestUrl' => $url,
-                'body'       => $postData,
-                'response'   => (string) $response,
-                'error'      => $errorNumber,
-            ]);
+            $this->logRequestError($method, $url, $postData, (string) $response, $errorNumber);
 
             return $this->responseParser->parseResponse(false, (string) $response, OrdersController::DOCUMENT_TYPE_INVOICE);
         }
@@ -108,17 +102,27 @@ class OrderPdfApiClient extends AbstractApiClient
         curl_close($handle);
 
         if ($errorNumber !== 0 || $statusCode !== 200 || $response === false) {
-            $this->logger->error('API error during order PDF read', [
-                'method'     => $method,
-                'requestUrl' => $url,
-                'body'       => $postData,
-                'response'   => (string) $response,
-                'error'      => $errorNumber,
-            ]);
+            $this->logRequestError($method, $url, $postData, (string) $response, $errorNumber);
 
             return $this->responseParser->parseResponse(false, (string) $response, OrdersController::DOCUMENT_TYPE_DELIVERY);
         }
 
         return $this->responseParser->parseResponse(true, (string) $response, OrdersController::DOCUMENT_TYPE_DELIVERY);
+    }
+
+    private function logRequestError(
+        string $method,
+        string $exportUrl,
+        string $serializedData,
+        string $response,
+        int $errorNumber
+    ): void {
+        $this->logger->error('API error during order PDF read', [
+            'method'     => $method,
+            'requestUrl' => $exportUrl,
+            'body'       => $serializedData,
+            'response'   => $response,
+            'error'      => $errorNumber,
+        ]);
     }
 }
