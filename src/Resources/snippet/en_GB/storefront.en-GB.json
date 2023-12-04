@@ -174,8 +174,7 @@
         "custom-order-number-blocked": "The provided custom order number is to long. Please use %characters% characters max.",
         "custom-delivery-date-blocked": "The selected delivery date is not valid. Please select a date that is at least one day in the future.",
         "commission-order-blocked": "The provided commission for the order is to long. Please use %characters% characters max.",
-        "commission-product-blocked": "The provided commission for the product is to long. Please use %characters% characters max.",
-        "sap-not-available": "An order is currently not possible. Please try again later."
+        "commission-product-blocked": "The provided commission for the product is to long. Please use %characters% characters max."
     },
     "b2b": {
         "ReiffIntegrations": {

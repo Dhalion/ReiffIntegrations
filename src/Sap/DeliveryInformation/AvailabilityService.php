@@ -4,15 +4,10 @@ declare(strict_types=1);
 
 namespace ReiffIntegrations\Sap\DeliveryInformation;
 
-use ReiffIntegrations\Sap\DataAbstractionLayer\CustomerExtension;
-use ReiffIntegrations\Sap\DataAbstractionLayer\ReiffCustomerEntity;
 use ReiffIntegrations\Sap\DeliveryInformation\ApiClient\AvailabilityApiClient;
 use ReiffIntegrations\Sap\DeliveryInformation\Struct\AvailabilityStruct;
 use ReiffIntegrations\Sap\DeliveryInformation\Struct\AvailabilityStructCollection;
 use ReiffIntegrations\Sap\Exception\TimeoutException;
-use ReiffIntegrations\Util\Configuration;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
@@ -25,14 +20,13 @@ class AvailabilityService
 
     public function __construct(
         private readonly TagAwareAdapterInterface $cache,
-        private readonly AvailabilityApiClient $apiClient,
-        private readonly SystemConfigService $systemConfigService,
+        private readonly AvailabilityApiClient $apiClient
     ) {
     }
 
-    public function fetchAvailabilities(array $productNumbers, SalesChannelContext $context): AvailabilityStructCollection
+    public function fetchAvailabilities(array $productNumbers): AvailabilityStructCollection
     {
-        $availabilities        = $this->getCachedAvailabilities($productNumbers, $context);
+        $availabilities        = $this->getCachedAvailabilities($productNumbers);
         $missingProductNumbers = [];
 
         foreach ($productNumbers as $productNumber) {
@@ -44,22 +38,22 @@ class AvailabilityService
         }
 
         if (!empty($missingProductNumbers)) {
-            $uncachedAvailabilities = $this->getUncachedAvailabilities($missingProductNumbers, $context);
+            $uncachedAvailabilities = $this->getUncachedAvailabilities($missingProductNumbers);
 
             if ($uncachedAvailabilities->count() === 0) {
                 return $availabilities;
             }
 
-            $this->updateAvailabilities($uncachedAvailabilities, $availabilities, $context);
+            $this->updateAvailabilities($uncachedAvailabilities, $availabilities);
         }
 
         return $availabilities;
     }
 
-    private function getCachedAvailabilities(array $productNumbers, SalesChannelContext $context): AvailabilityStructCollection
+    private function getCachedAvailabilities(array $productNumbers): AvailabilityStructCollection
     {
         $result      = new AvailabilityStructCollection();
-        $cacheResult = $this->cache->getItems($this->getCacheKeys($productNumbers, $context));
+        $cacheResult = $this->cache->getItems($this->getCacheKeys($productNumbers));
 
         foreach ($cacheResult as $cachedResult) {
             if ($cachedResult->isHit() && $cachedResult->get()) {
@@ -73,21 +67,14 @@ class AvailabilityService
         return $result;
     }
 
-    private function getUncachedAvailabilities(array $productNumbers, SalesChannelContext $context): AvailabilityStructCollection
+    private function getUncachedAvailabilities(array $productNumbers): AvailabilityStructCollection
     {
         $uncachedAvailabilities = new AvailabilityStructCollection();
         $circuitBreaker         = $this->cache->getItem(self::CACHE_CIRCUIT_BREAKER_TAG);
 
         if (!$circuitBreaker->isHit()) {
             try {
-                $salesOrganisation = $this->fetchSalesOrganisation($context);
-                $languageCode      = $this->fetchLanguageCode($context);
-
-                $uncachedAvailabilities = $this->apiClient->getAvailability(
-                    $productNumbers,
-                    $salesOrganisation,
-                    $languageCode
-                );
+                $uncachedAvailabilities = $this->apiClient->getAvailability($productNumbers);
             } catch (TimeoutException $exception) {
                 $circuitBreaker->set(true);
                 $circuitBreaker->expiresAfter(self::CIRCUIT_BREAKER_EXPIRATION_IN_SECONDS);
@@ -104,13 +91,12 @@ class AvailabilityService
 
     private function updateAvailabilities(
         AvailabilityStructCollection $uncachedAvailabilities,
-        AvailabilityStructCollection $cachedAvailabilities,
-        SalesChannelContext $context
+        AvailabilityStructCollection $cachedAvailabilities
     ): void {
         foreach ($uncachedAvailabilities->getElements() as $availability) {
             $cachedAvailabilities->set($availability->getProductNumber(), $availability);
 
-            $cacheKey = $this->getCacheKey($availability->getProductNumber(), $context);
+            $cacheKey = $this->getCacheKey($availability->getProductNumber());
 
             $cacheItem = $this->cache->getItem($cacheKey);
             $cacheItem->set($availability);
@@ -123,55 +109,21 @@ class AvailabilityService
         $this->cache->commit();
     }
 
-    private function getCacheKeys(array $productNumbers, SalesChannelContext $context): array
+    private function getCacheKeys(array $productNumbers): array
     {
         $keys = [];
 
         foreach ($productNumbers as $productNumber) {
-            $keys[] = $this->getCacheKey((string) $productNumber, $context);
+            $keys[] = $this->getCacheKey((string) $productNumber);
         }
 
         return $keys;
     }
 
-    private function getCacheKey(string $productNumber, SalesChannelContext $context): string
+    private function getCacheKey(string $productNumber): string
     {
-        $salesOrganisation = $this->fetchSalesOrganisation($context);
-
         $productNumber = str_replace(str_split(ItemInterface::RESERVED_CHARACTERS), '', (string) $productNumber);
 
-        return sprintf(
-            '%s#%s#%s',
-            self::CACHE_AVAILABILITY_TAG,
-            $productNumber,
-            $salesOrganisation
-        );
-    }
-
-    private function fetchLanguageCode(SalesChannelContext $context): string
-    {
-        $languageCode = $context->getCustomer()?->getLanguage()?->getTranslationCode()?->getCode();
-
-        if ($languageCode === null) {
-            $languageCode = $this->systemConfigService->getString(Configuration::CONFIG_KEY_API_FALLBACK_LANGUAGE_CODE);
-        }
-
-        return strtoupper(substr($languageCode, 0, 2));
-    }
-
-    private function fetchSalesOrganisation(SalesChannelContext $context): string
-    {
-        /** @var null|ReiffCustomerEntity $reiffCustomer */
-        $reiffCustomer = $context->getCustomer()?->getExtension(CustomerExtension::EXTENSION_NAME);
-
-        $salesOrganisation = $reiffCustomer?->getSalesOrganisation();
-
-        if (empty($salesOrganisation) || $salesOrganisation === '-') {
-            $salesOrganisation = $this->systemConfigService->getString(
-                Configuration::CONFIG_KEY_API_FALLBACK_SALES_ORGANISATION
-            );
-        }
-
-        return $salesOrganisation;
+        return sprintf('%s#%s', self::CACHE_AVAILABILITY_TAG, $productNumber);
     }
 }

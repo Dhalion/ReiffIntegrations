@@ -9,24 +9,18 @@ use Shopware\Core\Framework\Struct\Struct;
 class OrderNumberUpdateStruct extends Struct
 {
     public function __construct(
-        protected string $customerId,
-        protected ?string $debtorNumber = null,
-        protected ?string $salesOrganisation = null,
+        protected string $debtorNumber,
+        protected string $customerId
     ) {
+    }
+
+    public function getDebtorNumber(): string
+    {
+        return $this->debtorNumber;
     }
 
     public function getCustomerId(): string
     {
         return $this->customerId;
-    }
-
-    public function getDebtorNumber(): ?string
-    {
-        return $this->debtorNumber;
-    }
-
-    public function getSalesOrganisation(): ?string
-    {
-        return $this->salesOrganisation;
     }
 }

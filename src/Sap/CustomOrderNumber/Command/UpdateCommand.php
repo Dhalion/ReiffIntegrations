@@ -29,7 +29,7 @@ class UpdateCommand extends Command
 
     public function __construct(
         private readonly OrderNumberUpdateMessageHandler $messageHandler,
-        private readonly MessageBusInterface $messageBus,
+        private MessageBusInterface $messageBus,
         private readonly EntityRepository $reiffCustomerRepository
     ) {
         parent::__construct();
@@ -63,7 +63,6 @@ class UpdateCommand extends Command
             $style->info('Execution is in dry-run mode');
         }
 
-        /** @var ReiffCustomerCollection $customers */
         $customers = $this->getDebtorsForUpdate($debtorNumber, $context);
 
         $style->writeln(sprintf('Found %s customers for update', $customers->count()));
@@ -76,28 +75,24 @@ class UpdateCommand extends Command
                 continue;
             }
 
-            $updateStruct = new OrderNumberUpdateStruct(
-                $customer->getCustomerId(),
-                $customer->getDebtorNumber(),
-                $customer->getSalesOrganisation(),
-            );
-
-            $message = $this->messageHandler->getMessage($updateStruct, $context);
+            $messageStruct = new OrderNumberUpdateStruct($customer->getDebtorNumber(), $customer->getCustomerId());
+            $message       = $this->messageHandler->getMessage($messageStruct, $context);
 
             if ($context->hasState(DebugState::NAME)) {
                 $this->messageHandler->__invoke($message);
             } else {
                 $this->messageBus->dispatch($message);
             }
-
             $progressBar->advance();
         }
-
         $progressBar->finish();
 
         return Command::SUCCESS;
     }
 
+    /**
+     * @return EntityCollection|ReiffCustomerCollection
+     */
     private function getDebtorsForUpdate(?string $debtorNumber, Context $context): EntityCollection
     {
         $customerSearchCriteria = new Criteria();

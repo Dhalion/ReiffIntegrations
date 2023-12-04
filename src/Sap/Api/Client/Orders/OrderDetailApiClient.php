@@ -22,25 +22,19 @@ class OrderDetailApiClient extends AbstractApiClient
     ) {
     }
 
-    public function getOrder(string $orderNumber, Context $context, string $languageCode): OrderDetailApiResponse
+    public function getOrder(string $orderNumber, Context $context): OrderDetailApiResponse
     {
-        $template = '
-            <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:sap-com:document:sap:rfc:functions">
-                <soapenv:Header/>
-                <soapenv:Body>
-                    <urn:ZSHOP_ORDER_DETAILS>
-                    <IV_CUSTOMER_ORDER_NUMBER>%s</IV_CUSTOMER_ORDER_NUMBER>
-                    <IV_LANGUAGE>%s</IV_LANGUAGE>
-                    </urn:ZSHOP_ORDER_DETAILS>
-                </soapenv:Body>
-            </soapenv:Envelope>
-        ';
-
-        $postData = sprintf(
-            $template,
-            $orderNumber,
-            $languageCode
-        );
+        $postData = sprintf('<soapenv:Envelope
+                                xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                                xmlns:urn="urn:sap-com:document:sap:rfc:functions">
+                        <soapenv:Header/>
+                            <soapenv:Body>
+                                <urn:ZSHOP_ORDER_DETAILS>
+                                 <IV_CUSTOMER_ORDER_NUMBER>%s</IV_CUSTOMER_ORDER_NUMBER>
+                                 <IV_LANGUAGE>DE</IV_LANGUAGE>
+                              </urn:ZSHOP_ORDER_DETAILS>
+                            </soapenv:Body>
+                        </soapenv:Envelope>', $orderNumber);
 
         $method = self::METHOD_POST;
 
@@ -51,7 +45,7 @@ class OrderDetailApiClient extends AbstractApiClient
             return $this->responseParser->parseResponse(false, '', $context);
         }
 
-        $username = $this->systemConfigService->getString(Configuration::CONFIG_KEY_API_USER_NAME);
+        $userName = $this->systemConfigService->getString(Configuration::CONFIG_KEY_API_USER_NAME);
         $password = $this->systemConfigService->getString(Configuration::CONFIG_KEY_API_PASSWORD);
 
         $headerData = [
@@ -60,7 +54,7 @@ class OrderDetailApiClient extends AbstractApiClient
             'Content-length: ' . strlen($postData),
         ];
 
-        $handle = $this->getCurlHandle($url, $username, $password, $headerData, $method, $postData, $ignoreSsl);
+        $handle = $this->getCurlHandle($url, $userName, $password, $headerData, $method, $postData, $ignoreSsl);
 
         curl_setopt($handle, CURLOPT_COOKIE, 'sap-usercontext=sap-client%3D' . self::SAP_CLIENT_NR);
 
@@ -71,17 +65,27 @@ class OrderDetailApiClient extends AbstractApiClient
         curl_close($handle);
 
         if ($errorNumber !== 0 || $statusCode !== 200 || $response === false) {
-            $this->logger->error('API error during order detail read', [
-                'method'     => $method,
-                'requestUrl' => $url,
-                'body'       => $postData,
-                'response'   => (string) $response,
-                'error'      => $errorNumber,
-            ]);
+            $this->logRequestError($method, $url, $postData, (string) $response, $errorNumber);
 
             return $this->responseParser->parseResponse(false, (string) $response, $context);
         }
 
         return $this->responseParser->parseResponse(true, (string) $response, $context);
+    }
+
+    private function logRequestError(
+        string $method,
+        string $exportUrl,
+        string $serializedData,
+        string $response,
+        int $errorNumber
+    ): void {
+        $this->logger->error('API error during order detail read', [
+            'method'     => $method,
+            'requestUrl' => $exportUrl,
+            'body'       => $serializedData,
+            'response'   => $response,
+            'error'      => $errorNumber,
+        ]);
     }
 }

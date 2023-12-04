@@ -9,7 +9,6 @@ use Doctrine\DBAL\ConnectionException;
 use Psr\Log\LoggerInterface;
 use ReiffIntegrations\Sap\CustomOrderNumber\Api\Client\OrderNumberApiClient;
 use ReiffIntegrations\Sap\CustomOrderNumber\Message\OrderNumberUpdateMessage;
-use ReiffIntegrations\Sap\CustomOrderNumber\Struct\OrderNumberUpdateStruct;
 use ReiffIntegrations\Util\Context\DryRunState;
 use Shopware\B2B\Common\Repository\NotFoundException;
 use Shopware\B2B\Common\UuidIdValue;
@@ -28,8 +27,8 @@ use Symfony\Component\Validator\ConstraintViolation;
 class OrderNumberUpdateMessageHandler
 {
     public function __construct(
-        private readonly LoggerInterface $logger,
-        private readonly Connection $connection,
+        protected readonly LoggerInterface $logger,
+        protected readonly Connection $connection,
         private readonly OrderNumberApiClient $orderNumberApiClient,
         private readonly OrderNumberCrudService $orderNumberCrudService,
         private readonly LoginContextService $loginContextService,
@@ -41,6 +40,7 @@ class OrderNumberUpdateMessageHandler
     {
         $context      = $message->getContext();
         $updateStruct = $message->getUpdateStruct();
+        $debtorNumber = $updateStruct->getDebtorNumber();
         $customerId   = $updateStruct->getCustomerId();
 
         try {
@@ -53,22 +53,19 @@ class OrderNumberUpdateMessageHandler
             return;
         }
 
-        $crudData = $this->getCrudData($updateStruct);
+        $crudData = $this->getCrudData($debtorNumber);
         $this->executeCrudOperation($crudData, $debtorIdentity->getOwnershipContext(), $context);
     }
 
-    /**
-     * @param OrderNumberUpdateStruct $struct
-     */
     public function getMessage(Struct $struct, Context $context): OrderNumberUpdateMessage
     {
-        return new OrderNumberUpdateMessage($struct, $context);
+        return new OrderNumberUpdateMessage($struct, '', $context);
     }
 
-    private function getCrudData(OrderNumberUpdateStruct $updateStruct): array
+    private function getCrudData(string $debtorNumber): array
     {
         try {
-            $response = $this->orderNumberApiClient->readOrderNumbers($updateStruct);
+            $response = $this->orderNumberApiClient->readOrderNumbers($debtorNumber);
         } catch (\Throwable $t) {
             $this->logger->error(self::class . '::getCrudData => something went horribly wrong during read of order numbers', [
                 'message' => $t->getMessage(),
