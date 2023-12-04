@@ -27,6 +27,27 @@
             <helpText>Ignores the ssl settings. Not recommended for production environment.</helpText>
             <helpText lang="de-DE">Ignoriert die HTTPS-Zertifikatsvalidierung. Nicht für Produktivumgebungen empfohlen.</helpText>
         </input-field>
+
+        <input-field>
+            <name>fallbackDebtorNumber</name>
+            <copyable>true</copyable>
+            <label>Fallback Debtor Number</label>
+            <label lang="de-DE">Fallback Debitorennummer</label>
+        </input-field>
+
+        <input-field>
+            <name>fallbackSalesOrganisation</name>
+            <copyable>true</copyable>
+            <label>Fallback Sales Organisation</label>
+            <label lang="de-DE">Fallback Sales Organization</label>
+        </input-field>
+
+        <input-field>
+            <name>fallbackLanguageCode</name>
+            <copyable>true</copyable>
+            <label>Fallback Language Code</label>
+            <label lang="de-DE">Fallback Sprachcode</label>
+        </input-field>
     </card>
 
     <card>
@@ -105,7 +126,7 @@
             <label lang="de-DE">Pfad zu den Import-Dateien</label>
             <placeholder>/tmp/imports</placeholder>
             <helpText>File imports from MeDaPro will be read from this directory.</helpText>
-            <helpText lang="de-DE">Dateiimporte von MeDaPro werden aus diesem Order eingelesen.</helpText>
+            <helpText lang="de-DE">Dateiimporte von MeDaPro werden aus diesem Ordner eingelesen.</helpText>
         </input-field>
 
         <input-field>
@@ -115,7 +136,7 @@
             <label lang="de-DE">Pfad zu den Import-Medien</label>
             <placeholder>/tmp/media</placeholder>
             <helpText>Media files will be read from this directory.</helpText>
-            <helpText lang="de-DE">Medien werden aus diesem Order eingelesen.</helpText>
+            <helpText lang="de-DE">Medien werden aus diesem Ordner eingelesen.</helpText>
         </input-field>
 
         <input-field>

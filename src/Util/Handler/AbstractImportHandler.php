@@ -6,6 +6,7 @@ namespace ReiffIntegrations\Util\Handler;
 
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
+use ReiffIntegrations\MeDaPro\Struct\CatalogMetadata;
 use ReiffIntegrations\Util\EntitySyncer;
 use ReiffIntegrations\Util\Mailer;
 use ReiffIntegrations\Util\Message\AbstractImportMessage;
@@ -29,5 +30,10 @@ abstract class AbstractImportHandler extends AbstractHandler
 
     abstract public function handle(AbstractImportMessage $message): void;
 
-    abstract public function getMessage(Struct $struct, string $archiveFileName, Context $context): AbstractImportMessage;
+    abstract public function getMessage(
+        Struct $struct,
+        string $archiveFileName,
+        CatalogMetadata $catalogMetadata,
+        Context $context
+    ): AbstractImportMessage;
 }

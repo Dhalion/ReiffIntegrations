@@ -46,13 +46,16 @@
                 }
             },
             "orders": {
+                "addAll": "Add all",
                 "error": {
                     "noOrderResponse": "Your orders currently can't be accessed.",
                     "noDocument": "This document currently not available."
                 },
                 "filter": {
                     "fromDate": "Earliest Order Date:",
-                    "toDate": "Latest Order Date:"
+                    "toDate": "Latest Order Date:",
+                    "searchLabel": "Search:",
+                    "searchReset": "Clear"
                 },
                 "documents": {
                     "invoiceTitle": "Invoices",
@@ -65,6 +68,13 @@
                         "SHIP_TO": "Shipping Address"
                     },
                     "changeBillingAddressTitle": "Change billing address (reiff-tp.de)"
+                },
+                "sorting": {
+                    "orderDate": "Date",
+                    "orderNumber": "Order number",
+                    "orderStatus": "Status",
+                    "orderTotal": "Total price",
+                    "refNumber": "Reference number"
                 }
             }
         },
@@ -99,6 +109,9 @@
                     }
                 }
             }
+        },
+        "general": {
+            "loading": "Loading..."
         },
         "price": {
             "error": {
@@ -161,7 +174,8 @@
         "custom-order-number-blocked": "The provided custom order number is to long. Please use %characters% characters max.",
         "custom-delivery-date-blocked": "The selected delivery date is not valid. Please select a date that is at least one day in the future.",
         "commission-order-blocked": "The provided commission for the order is to long. Please use %characters% characters max.",
-        "commission-product-blocked": "The provided commission for the product is to long. Please use %characters% characters max."
+        "commission-product-blocked": "The provided commission for the product is to long. Please use %characters% characters max.",
+        "sap-not-available": "An order is currently not possible. Please try again later."
     },
     "b2b": {
         "ReiffIntegrations": {

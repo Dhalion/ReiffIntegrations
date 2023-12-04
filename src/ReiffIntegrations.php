@@ -6,14 +6,19 @@ namespace ReiffIntegrations;
 
 use Doctrine\DBAL\Connection;
 use ReiffIntegrations\Installer\CustomFieldInstaller;
-use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 use Shopware\Core\Framework\Plugin\Context\InstallContext;
 use Shopware\Core\Framework\Plugin\Context\UninstallContext;
 use Shopware\Core\Framework\Plugin\Context\UpdateContext;
+use Symfony\Component\Config\FileLocator;
+use Symfony\Component\Config\Loader\DelegatingLoader;
+use Symfony\Component\Config\Loader\LoaderResolver;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Loader\DirectoryLoader;
+use Symfony\Component\DependencyInjection\Loader\GlobFileLoader;
+use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
 class ReiffIntegrations extends Plugin
 {
@@ -21,11 +26,19 @@ class ReiffIntegrations extends Plugin
     {
         parent::build($container);
 
-        if (!EnvironmentHelper::hasVariable('MESSENGER_TRANSPORT_DSN')) {
-            $container->setParameter('messenger_import_dsn', $container->getParameter('messenger_import_default_dsn'));
-            $container->setParameter('messenger_export_dsn', $container->getParameter('messenger_export_default_dsn'));
-            $container->setParameter('messenger_default_dsn', $container->getParameter('messenger_default_default_dsn'));
-        }
+        $locator = new FileLocator('Resources/config');
+
+        $resolver = new LoaderResolver([
+            new YamlFileLoader($container, $locator),
+            new GlobFileLoader($container, $locator),
+            new DirectoryLoader($container, $locator),
+        ]);
+
+        $configLoader = new DelegatingLoader($resolver);
+
+        $confDir = \rtrim($this->getPath(), '/') . '/Resources/config';
+
+        $configLoader->load($confDir . '/{packages}/*.yaml', 'glob');
     }
 
     public function install(InstallContext $installContext): void

@@ -52,16 +52,21 @@ class CustomerWrittenEventSubscriber implements EventSubscriberInterface
                 $this->createCustomerExtension($payload['id'], $event->getContext());
             }
 
-            if(isset($payload['active']) && $payload['active'] === true && $event->getContext()->getScope() === Context::CRUD_API_SCOPE) {
+            if (isset($payload['active']) && $payload['active'] === true && $event->getContext()->getScope() === Context::CRUD_API_SCOPE) {
                 $this->confirmDoubleOptIn($payload['id'], $event->getContext());
             }
 
-            if ($debtorData === null || empty($debtorData->getDebtorNumber()) || empty($debtorData->getCustomerId())) {
+            if ($debtorData === null || $debtorData->hasIncompleteFields()) {
                 continue;
             }
 
-            $messageStruct = new OrderNumberUpdateStruct($debtorData->getDebtorNumber(), $debtorData->getCustomerId());
-            $message       = $this->messageHandler->getMessage($messageStruct, $event->getContext());
+            $messageStruct = new OrderNumberUpdateStruct(
+                $debtorData->getCustomerId(),
+                $debtorData->getDebtorNumber(),
+                $debtorData->getSalesOrganisation()
+            );
+
+            $message = $this->messageHandler->getMessage($messageStruct, $event->getContext());
 
             $this->messageBus->dispatch($message);
         }
@@ -83,9 +88,9 @@ class CustomerWrittenEventSubscriber implements EventSubscriberInterface
     {
         $this->reiffCustomerRepository->upsert([
             [
-                'customerId' => $customerId,
-                'debtorNumber' => null
-            ]
+                'customerId'   => $customerId,
+                'debtorNumber' => null,
+            ],
         ], $context);
     }
 
@@ -93,9 +98,9 @@ class CustomerWrittenEventSubscriber implements EventSubscriberInterface
     {
         $this->customerRepository->upsert([
             [
-                'id' => $customerId,
-                'doubleOptInConfirmDate' => new \DateTimeImmutable()
-            ]
+                'id'                     => $customerId,
+                'doubleOptInConfirmDate' => new \DateTimeImmutable(),
+            ],
         ], $context);
     }
 }

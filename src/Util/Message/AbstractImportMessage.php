@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace ReiffIntegrations\Util\Message;
 
+use ReiffIntegrations\MeDaPro\Struct\CatalogMetadata;
 use Shopware\Core\Framework\Context;
 
 abstract class AbstractImportMessage
 {
     public function __construct(
-        private readonly string $archiveFileName,
+        private readonly string $archivedFileName,
+        private readonly ?CatalogMetadata $catalogMetadata,
         private readonly Context $context,
     ) {
     }
@@ -19,8 +21,13 @@ abstract class AbstractImportMessage
         return $this->context;
     }
 
-    public function getArchiveFileName(): string
+    public function getArchivedFileName(): string
     {
-        return $this->archiveFileName;
+        return $this->archivedFileName;
+    }
+
+    public function getCatalogMetadata(): ?CatalogMetadata
+    {
+        return $this->catalogMetadata;
     }
 }

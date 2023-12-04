@@ -19,13 +19,13 @@ class OfferDocumentStruct extends Struct
 
     public function __construct(
         OfferDocumentPositionCollection $positions,
-        ?string $number = null,
-        ?string $reference = null,
-        ?\DateTimeImmutable $validTo = null,
-        ?string $type = null,
-        ?float $orderFee = null,
-        ?float $additionalCosts = null,
-        ?string $currency = null
+        string $number = null,
+        string $reference = null,
+        \DateTimeImmutable $validTo = null,
+        string $type = null,
+        float $orderFee = null,
+        float $additionalCosts = null,
+        string $currency = null
     ) {
         $this->positions       = $positions;
         $this->number          = $number;

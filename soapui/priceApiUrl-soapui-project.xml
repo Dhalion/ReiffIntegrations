@@ -1,0 +1,606 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<con:soapui-project id="655ff599-92f3-4bbc-b0a6-883f836d8cce" activeEnvironment="Default" name="priceApiUrl" resourceRoot="" soapui-version="5.7.2" xmlns:con="http://eviware.com/soapui/config"><con:settings/><con:interface xsi:type="con:WsdlInterface" id="2bb27cb6-e11a-4c39-8e82-1d62511659e9" wsaVersion="NONE" name="ZSHOP_GET_MAT_FULL_PRICE_BN_soap12" type="wsdl" bindingName="{urn:sap-com:document:sap:soap:functions:mc-style}ZSHOP_GET_MAT_FULL_PRICE_BN_soap12" soapVersion="1_2" anonymous="optional" definition="https://127.0.0.1:7777/sap/bc/srt/wsdl/flv_10002A111AD1/bndg_url/sap/bc/srt/rfc/sap/zshop_get_material_full_price/100/zshop_get_mat_full_price_ws/zshop_get_mat_full_price_bn?sap-client=100" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache/><con:endpoints><con:endpoint>https://sapqa202.reiff:9000/sap/bc/srt/rfc/sap/zshop_get_material_full_price/100/zshop_get_mat_full_price_ws/zshop_get_mat_full_price_bn</con:endpoint></con:endpoints><con:operation id="a9f97a71-59ee-4477-b75e-33b24e6d2106" isOneWay="false" action="urn:sap-com:document:sap:soap:functions:mc-style:ZSHOP_GET_MATERIAL_FULL_PRICE:ZshopGetMaterialFullPriceRequest" name="ZshopGetMaterialFullPrice" bindingOperationName="ZshopGetMaterialFullPrice" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="d75cd201-0c5f-4b2f-8cac-b941ad7bcc7e" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>https://sapqa202.reiff:9000/sap/bc/srt/rfc/sap/zshop_get_material_full_price/100/zshop_get_mat_full_price_ws/zshop_get_mat_full_price_bn</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:urn="urn:sap-com:document:sap:soap:functions:mc-style">
+   <soap:Header/>
+   <soap:Body>
+      <urn:ZshopGetMaterialFullPrice>
+         <!--Optional:-->
+         <ItItems>
+            <!--Zero or more repetitions:-->
+            <item>
+               <Kunnr>?</Kunnr>
+               <Matnr>?</Matnr>
+               <Mgame>?</Mgame>
+               <Vrkme>?</Vrkme>
+               <DatumPrice>?</DatumPrice>
+            </item>
+         </ItItems>
+         <!--Optional:-->
+         <IvDistributionChannel>?</IvDistributionChannel>
+         <!--Optional:-->
+         <IvDivision>?</IvDivision>
+         <!--Optional:-->
+         <IvSalesOrganisation>?</IvSalesOrganisation>
+         <IvSessionLanguage>?</IvSessionLanguage>
+         <!--Optional:-->
+         <Return>
+            <!--Zero or more repetitions:-->
+            <item>
+               <Type>?</Type>
+               <Id>?</Id>
+               <Number>?</Number>
+               <Message>?</Message>
+               <LogNo>?</LogNo>
+               <LogMsgNo>?</LogMsgNo>
+               <MessageV1>?</MessageV1>
+               <MessageV2>?</MessageV2>
+               <MessageV3>?</MessageV3>
+               <MessageV4>?</MessageV4>
+               <Parameter>?</Parameter>
+               <Row>?</Row>
+               <Field>?</Field>
+               <System>?</System>
+            </item>
+         </Return>
+      </urn:ZshopGetMaterialFullPrice>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="urn:sap-com:document:sap:soap:functions:mc-style/ZSHOP_GET_MATERIAL_FULL_PRICE/ZshopGetMaterialFullPriceRequest"/></con:call></con:operation></con:interface><con:interface xsi:type="con:WsdlInterface" id="aa91b38e-1556-4110-a84d-bf4a162b9945" wsaVersion="NONE" name="ZSHOP_GET_MAT_FULL_PRICE_BN" type="wsdl" bindingName="{urn:sap-com:document:sap:soap:functions:mc-style}ZSHOP_GET_MAT_FULL_PRICE_BN" soapVersion="1_1" anonymous="optional" definition="https://127.0.0.1:7777/sap/bc/srt/wsdl/flv_10002A111AD1/bndg_url/sap/bc/srt/rfc/sap/zshop_get_material_full_price/100/zshop_get_mat_full_price_ws/zshop_get_mat_full_price_bn?sap-client=100" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="https://127.0.0.1:7777/sap/bc/srt/wsdl/flv_10002A111AD1/bndg_url/sap/bc/srt/rfc/sap/zshop_get_material_full_price/100/zshop_get_mat_full_price_ws/zshop_get_mat_full_price_bn?sap-client=100"><con:part><con:url>https://127.0.0.1:7777/sap/bc/srt/wsdl/flv_10002A111AD1/bndg_url/sap/bc/srt/rfc/sap/zshop_get_material_full_price/100/zshop_get_mat_full_price_ws/zshop_get_mat_full_price_bn?sap-client=100</con:url><con:content><![CDATA[<wsdl:definitions targetNamespace="urn:sap-com:document:sap:soap:functions:mc-style" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsoap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="urn:sap-com:document:sap:soap:functions:mc-style" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:n1="urn:sap-com:document:sap:rfc:functions">
+  <wsdl:documentation>
+    <sidl:sidl xmlns:sidl="http://www.sap.com/2007/03/sidl"/>
+  </wsdl:documentation>
+  <wsp:UsingPolicy wsdl:required="true"/>
+  <wsp:Policy wsu:Id="BN__ZSHOP_GET_MAT_FULL_PRICE_BN">
+    <wsp:ExactlyOne>
+      <wsp:All>
+        <sapattahnd:Enabled xmlns:sapattahnd="http://www.sap.com/710/features/attachment/">false</sapattahnd:Enabled>
+        <saptrnbnd:OptimizedMimeSerialization wsp:Optional="true" xmlns:saptrnbnd="http://schemas.xmlsoap.org/ws/2004/09/policy/optimizedmimeserialization"/>
+        <wsaw:UsingAddressing wsp:Optional="true" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl"/>
+        <wsp:All>
+          <sp:TransportBinding xmlns:sp="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702" xmlns:sapsp="http://www.sap.com/webas/630/soap/features/security/policy" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512" xmlns:wsu="http://schemas.xmlsoap.org/ws/2002/07/utility" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex">
+            <wsp:Policy>
+              <sp:TransportToken>
+                <wsp:Policy>
+                  <sp:HttpsToken>
+                    <wsp:Policy>
+                      <sp:HttpBasicAuthentication/>
+                    </wsp:Policy>
+                  </sp:HttpsToken>
+                </wsp:Policy>
+              </sp:TransportToken>
+              <sp:AlgorithmSuite>
+                <wsp:Policy>
+                  <sp:Basic128Rsa15/>
+                </wsp:Policy>
+              </sp:AlgorithmSuite>
+              <sp:Layout>
+                <wsp:Policy>
+                  <sp:Strict/>
+                </wsp:Policy>
+              </sp:Layout>
+            </wsp:Policy>
+          </sp:TransportBinding>
+        </wsp:All>
+      </wsp:All>
+      <wsp:All>
+        <sapattahnd:Enabled xmlns:sapattahnd="http://www.sap.com/710/features/attachment/">false</sapattahnd:Enabled>
+        <saptrnbnd:OptimizedXMLTransfer uri="http://xml.sap.com/2006/11/esi/esp/binxml" wsp:Optional="true" xmlns:saptrnbnd="http://www.sap.com/webas/710/soap/features/transportbinding/"/>
+        <wsaw:UsingAddressing wsp:Optional="true" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl"/>
+        <wsp:All>
+          <sp:TransportBinding xmlns:sp="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702" xmlns:sapsp="http://www.sap.com/webas/630/soap/features/security/policy" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512" xmlns:wsu="http://schemas.xmlsoap.org/ws/2002/07/utility" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex">
+            <wsp:Policy>
+              <sp:TransportToken>
+                <wsp:Policy>
+                  <sp:HttpsToken>
+                    <wsp:Policy>
+                      <sp:HttpBasicAuthentication/>
+                    </wsp:Policy>
+                  </sp:HttpsToken>
+                </wsp:Policy>
+              </sp:TransportToken>
+              <sp:AlgorithmSuite>
+                <wsp:Policy>
+                  <sp:Basic128Rsa15/>
+                </wsp:Policy>
+              </sp:AlgorithmSuite>
+              <sp:Layout>
+                <wsp:Policy>
+                  <sp:Strict/>
+                </wsp:Policy>
+              </sp:Layout>
+            </wsp:Policy>
+          </sp:TransportBinding>
+        </wsp:All>
+      </wsp:All>
+    </wsp:ExactlyOne>
+  </wsp:Policy>
+  <wsp:Policy wsu:Id="BN__ZSHOP_GET_MAT_FULL_PRICE_BN_soap12">
+    <wsp:ExactlyOne>
+      <wsp:All>
+        <sapattahnd:Enabled xmlns:sapattahnd="http://www.sap.com/710/features/attachment/">false</sapattahnd:Enabled>
+        <saptrnbnd:OptimizedMimeSerialization wsp:Optional="true" xmlns:saptrnbnd="http://schemas.xmlsoap.org/ws/2004/09/policy/optimizedmimeserialization"/>
+        <wsaw:UsingAddressing wsp:Optional="true" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl"/>
+        <wsp:All>
+          <sp:TransportBinding xmlns:sp="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702" xmlns:sapsp="http://www.sap.com/webas/630/soap/features/security/policy" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512" xmlns:wsu="http://schemas.xmlsoap.org/ws/2002/07/utility" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex">
+            <wsp:Policy>
+              <sp:TransportToken>
+                <wsp:Policy>
+                  <sp:HttpsToken>
+                    <wsp:Policy>
+                      <sp:HttpBasicAuthentication/>
+                    </wsp:Policy>
+                  </sp:HttpsToken>
+                </wsp:Policy>
+              </sp:TransportToken>
+              <sp:AlgorithmSuite>
+                <wsp:Policy>
+                  <sp:Basic128Rsa15/>
+                </wsp:Policy>
+              </sp:AlgorithmSuite>
+              <sp:Layout>
+                <wsp:Policy>
+                  <sp:Strict/>
+                </wsp:Policy>
+              </sp:Layout>
+            </wsp:Policy>
+          </sp:TransportBinding>
+        </wsp:All>
+      </wsp:All>
+      <wsp:All>
+        <sapattahnd:Enabled xmlns:sapattahnd="http://www.sap.com/710/features/attachment/">false</sapattahnd:Enabled>
+        <saptrnbnd:OptimizedXMLTransfer uri="http://xml.sap.com/2006/11/esi/esp/binxml" wsp:Optional="true" xmlns:saptrnbnd="http://www.sap.com/webas/710/soap/features/transportbinding/"/>
+        <wsaw:UsingAddressing wsp:Optional="true" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl"/>
+        <wsp:All>
+          <sp:TransportBinding xmlns:sp="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702" xmlns:sapsp="http://www.sap.com/webas/630/soap/features/security/policy" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512" xmlns:wsu="http://schemas.xmlsoap.org/ws/2002/07/utility" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex">
+            <wsp:Policy>
+              <sp:TransportToken>
+                <wsp:Policy>
+                  <sp:HttpsToken>
+                    <wsp:Policy>
+                      <sp:HttpBasicAuthentication/>
+                    </wsp:Policy>
+                  </sp:HttpsToken>
+                </wsp:Policy>
+              </sp:TransportToken>
+              <sp:AlgorithmSuite>
+                <wsp:Policy>
+                  <sp:Basic128Rsa15/>
+                </wsp:Policy>
+              </sp:AlgorithmSuite>
+              <sp:Layout>
+                <wsp:Policy>
+                  <sp:Strict/>
+                </wsp:Policy>
+              </sp:Layout>
+            </wsp:Policy>
+          </sp:TransportBinding>
+        </wsp:All>
+      </wsp:All>
+    </wsp:ExactlyOne>
+  </wsp:Policy>
+  <wsp:Policy wsu:Id="IF__ZSHOP_GET_MATERIAL_FULL_PRICE">
+    <wsp:ExactlyOne>
+      <wsp:All>
+        <sapsession:Session xmlns:sapsession="http://www.sap.com/webas/630/soap/features/session/">
+          <sapsession:enableSession>false</sapsession:enableSession>
+        </sapsession:Session>
+        <sapcentraladmin:CentralAdministration wsp:Optional="true" xmlns:sapcentraladmin="http://www.sap.com/webas/700/soap/features/CentralAdministration/">
+          <sapcentraladmin:BusinessApplicationID>16B610D34E021EDCB5BA2656952B86B6</sapcentraladmin:BusinessApplicationID>
+        </sapcentraladmin:CentralAdministration>
+      </wsp:All>
+    </wsp:ExactlyOne>
+  </wsp:Policy>
+  <wsp:Policy wsu:Id="OP__ZshopGetMaterialFullPrice">
+    <wsp:ExactlyOne>
+      <wsp:All>
+        <saptrhnw05:required xmlns:saptrhnw05="http://www.sap.com/NW05/soap/features/transaction/">no</saptrhnw05:required>
+        <sapcomhnd:enableCommit xmlns:sapcomhnd="http://www.sap.com/NW05/soap/features/commit/">false</sapcomhnd:enableCommit>
+        <sapblock:enableBlocking xmlns:sapblock="http://www.sap.com/NW05/soap/features/blocking/">true</sapblock:enableBlocking>
+        <saprmnw05:enableWSRM xmlns:saprmnw05="http://www.sap.com/NW05/soap/features/wsrm/">false</saprmnw05:enableWSRM>
+      </wsp:All>
+    </wsp:ExactlyOne>
+  </wsp:Policy>
+  <wsdl:types>
+    <xsd:schema attributeFormDefault="qualified" targetNamespace="urn:sap-com:document:sap:rfc:functions" xmlns:tns="urn:sap-com:document:sap:rfc:functions">
+      <xsd:simpleType name="char1">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="1"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="char10">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="10"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="char18">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="18"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="char2">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="2"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="char20">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="20"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="char220">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="220"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="char30">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="30"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="char32">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="32"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="char35">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="35"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="char4">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="4"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="char50">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="50"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="cuky5">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="5"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="curr11.2">
+        <xsd:restriction base="xsd:decimal">
+          <xsd:totalDigits value="11"/>
+          <xsd:fractionDigits value="2"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="curr15.2">
+        <xsd:restriction base="xsd:decimal">
+          <xsd:totalDigits value="15"/>
+          <xsd:fractionDigits value="2"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="date10">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="10"/>
+          <xsd:pattern value="\d\d\d\d-\d\d-\d\d"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="decimal5.0">
+        <xsd:restriction base="xsd:decimal">
+          <xsd:totalDigits value="5"/>
+          <xsd:fractionDigits value="0"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="numeric2">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="2"/>
+          <xsd:pattern value="\d*"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="numeric3">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="3"/>
+          <xsd:pattern value="\d*"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="numeric4">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="4"/>
+          <xsd:pattern value="\d*"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="numeric6">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="6"/>
+          <xsd:pattern value="\d*"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="quantum13.3">
+        <xsd:restriction base="xsd:decimal">
+          <xsd:totalDigits value="13"/>
+          <xsd:fractionDigits value="3"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="quantum15.3">
+        <xsd:restriction base="xsd:decimal">
+          <xsd:totalDigits value="15"/>
+          <xsd:fractionDigits value="3"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="unit3">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="3"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+    </xsd:schema>
+    <xsd:schema attributeFormDefault="qualified" targetNamespace="urn:sap-com:document:sap:soap:functions:mc-style" xmlns:n0="urn:sap-com:document:sap:rfc:functions">
+      <xsd:import namespace="urn:sap-com:document:sap:rfc:functions"/>
+      <xsd:simpleType name="RfcException.Message.Number">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="3"/>
+          <xsd:pattern value="\d*"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="char2">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="2"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:complexType name="ZshopFullPriceImpStr">
+        <xsd:sequence>
+          <xsd:element name="Kunnr" type="n0:char10"/>
+          <xsd:element name="Matnr" type="n0:char18"/>
+          <xsd:element name="Mgame" type="n0:quantum13.3"/>
+          <xsd:element name="Vrkme" type="n0:unit3"/>
+          <xsd:element name="DatumPrice" type="n0:date10"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="Bapiret2">
+        <xsd:sequence>
+          <xsd:element name="Type" type="n0:char1"/>
+          <xsd:element name="Id" type="n0:char20"/>
+          <xsd:element name="Number" type="n0:numeric3"/>
+          <xsd:element name="Message" type="n0:char220"/>
+          <xsd:element name="LogNo" type="n0:char20"/>
+          <xsd:element name="LogMsgNo" type="n0:numeric6"/>
+          <xsd:element name="MessageV1" type="n0:char50"/>
+          <xsd:element name="MessageV2" type="n0:char50"/>
+          <xsd:element name="MessageV3" type="n0:char50"/>
+          <xsd:element name="MessageV4" type="n0:char50"/>
+          <xsd:element name="Parameter" type="n0:char32"/>
+          <xsd:element name="Row" type="xsd:int"/>
+          <xsd:element name="Field" type="n0:char30"/>
+          <xsd:element name="System" type="n0:char10"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="ZshopFullPriceExportStr">
+        <xsd:sequence>
+          <xsd:element name="Kunnr" type="n0:char10"/>
+          <xsd:element name="Matnr" type="n0:char18"/>
+          <xsd:element name="Kdmat" type="n0:char35"/>
+          <xsd:element name="Vrkme" type="n0:unit3"/>
+          <xsd:element name="Price" type="tns:ZshopKompTab"/>
+          <xsd:element name="Scale" type="tns:CondScaleT"/>
+          <xsd:element name="Stock" type="tns:ZshopStockT"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="Condscale">
+        <xsd:sequence>
+          <xsd:element name="Knumh" type="n0:char10"/>
+          <xsd:element name="Kopos" type="n0:numeric2"/>
+          <xsd:element name="Klfn1" type="n0:numeric4"/>
+          <xsd:element name="Kstbw" type="n0:curr15.2"/>
+          <xsd:element name="Kstbm" type="n0:quantum15.3"/>
+          <xsd:element name="Kbetr" type="n0:curr11.2"/>
+          <xsd:element name="Kzbzg" type="n0:char1"/>
+          <xsd:element name="Updkz" type="n0:char1"/>
+          <xsd:element name="Klfka" type="n0:char1"/>
+          <xsd:element name="Rv13akonwa" type="n0:cuky5"/>
+          <xsd:element name="Konpkmein" type="n0:unit3"/>
+          <xsd:element name="Konpkonws" type="n0:cuky5"/>
+          <xsd:element name="Konpkonms" type="n0:unit3"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="ZshopStock">
+        <xsd:sequence>
+          <xsd:element name="Lgmng" type="n0:quantum13.3"/>
+          <xsd:element name="Lmein" type="n0:unit3"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="ZshopKompStr">
+        <xsd:sequence>
+          <xsd:element name="Mgame" type="n0:quantum13.3"/>
+          <xsd:element name="Vrkme" type="n0:unit3"/>
+          <xsd:element name="Netpr" type="n0:curr11.2"/>
+          <xsd:element name="Waerk" type="n0:cuky5"/>
+          <xsd:element name="Kpein" type="n0:decimal5.0"/>
+          <xsd:element name="Kmein" type="n0:unit3"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="RfcException.Message">
+        <xsd:sequence>
+          <xsd:element name="ID" type="xsd:string"/>
+          <xsd:element name="Number" type="tns:RfcException.Message.Number"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="ZshopGetMaterialFullPrice.RfcException">
+        <xsd:sequence>
+          <xsd:element name="Name" type="tns:ZshopGetMaterialFullPrice.RfcExceptions"/>
+          <xsd:element name="Text" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="Message" type="tns:RfcException.Message" minOccurs="0"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="ZshopFullPriceImpTab">
+        <xsd:sequence>
+          <xsd:element name="item" type="tns:ZshopFullPriceImpStr" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="Bapirettab">
+        <xsd:sequence>
+          <xsd:element name="item" type="tns:Bapiret2" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="ZshopFullPriceExportTab">
+        <xsd:sequence>
+          <xsd:element name="item" type="tns:ZshopFullPriceExportStr" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="CondScaleT">
+        <xsd:sequence>
+          <xsd:element name="item" type="tns:Condscale" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="ZshopStockT">
+        <xsd:sequence>
+          <xsd:element name="item" type="tns:ZshopStock" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="ZshopKompTab">
+        <xsd:sequence>
+          <xsd:element name="item" type="tns:ZshopKompStr" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:simpleType name="ZshopGetMaterialFullPrice.RfcExceptions">
+        <xsd:restriction base="xsd:string">
+          <xsd:enumeration value="CalculationSchemeNotC"/>
+          <xsd:enumeration value="KunnrNotFound"/>
+          <xsd:enumeration value="MaterialNotFound"/>
+          <xsd:enumeration value="NoAuthority"/>
+          <xsd:enumeration value="NoBukrsFound"/>
+          <xsd:enumeration value="NoInput"/>
+          <xsd:enumeration value="NoSalesPriceFound"/>
+          <xsd:enumeration value="NoSalesUnitFound"/>
+          <xsd:enumeration value="OrgStructureNotComple"/>
+          <xsd:enumeration value="OtherError"/>
+          <xsd:enumeration value="PlantNotFound"/>
+          <xsd:enumeration value="PricingError"/>
+          <xsd:enumeration value="VkorgNotFound"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:element name="ZshopGetMaterialFullPrice.Exception" type="tns:ZshopGetMaterialFullPrice.RfcException"/>
+      <xsd:element name="ZshopGetMaterialFullPrice">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="ItItems" type="tns:ZshopFullPriceImpTab" minOccurs="0"/>
+            <xsd:element name="IvDistributionChannel" type="n0:char2" minOccurs="0"/>
+            <xsd:element name="IvDivision" type="n0:char2" minOccurs="0"/>
+            <xsd:element name="IvSalesOrganisation" type="n0:char4" minOccurs="0"/>
+            <xsd:element name="IvSessionLanguage" type="tns:char2"/>
+            <xsd:element name="Return" type="tns:Bapirettab" minOccurs="0"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="ZshopGetMaterialFullPriceResponse">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="EtFullPrice" type="tns:ZshopFullPriceExportTab"/>
+            <xsd:element name="Return" type="tns:Bapirettab" minOccurs="0"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="ZshopGetMaterialFullPrice">
+    <wsdl:part name="parameters" element="tns:ZshopGetMaterialFullPrice"/>
+  </wsdl:message>
+  <wsdl:message name="ZshopGetMaterialFullPriceResponse">
+    <wsdl:part name="parameter" element="tns:ZshopGetMaterialFullPriceResponse"/>
+  </wsdl:message>
+  <wsdl:message name="ZshopGetMaterialFullPrice.Exception">
+    <wsdl:part name="ZshopGetMaterialFullPrice.Exception" element="tns:ZshopGetMaterialFullPrice.Exception"/>
+  </wsdl:message>
+  <wsdl:portType name="ZSHOP_GET_MATERIAL_FULL_PRICE">
+    <wsp:Policy>
+      <wsp:PolicyReference URI="#IF__ZSHOP_GET_MATERIAL_FULL_PRICE"/>
+    </wsp:Policy>
+    <wsdl:operation name="ZshopGetMaterialFullPrice">
+      <wsp:Policy>
+        <wsp:PolicyReference URI="#OP__ZshopGetMaterialFullPrice"/>
+      </wsp:Policy>
+      <wsdl:input message="tns:ZshopGetMaterialFullPrice"/>
+      <wsdl:output message="tns:ZshopGetMaterialFullPriceResponse"/>
+      <wsdl:fault name="ZshopGetMaterialFullPrice.Exception" message="tns:ZshopGetMaterialFullPrice.Exception"/>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="ZSHOP_GET_MAT_FULL_PRICE_BN" type="tns:ZSHOP_GET_MATERIAL_FULL_PRICE">
+    <wsp:Policy>
+      <wsp:PolicyReference URI="#BN__ZSHOP_GET_MAT_FULL_PRICE_BN"/>
+    </wsp:Policy>
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+    <wsdl:operation name="ZshopGetMaterialFullPrice">
+      <soap:operation soapAction="urn:sap-com:document:sap:soap:functions:mc-style:ZSHOP_GET_MATERIAL_FULL_PRICE:ZshopGetMaterialFullPriceRequest" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ZshopGetMaterialFullPrice.Exception">
+        <soap:fault name="ZshopGetMaterialFullPrice.Exception" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="ZSHOP_GET_MAT_FULL_PRICE_BN_soap12" type="tns:ZSHOP_GET_MATERIAL_FULL_PRICE">
+    <wsp:Policy>
+      <wsp:PolicyReference URI="#BN__ZSHOP_GET_MAT_FULL_PRICE_BN_soap12"/>
+    </wsp:Policy>
+    <wsoap12:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+    <wsdl:operation name="ZshopGetMaterialFullPrice">
+      <wsoap12:operation soapAction="urn:sap-com:document:sap:soap:functions:mc-style:ZSHOP_GET_MATERIAL_FULL_PRICE:ZshopGetMaterialFullPriceRequest" style="document"/>
+      <wsdl:input>
+        <wsoap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <wsoap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ZshopGetMaterialFullPrice.Exception">
+        <wsoap12:fault name="ZshopGetMaterialFullPrice.Exception" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="ZSHOP_GET_MAT_FULL_PRICE_WS">
+    <wsdl:port name="ZSHOP_GET_MAT_FULL_PRICE_BN" binding="tns:ZSHOP_GET_MAT_FULL_PRICE_BN">
+      <soap:address location="https://sapqa202.reiff:9000/sap/bc/srt/rfc/sap/zshop_get_material_full_price/100/zshop_get_mat_full_price_ws/zshop_get_mat_full_price_bn"/>
+    </wsdl:port>
+    <wsdl:port name="ZSHOP_GET_MAT_FULL_PRICE_BN_soap12" binding="tns:ZSHOP_GET_MAT_FULL_PRICE_BN_soap12">
+      <wsoap12:address location="https://sapqa202.reiff:9000/sap/bc/srt/rfc/sap/zshop_get_material_full_price/100/zshop_get_mat_full_price_ws/zshop_get_mat_full_price_bn"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>]]></con:content><con:type>http://schemas.xmlsoap.org/wsdl/</con:type></con:part></con:definitionCache><con:endpoints><con:endpoint>https://sapqa202.reiff:9000/sap/bc/srt/rfc/sap/zshop_get_material_full_price/100/zshop_get_mat_full_price_ws/zshop_get_mat_full_price_bn</con:endpoint></con:endpoints><con:operation id="3e22807b-3967-4df0-b011-ccb240255af8" isOneWay="false" action="urn:sap-com:document:sap:soap:functions:mc-style:ZSHOP_GET_MATERIAL_FULL_PRICE:ZshopGetMaterialFullPriceRequest" name="ZshopGetMaterialFullPrice" bindingOperationName="ZshopGetMaterialFullPrice" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="f3c6bedf-ee04-47be-b1bf-5c97af682b6e" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>https://sapqa202.reiff:9000/sap/bc/srt/rfc/sap/zshop_get_material_full_price/100/zshop_get_mat_full_price_ws/zshop_get_mat_full_price_bn</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:sap-com:document:sap:soap:functions:mc-style">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <urn:ZshopGetMaterialFullPrice>
+         <!--Optional:-->
+         <ItItems>
+            <!--Zero or more repetitions:-->
+            <item>
+               <Kunnr>?</Kunnr>
+               <Matnr>?</Matnr>
+               <Mgame>?</Mgame>
+               <Vrkme>?</Vrkme>
+               <DatumPrice>?</DatumPrice>
+            </item>
+         </ItItems>
+         <!--Optional:-->
+         <IvDistributionChannel>?</IvDistributionChannel>
+         <!--Optional:-->
+         <IvDivision>?</IvDivision>
+         <!--Optional:-->
+         <IvSalesOrganisation>?</IvSalesOrganisation>
+         <IvSessionLanguage>?</IvSessionLanguage>
+         <!--Optional:-->
+         <Return>
+            <!--Zero or more repetitions:-->
+            <item>
+               <Type>?</Type>
+               <Id>?</Id>
+               <Number>?</Number>
+               <Message>?</Message>
+               <LogNo>?</LogNo>
+               <LogMsgNo>?</LogMsgNo>
+               <MessageV1>?</MessageV1>
+               <MessageV2>?</MessageV2>
+               <MessageV3>?</MessageV3>
+               <MessageV4>?</MessageV4>
+               <Parameter>?</Parameter>
+               <Row>?</Row>
+               <Field>?</Field>
+               <System>?</System>
+            </item>
+         </Return>
+      </urn:ZshopGetMaterialFullPrice>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="urn:sap-com:document:sap:soap:functions:mc-style:ZSHOP_GET_MATERIAL_FULL_PRICE:ZshopGetMaterialFullPriceRequest"/></con:call></con:operation></con:interface><con:properties/><con:wssContainer/><con:oAuth2ProfileContainer/><con:oAuth1ProfileContainer/></con:soapui-project>

@@ -16,7 +16,7 @@
             productNumber: page.product.productNumber,
             calculatedPrices: page.product.calculatedPrices,
             calculatedPrice: page.product.calculatedPrice,
-            unit: page.product.packUnit
+            unit: page.product.unit.translated.name
         } %}
     {% else %}
         {{ parent() }}
@@ -30,7 +30,7 @@
             isPageRendering: isPageRendering,
             isFallback: isFallback,
             debtorNumber: debtorNumber,
-            unit: page.product.packUnit
+            unit: page.product.unit.translated.name
         } only %}
     </td>
 {% endblock %}

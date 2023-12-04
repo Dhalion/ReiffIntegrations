@@ -6,14 +6,14 @@ namespace ReiffIntegrations\MeDaPro\Command;
 
 use ReiffIntegrations\MeDaPro\Cleaner\CategoryActivator;
 use ReiffIntegrations\MeDaPro\Cleaner\ProductActivator;
-use ReiffIntegrations\MeDaPro\Cleaner\PropertiesDeleter;
-use ReiffIntegrations\MeDaPro\Command\Context\ImportCommandContext;
+use ReiffIntegrations\MeDaPro\Cleaner\SortmentRemoval;
 use ReiffIntegrations\MeDaPro\DataProvider\RuleProvider;
+use ReiffIntegrations\MeDaPro\Finder\Finder;
 use ReiffIntegrations\MeDaPro\Parser\JsonParser;
 use ReiffIntegrations\Util\Configuration;
 use ReiffIntegrations\Util\Context\DebugState;
 use ReiffIntegrations\Util\Context\DryRunState;
-use ReiffIntegrations\Util\ImportArchiver;
+use ReiffIntegrations\Util\Context\ForceState;
 use ReiffIntegrations\Util\Mailer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -22,9 +22,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
-use ReiffIntegrations\MeDaPro\Cleaner\SortmentRemoval;
 
 class CatalogImportCleanupCommand extends Command
 {
@@ -34,13 +32,11 @@ class CatalogImportCleanupCommand extends Command
         private readonly JsonParser $jsonParser,
         private readonly SystemConfigService $systemConfigService,
         private readonly Mailer $mailer,
-        private readonly ImportArchiver $archiver,
         private readonly ProductActivator $productActivator,
         private readonly CategoryActivator $categoryActivator,
-        private readonly PropertiesDeleter $propertiesDeleter,
         private readonly SortmentRemoval $sortmentRemoval,
-        private readonly RuleProvider $ruleProvider
-
+        private readonly RuleProvider $ruleProvider,
+        private readonly Finder $finder,
     ) {
         parent::__construct();
     }
@@ -58,94 +54,97 @@ class CatalogImportCleanupCommand extends Command
     {
         $context = Context::createDefaultContext();
 
-        $importContext = new ImportCommandContext(false, false, false, $context);
-
         $style = new SymfonyStyle($input, $output);
 
-        if ($importContext->isDryRun()) {
-            $importContext->getContext()->addState(DryRunState::NAME);
+        if ($input->getOption('dry-run')) {
+            $context->addState(DryRunState::NAME);
         }
 
-        if ($importContext->isDebug()) {
-            $importContext->getContext()->addState(DebugState::NAME);
+        if ($input->getOption('debug')) {
+            $context->addState(DebugState::NAME);
         }
 
-        $basePath = $this->systemConfigService->getString(Configuration::CONFIG_KEY_FILE_IMPORT_SOURCE_PATH);
+        if ($input->getOption('force')) {
+            $context->addState(ForceState::NAME);
+        }
 
-        $finder = new Finder();
-        $finder->files()->in($basePath);
+        $importBasePath = $this->systemConfigService->getString(Configuration::CONFIG_KEY_FILE_IMPORT_SOURCE_PATH);
+        $importFiles    = $this->finder->fetchImportFiles($importBasePath);
 
-        if ($finder->hasResults() === false) {
-            $style->info(sprintf('No file found to import at %s', $basePath));
+        if (empty($importFiles)) {
+            $style->info(sprintf('No file found to import at %s', $importBasePath));
 
             return Command::FAILURE;
         }
 
-        foreach ($finder as $file) {
-            $style->info(sprintf('Importing file [%s]', $file->getFilename()));
-            $this->removeTrailingComma($file);
+        foreach ($importFiles as $importFile) {
+            $file            = $importFile->getFile();
+            $catalogMetadata = $importFile->getCatalogMetadata();
 
-            $style->info('Parsing categories');
-            $catalogMetadata = $this->jsonParser->getCatalogMetadata($file->getRealPath());
-            $categoryData = $this->jsonParser->getCategories($file->getRealPath(), $catalogMetadata);
-
-            if ($categoryData === null) {
-                $style->error('Invalid category data provided');
-                $archivedFileName = $this->archiver->error($file->getFilename(), $context);
-
-                $this->mailer->sendErrorMail([new \RuntimeException('Invalid category data provided')], $archivedFileName, $importContext->getContext());
-
+            if (!$catalogMetadata->isSystemLanguage()) {
                 continue;
             }
 
+            $style->info(sprintf('Importing file [%s]', $file->getFilename()));
+            $this->removeTrailingComma($file);
+
             try {
                 $style->info('Parsing products');
-                $products = $this->jsonParser->getProducts($file->getRealPath());
+                $products = $this->jsonParser->getProducts(
+                    $file->getRealPath(),
+                    $catalogMetadata,
+                    $context
+                );
             } catch (\Throwable $t) {
                 $style->error($t->getMessage());
-                $this->mailer->sendErrorMail([$t], $file->getFilename(), $importContext->getContext());
+                $this->mailer->sendErrorMail([$t], $file->getFilename(), $context);
 
                 continue;
             }
 
             $style->info('Removing sortiment mapping from products');
-            $ruleId = $this->ruleProvider->getRuleIdBySortimentId($catalogMetadata->getSortimentId(), $importContext->getContext());
+
+            $ruleId = $this->ruleProvider->getRuleIdBySortimentId($catalogMetadata->getSortimentId(), $context);
             $this->sortmentRemoval->removeNotIncludedProductSortiments($catalogMetadata->getCatalogId(), $ruleId, $products->getAllProductNumbers());
-            $this->cleanUp($style, $importContext);
+
+            $this->cleanUp($style, $context);
         }
 
         return Command::SUCCESS;
     }
 
-    private function cleanUp(SymfonyStyle $style, ImportCommandContext $importContext): void
+    private function cleanUp(SymfonyStyle $style, Context $context): void
     {
         $activatorErrors = [];
         $style->info('Deactivating variants without assortment');
+
         try {
-            $this->productActivator->deleteVariants($importContext->getContext());
+            $this->productActivator->deleteVariants($context);
         } catch (\Throwable $throwable) {
             $activatorErrors[] = $throwable;
             $style->error($this->getExceptionAsString($throwable));
         }
 
         $style->info('Deactivating main products with all variants inactive');
+
         try {
-            $this->productActivator->deactivateMainProducts($importContext->getContext());
+            $this->productActivator->deactivateMainProducts($context);
         } catch (\Throwable $throwable) {
             $activatorErrors[] = $throwable;
             $style->error($this->getExceptionAsString($throwable));
         }
 
         $style->info('Deactivating categories with inactive all products');
+
         try {
-            $this->categoryActivator->deactivateCategories($importContext->getContext());
+            $this->categoryActivator->deactivateCategories($context);
         } catch (\Throwable $throwable) {
             $activatorErrors[] = $throwable;
             $style->error($this->getExceptionAsString($throwable));
         }
 
         if (count($activatorErrors) > 0) {
-            $this->mailer->sendErrorMail($activatorErrors, 'activating/deactivating products/categories', $importContext->getContext());
+            $this->mailer->sendErrorMail($activatorErrors, 'activating/deactivating products/categories', $context);
         }
     }
 

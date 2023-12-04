@@ -46,13 +46,16 @@
                 }
             },
             "orders": {
+                "addAll": "Alle hinzufügen",
                 "error": {
                     "noOrderResponse": "Ihre Bestellungen können aktuell nicht abgerufen werden.",
                     "noDocument": "Das angefragte Dokument ist aktuell nicht verfügbar."
                 },
                 "filter": {
                     "fromDate": "Frühestes Auftragsdatum:",
-                    "toDate": "Spätestes Auftragsdatum:"
+                    "toDate": "Spätestes Auftragsdatum:",
+                    "searchLabel": "Suchen:",
+                    "searchReset": "Zurücksetzen"
                 },
                 "documents": {
                     "invoiceTitle": "Rechnungen",
@@ -66,6 +69,13 @@
                         "SHIP_TO": "Lieferadresse"
                     },
                     "changeBillingAddressTitle": "Änderung der Rechnungsadresse (reiff-tp.de)"
+                },
+                "sorting": {
+                    "orderDate": "Datum",
+                    "orderNumber": "Auftragsnummer",
+                    "orderStatus": "Status",
+                    "orderTotal": "Gesamtsumme",
+                    "refNumber": "Bestellnummer"
                 }
             }
         },
@@ -100,6 +110,9 @@
                     }
                 }
             }
+        },
+        "general": {
+            "loading": "Ladet..."
         },
         "price": {
             "error": {
@@ -162,7 +175,8 @@
         "custom-order-number-blocked": "Die angegebene individuelle Bestellnummer ist zu lang. Bitte verwenden Sie maximal %characters% Zeichen.",
         "commission-order-blocked": "Die angegebene Kommission für die Bestellung ist zu lang. Bitte verwenden Sie maximal %characters% Zeichen.",
         "commission-product-blocked": "Die angegebene Kommission für ein Produkt ist zu lang. Bitte verwenden Sie maximal %characters% Zeichen.",
-        "custom-delivery-date-blocked": "Das gewählte Lieferdatum ist nicht valide. Bitte wählen sie ein Datum, welches mindestens einen Tag in der Zukunft liegt."
+        "custom-delivery-date-blocked": "Das gewählte Lieferdatum ist nicht valide. Bitte wählen sie ein Datum, welches mindestens einen Tag in der Zukunft liegt.",
+        "sap-not-available": "Eine Bestellung ist aktuell nicht möglich. Bitte versuchen Sie es später erneut."
     },
     "b2b": {
         "ReiffIntegrations": {

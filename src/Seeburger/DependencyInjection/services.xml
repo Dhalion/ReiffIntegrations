@@ -5,7 +5,7 @@
     <services>
         <service id="ReiffIntegrations\Seeburger\Handler\OrderExportHandler">
             <argument type="service" id="ReiffIntegrations\Util\ExportArchiver"/>
-            <argument type="service" id="ReiffIntegrations\Logger"/>
+            <argument type="service" id="monolog.logger.reiff_integrations"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="ReiffIntegrations\Util\Mailer"/>
             <argument type="service" id="order.repository"/>
@@ -13,6 +13,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="ReiffIntegrations\Seeburger\DataConverter\OrderIdocConverter"/>
             <argument type="service" id="ReiffIntegrations\Seeburger\Client\SeeburgerClient"/>
+            <argument type="service" id="K10rIntegrationHelper\Observability\RunService"/>
 
             <tag name="reiff_integrations.export_handler"/>
         </service>
@@ -24,6 +25,7 @@
             <argument type="service" id="order.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="reiff_order.repository"/>
+            <argument type="service" id="K10rIntegrationHelper\Observability\RunService"/>
 
             <tag name="console.command"/>
         </service>
@@ -55,7 +57,7 @@
             </call>
         </service>
 
-        <service id="ReiffIntegrations\Seeburger\DataConverter\OrderIdocConverter"/>
+        <service id="ReiffIntegrations\Seeburger\DataConverter\OrderIdocConverter" />
 
         <service id="ReiffIntegrations\Seeburger\Client\SeeburgerClient"/>
     </services>

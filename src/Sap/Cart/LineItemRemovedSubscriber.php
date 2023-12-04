@@ -29,17 +29,17 @@ class LineItemRemovedSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            AfterLineItemRemovedEvent::class => ['onAfterLineItemRemoved', -55555]
+            AfterLineItemRemovedEvent::class => ['onAfterLineItemRemoved', -55555],
         ];
     }
 
     public function onAfterLineItemRemoved(AfterLineItemRemovedEvent $event): void
     {
         try {
-            if($event->getCart()->getLineItems()->count() === 0) {
+            if ($event->getCart()->getLineItems()->count() === 0) {
                 $this->cartPersister->delete($event->getSalesChannelContext()->getToken(), $event->getSalesChannelContext());
             }
-        } catch(\Exception $exception) {}
-
+        } catch (\Exception $exception) {
+        }
     }
 }

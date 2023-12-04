@@ -7,15 +7,9 @@
             <factory service="ReiffIntegrations\Util\FilesystemFactory" method="factory" />
         </service>
 
-        <service id="ReiffIntegrations\Logger" class="Monolog\Logger">
-            <factory service="Shopware\Core\Framework\Log\LoggerFactory" method="createRotating"/>
-
-            <argument type="string">reiff_integrations</argument>
-        </service>
-
         <service id="ReiffIntegrations\Util\FilesystemFactory">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
-            <argument type="service" id="ReiffIntegrations\Logger" />
+            <argument type="service" id="monolog.logger.reiff_integrations" />
             <argument>%env(APP_ENV)%</argument>
         </service>
 
@@ -26,6 +20,7 @@
 
         <service id="ReiffIntegrations\Util\ImportArchiver">
             <argument type="service" id="ReiffIntegrations\Filesystem" />
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
         </service>
 
         <service id="ReiffIntegrations\Util\EntitySyncer">
@@ -35,7 +30,7 @@
         <service id="ReiffIntegrations\Util\Mailer">
             <argument type="service" id="Shopware\Core\Content\Mail\Service\MailService"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="ReiffIntegrations\Logger"/>
+            <argument type="service" id="monolog.logger.reiff_integrations"/>
         </service>
 
         <service id="ReiffIntegrations\Util\MessageHandler\ExportMessageHandler">
