@@ -24,20 +24,20 @@ class OfferDocumentPositionStruct extends Struct
     private ?string $denominatorUom;
 
     public function __construct(
-        ?string $number = null,
-        ?string $itemNumber = null,
-        ?string $description = null,
-        ?float $orderQuantity = null,
-        ?string $orderUom = null,
-        ?float $itemPrice = null,
-        ?float $priceUnit = null,
-        ?string $priceUom = null,
-        ?float $itemValue = null,
-        ?string $currency = null,
-        ?int $numerator = null,
-        ?string $numeratorUom = null,
-        ?int $denominator = null,
-        ?string $denominatorUom = null
+        string $number = null,
+        string $itemNumber = null,
+        string $description = null,
+        float $orderQuantity = null,
+        string $orderUom = null,
+        float $itemPrice = null,
+        float $priceUnit = null,
+        string $priceUom = null,
+        float $itemValue = null,
+        string $currency = null,
+        int $numerator = null,
+        string $numeratorUom = null,
+        int $denominator = null,
+        string $denominatorUom = null
     ) {
         $this->number         = $number;
         $this->itemNumber     = $itemNumber;

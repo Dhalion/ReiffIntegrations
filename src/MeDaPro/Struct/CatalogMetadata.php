@@ -8,16 +8,17 @@ use Shopware\Core\Framework\Struct\Struct;
 
 class CatalogMetadata extends Struct
 {
-    private ?string $catalogId   = null;
-    private ?string $sortimentId = null;
+    protected string $archivedFilename = '';
 
-    public function __construct(?string $catalogId, ?string $sortimentId)
-    {
-        $this->catalogId   = $catalogId;
-        $this->sortimentId = $sortimentId;
+    public function __construct(
+        protected readonly string $catalogId,
+        protected readonly ?string $sortimentId,
+        protected readonly string $languageCode,
+        protected readonly string $systemLanguageCode
+    ) {
     }
 
-    public function getCatalogId(): ?string
+    public function getCatalogId(): string
     {
         return $this->catalogId;
     }
@@ -25,5 +26,35 @@ class CatalogMetadata extends Struct
     public function getSortimentId(): ?string
     {
         return $this->sortimentId;
+    }
+
+    public function getLanguageCode(): string
+    {
+        return $this->languageCode;
+    }
+
+    public function getSystemLanguageCode(): string
+    {
+        return $this->systemLanguageCode;
+    }
+
+    public function isSystemLanguage(): bool
+    {
+        return $this->languageCode === $this->systemLanguageCode;
+    }
+
+    public function isValid(): bool
+    {
+        return $this->catalogId !== '' && $this->languageCode !== '' && $this->systemLanguageCode !== '';
+    }
+
+    public function getArchivedFilename(): string
+    {
+        return $this->archivedFilename;
+    }
+
+    public function setArchivedFilename(string $archivedFilename): void
+    {
+        $this->archivedFilename = $archivedFilename;
     }
 }

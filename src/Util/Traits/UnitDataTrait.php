@@ -15,7 +15,7 @@ trait UnitDataTrait
 {
     protected array $unitData = [];
 
-    protected function getSalesUnit(?string $elementData, ?string $default = null): ?string
+    protected function getSalesUnit(?string $elementData, string $default = null): ?string
     {
         if ($elementData === null || !array_key_exists($elementData, $this->unitData) || empty($this->unitData[$elementData])) {
             return $default;

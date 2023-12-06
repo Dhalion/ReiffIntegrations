@@ -46,13 +46,16 @@
                 }
             },
             "orders": {
+                "addAll": "Add all",
                 "error": {
                     "noOrderResponse": "Your orders currently can't be accessed.",
                     "noDocument": "This document currently not available."
                 },
                 "filter": {
                     "fromDate": "Earliest Order Date:",
-                    "toDate": "Latest Order Date:"
+                    "toDate": "Latest Order Date:",
+                    "searchLabel": "Search:",
+                    "searchReset": "Clear"
                 },
                 "documents": {
                     "invoiceTitle": "Invoices",
@@ -65,6 +68,13 @@
                         "SHIP_TO": "Shipping Address"
                     },
                     "changeBillingAddressTitle": "Change billing address (reiff-tp.de)"
+                },
+                "sorting": {
+                    "orderDate": "Date",
+                    "orderNumber": "Order number",
+                    "orderStatus": "Status",
+                    "orderTotal": "Total price",
+                    "refNumber": "Reference number"
                 }
             }
         },
@@ -99,6 +109,9 @@
                     }
                 }
             }
+        },
+        "general": {
+            "loading": "Loading..."
         },
         "price": {
             "error": {

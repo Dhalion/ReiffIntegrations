@@ -25,12 +25,15 @@
                     "debtorNumberLabel": "Debtor number",
                     "doubleOptInRegistrationLabel": "Completed double opt-in",
                     "isOciCustomerLabel": "Is an OCI customer",
-                    "company": "Company incl. company name"
+                    "company": "Company incl. company name",
+                    "salesOrganisationLabel": "Sales organisation"
                 }
             },
             "detail": {
                 "debtorNumberLabel": "Debtor number of the customer",
-                "debtorNumberPlaceholder": "-"
+                "debtorNumberPlaceholder": "-",
+                "salesOrganisationLabel": "Sales organisation of the customer",
+                "salesOrganisationPlaceholder": "-"
             }
         },
         "rule": {

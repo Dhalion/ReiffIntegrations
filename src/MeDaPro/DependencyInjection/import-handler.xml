@@ -3,23 +3,17 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
-        <service id="ReiffIntegrations\MeDaPro\ImportHandler\CategoryImportHandler">
-            <argument type="service" id="ReiffIntegrations\Logger"/>
+        <service id="ReiffIntegrations\MeDaPro\Importer\CategoryImporter">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="ReiffIntegrations\Util\Mailer"/>
             <argument type="service" id="ReiffIntegrations\Util\EntitySyncer"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="category.repository"/>
             <argument type="service" id="ReiffIntegrations\MeDaPro\Helper\MediaHelper"/>
             <argument type="service" id="ReiffIntegrations\MeDaPro\DataProvider\RuleProvider"/>
-
-            <tag name="reiff_integrations.import_handler"/>
+            <argument type="service" id="K10rIntegrationHelper\Observability\RunService"/>
+            <argument type="service" id="ReiffIntegrations\MeDaPro\Helper\NotificationHelper"/>
         </service>
 
         <service id="ReiffIntegrations\MeDaPro\ImportHandler\ProductImportHandler">
-            <argument type="service" id="ReiffIntegrations\Logger"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="ReiffIntegrations\Util\Mailer"/>
             <argument type="service" id="ReiffIntegrations\Util\EntitySyncer"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="product.repository"/>
@@ -31,42 +25,29 @@
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer"/>
             <argument type="service" id="unit.repository"/>
             <argument type="service" id="ReiffIntegrations\MeDaPro\DataProvider\RuleProvider"/>
+            <argument type="service" id="K10rIntegrationHelper\Observability\RunService"/>
+            <argument type="service" id="ReiffIntegrations\MeDaPro\Helper\NotificationHelper"/>
 
-            <tag name="reiff_integrations.import_handler"/>
+            <tag name="messenger.message_handler"/>
         </service>
 
-        <service id="ReiffIntegrations\MeDaPro\ImportHandler\PropertyImportHandler">
-            <argument type="service" id="ReiffIntegrations\Logger"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="ReiffIntegrations\Util\Mailer"/>
+        <service id="ReiffIntegrations\MeDaPro\Importer\PropertyImporter">
             <argument type="service" id="ReiffIntegrations\Util\EntitySyncer"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="property_group.repository"/>
-
-            <tag name="reiff_integrations.import_handler"/>
+            <argument type="service" id="K10rIntegrationHelper\Observability\RunService"/>
+            <argument type="service" id="ReiffIntegrations\MeDaPro\Helper\NotificationHelper"/>
         </service>
 
-        <service id="ReiffIntegrations\MeDaPro\ImportHandler\ManufacturerImportHandler">
-            <argument type="service" id="ReiffIntegrations\Logger"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="ReiffIntegrations\Util\Mailer"/>
+        <service id="ReiffIntegrations\MeDaPro\Importer\ManufacturerImporter">
             <argument type="service" id="ReiffIntegrations\Util\EntitySyncer"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="product_manufacturer.repository"/>
             <argument type="service" id="ReiffIntegrations\MeDaPro\Helper\MediaHelper"/>
-
-            <tag name="reiff_integrations.import_handler"/>
+            <argument type="service" id="K10rIntegrationHelper\Observability\RunService"/>
+            <argument type="service" id="ReiffIntegrations\MeDaPro\Helper\NotificationHelper"/>
         </service>
 
-        <service id="ReiffIntegrations\MeDaPro\ImportHandler\MediaImportHandler">
-            <argument type="service" id="ReiffIntegrations\Logger"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="ReiffIntegrations\Util\Mailer"/>
-            <argument type="service" id="ReiffIntegrations\Util\EntitySyncer"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        <service id="ReiffIntegrations\MeDaPro\Importer\MediaImporter">
             <argument type="service" id="ReiffIntegrations\MeDaPro\Helper\MediaHelper"/>
-
-            <tag name="reiff_integrations.import_handler"/>
+            <argument type="service" id="K10rIntegrationHelper\Observability\RunService"/>
+            <argument type="service" id="ReiffIntegrations\MeDaPro\Helper\NotificationHelper"/>
         </service>
     </services>
 </container>

@@ -30,7 +30,7 @@ class SimplePriceHandler
         string $languageId,
         array $productNumbers,
         ItemCollection $itemCollection,
-        ?string $debtorNumber = null
+        string $debtorNumber = null
     ): string {
         $context = Context::createDefaultContext();
 

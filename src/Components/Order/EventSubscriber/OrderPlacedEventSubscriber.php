@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 class OrderPlacedEventSubscriber implements EventSubscriberInterface
 {
-    public const CONTEXT_STATE = 'ignoreEventListeners';
+    public const CONTEXT_STATE               = 'ignoreEventListeners';
     public const FORM_KEY_COMPLETE_DELIVERY  = 'orderCompleteDeliveryIndicator';
     public const FORM_KEY_ORDER_COMMISSION   = 'orderCommissionText';
     public const FORM_KEY_PRODUCT_COMMISSION = 'productCommissionText';
@@ -28,7 +28,7 @@ class OrderPlacedEventSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            CheckoutOrderPlacedEvent::class => 'onOrderPlaced',
+            CheckoutOrderPlacedEvent::class    => 'onOrderPlaced',
             EntityWrittenContainerEvent::class => ['onOrderWritten', 50000],
         ];
     }
@@ -84,7 +84,7 @@ class OrderPlacedEventSubscriber implements EventSubscriberInterface
 
     public function onOrderWritten(EntityWrittenContainerEvent $event): void
     {
-        if($event->getContext()->hasState(self::CONTEXT_STATE)) {
+        if ($event->getContext()->hasState(self::CONTEXT_STATE)) {
             $event->stopPropagation();
         }
     }

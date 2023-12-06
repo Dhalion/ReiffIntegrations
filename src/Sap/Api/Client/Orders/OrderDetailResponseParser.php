@@ -15,7 +15,11 @@ use ReiffIntegrations\Sap\Struct\OrderLineItemStruct;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\System\Country\CountryEntity;
 
 class OrderDetailResponseParser
@@ -31,8 +35,11 @@ class OrderDetailResponseParser
     /** @var string[] */
     private array $countriesByIsoCode = [];
 
-    public function __construct(private readonly LoggerInterface $logger, private readonly EntityRepository $countryRepository)
-    {
+    public function __construct(
+        private readonly LoggerInterface $logger,
+        private readonly EntityRepository $countryRepository,
+        private readonly EntityRepository $productRepository
+    ) {
     }
 
     public function parseResponse(bool $success, string $rawResponse, Context $context): OrderDetailApiResponse
@@ -152,7 +159,7 @@ class OrderDetailResponseParser
             $orderData['ORDER_HEADER_DATA']['BUSINESS_DATA']['DOCUMENT_FREIGHT_COST'] ? (float) $orderData['ORDER_HEADER_DATA']['BUSINESS_DATA']['DOCUMENT_FREIGHT_COST'] : null,
             $orderData['ORDER_HEADER_DATA']['BUSINESS_DATA']['DOCUMENT_EXTRA_HEADER_COST'] ? (float) $orderData['ORDER_HEADER_DATA']['BUSINESS_DATA']['DOCUMENT_EXTRA_HEADER_COST'] : null,
             $this->getAddresses($orderData['ORDER_HEADER_DATA']['PARTNER_ADDRESS'], $context),
-            $this->getLineItems($orderData['ORDER_ITEM_DATA']['item']),
+            $this->getLineItems($orderData['ORDER_ITEM_DATA']['item'], $context),
             $this->getDocuments($orderData['ORDER_FLOW']['FLOW_DATA']['item']),
         );
     }
@@ -179,9 +186,13 @@ class OrderDetailResponseParser
         return $addresses;
     }
 
-    private function getLineItems(array $lineItemsData): OrderLineItemCollection
+    private function getLineItems(array $lineItemsData, Context $context): OrderLineItemCollection
     {
         $lineItems = new OrderLineItemCollection();
+
+        $this->removeLeadingZerosProductNumber($lineItemsData);
+
+        $productsAvailability = $this->getProductsAvailability($lineItemsData, $context);
 
         foreach ($lineItemsData as $lineItemData) {
             $lineItem = new OrderLineItemStruct(
@@ -191,6 +202,7 @@ class OrderDetailResponseParser
                 $lineItemData['SALES_UNIT_ISO'],
                 (float) $lineItemData['ORDER_QUANTITY'],
                 (float) $lineItemData['NET_VALUE'],
+                $productsAvailability[$lineItemData['MATERIAL_NUMBER']]
             );
 
             $lineItems->add($lineItem);
@@ -282,5 +294,47 @@ class OrderDetailResponseParser
         );
 
         return ($date instanceof \DateTimeImmutable) ? $date : null;
+    }
+
+    private function removeLeadingZerosProductNumber(array &$lineItemsData): void
+    {
+        foreach ($lineItemsData as &$lineItemData) {
+            $lineItemData['MATERIAL_NUMBER'] = ltrim($lineItemData['MATERIAL_NUMBER'], '0');
+        }
+    }
+
+    private function getProductsAvailability(array $lineItemsData, Context $context): array
+    {
+        $productsNumbers = [];
+        foreach ($lineItemsData as $lineItemData) {
+            if (isset($lineItemData['MATERIAL_NUMBER'])) {
+                $productsNumbers[$lineItemData['MATERIAL_NUMBER']] = null;
+            }
+        }
+
+        if (!$productsNumbers) {
+            return [];
+        }
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new AndFilter([
+            new EqualsAnyFilter('productNumber', array_keys($productsNumbers)),
+            new EqualsFilter('active', 1),
+            new MultiFilter(MultiFilter::CONNECTION_OR, [
+              new EqualsFilter('isCloseout', 0),
+              new AndFilter([
+                  new EqualsFilter('isCloseout', 1),
+                  new RangeFilter('stock', [RangeFilter::GT => 0]),
+              ]),
+            ]),
+        ]));
+
+        $products = $this->productRepository->search($criteria, $context);
+
+        foreach ($products as $product) {
+            $productsNumbers[$product->getProductNumber()] = $product->getId();
+        }
+
+        return $productsNumbers;
     }
 }

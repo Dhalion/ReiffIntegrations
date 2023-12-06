@@ -108,7 +108,7 @@ class PriceSubscriber implements EventSubscriberInterface
 SELECT * FROM sales_channel_api_context WHERE token = :token
 SQL;
         $tokenResult = $this->connection->fetchAllAssociative($sql, [
-            'token' => $contextToken
+           'token' => $contextToken
         ]);
 
         if(count($tokenResult) === 0) {
@@ -139,7 +139,7 @@ SQL;
 SELECT debtor_number FROM reiff_customer WHERE customer_id = :customerId
 SQL;
         $debtorNumber = $this->connection->fetchOne($sql, [
-            'customerId' => $customerId
+           'customerId' => $customerId
         ]);
 
         if(!$debtorNumber) {

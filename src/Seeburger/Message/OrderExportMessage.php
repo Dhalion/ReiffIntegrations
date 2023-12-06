@@ -4,23 +4,21 @@ declare(strict_types=1);
 
 namespace ReiffIntegrations\Seeburger\Message;
 
-use ReiffIntegrations\Seeburger\Struct\OrderId;
+use ReiffIntegrations\Seeburger\Struct\OrderData;
 use ReiffIntegrations\Util\Message\AbstractExportMessage;
 use Shopware\Core\Framework\Context;
 
 class OrderExportMessage extends AbstractExportMessage
 {
-    private OrderId $orderId;
-
-    public function __construct(OrderId $orderId, Context $context)
-    {
+    public function __construct(
+        private readonly OrderData $orderData,
+        Context $context
+    ) {
         parent::__construct($context);
-
-        $this->orderId = $orderId;
     }
 
-    public function getOrderId(): OrderId
+    public function getOrderData(): OrderData
     {
-        return $this->orderId;
+        return $this->orderData;
     }
 }

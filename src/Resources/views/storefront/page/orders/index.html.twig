@@ -36,49 +36,180 @@
                     </label>
                     <button type="submit" class="btn btn-primary">{{ 'general.formSubmit' | trans | sw_sanitize }}</button>
                 </form>
+
+                {% block reiff_order_search %}
+                    {% if page.orders.count > 0 %}
+                        <form class="b2b-order-search-form mt-2 mb-4">
+                            <label>
+                                {{ 'ReiffIntegrations.customer.orders.filter.searchLabel'|trans|sw_sanitize }}
+                                <input type="text" class="b2b-order-search-input form-control" value="" />
+                            </label>
+                            <button type="reset"
+                                    class="btn btn-secondary b2b-order-search-reset">
+                                {{ 'ReiffIntegrations.customer.orders.filter.searchReset'|trans|sw_sanitize }}
+                            </button>
+                        </form>
+                    {% endif %}
+                {% endblock %}
+
             {% endblock %}
+
             {% block reiff_order_list %}
                 {% if page.orders.count == 0 %}
                     {% block reiff_order_list_empty %}
-                        {% if page.success %}
-                            {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
-                                type: "warning",
-                                content: "account.ordersInfoEmpty" | trans | sw_sanitize
-                            } %}
-                        {% else %}
-                            {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
-                                type: "danger",
-                                content: "ReiffIntegrations.customer.orders.error.noOrderResponse" | trans | sw_sanitize
-                            } %}
-                        {% endif %}
+                        <div class="py-2">
+                            {% if page.success %}
+                                {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                                    type: "warning",
+                                    content: "account.ordersInfoEmpty" | trans | sw_sanitize
+                                } %}
+                            {% else %}
+                                {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                                    type: "danger",
+                                    content: "ReiffIntegrations.customer.orders.error.noOrderResponse" | trans | sw_sanitize
+                                } %}
+                            {% endif %}
+                        </div>
                     {% endblock %}
+
                 {% else %}
-                    {% for order in page.orders %}
-                        {% block reiff_order_list_row %}
-                            <div class="b2b-accordion">
-                                <div class="b2b-accordion__title ajax-panel-link" data-bs-target="reiff-order-detail-{{ order.number }}" data-target="reiff-order-detail-{{ order.number }}" data-href="{{ path('frontend.b2b.orders.detail', { orderNumber: order.number }) }}">
-                                    {% sw_icon 'arrow-right' style { pack: 'solid' } %}
-                                    {% block reiff_order_list_row_overview %}
-                                        <span>
-                                            {{ order.number }}
-                                            {% if order.reference %}
-                                                ({{ order.reference }})
-                                            {% endif %}
-                                            -
-                                            {{ order.orderDate|format_date('medium', locale=app.request.locale) }}
-                                        </span>
-                                    {% endblock %}
+
+                    {% block reiff_order_search_sorting_wrap %}
+                        <div class="b2b-order-search-results-wrap">
+                            {% block reiff_order_search_sorting  %}
+                                {% set sortingIcon %}
+                                    {% sw_icon 'arrow-down-long-solid' style {
+                                        'namespace': 'ReiffIntegrations'
+                                    } %}
+                                    {% sw_icon 'arrow-up-long-solid' style {
+                                        'namespace': 'ReiffIntegrations'
+                                    } %}
+                                {% endset %}
+
+                                <div class="container sorting-buttons">
+                                    <div class="row">
+                                        <div class="col">
+                                            {{ "ReiffIntegrations.customer.orders.sorting.orderNumber"|trans|sw_sanitize }}
+                                            <button type="button"
+                                                    class="btn-sort"
+                                                    data-sorting-type="by-order-number"
+                                                    data-sorting-direction="default">
+                                                {{ sortingIcon }}
+                                            </button>
+                                        </div>
+                                        <div class="col">
+                                            {{ "ReiffIntegrations.customer.orders.sorting.refNumber"|trans|sw_sanitize }}
+                                            <button type="button"
+                                                    class="btn-sort"
+                                                    data-sorting-type="by-reference"
+                                                    data-sorting-direction="default">
+                                                {{ sortingIcon }}
+                                            </button>
+                                        </div>
+                                        <div class="col">
+                                            {{ "ReiffIntegrations.customer.orders.sorting.orderDate"|trans|sw_sanitize }}
+                                            <button type="button"
+                                                    class="btn-sort"
+                                                    data-sorting-type="by-date"
+                                                    data-sorting-direction="default">
+                                                {{ sortingIcon }}
+                                            </button>
+                                        </div>
+                                        <div class="col">
+                                            {{ "ReiffIntegrations.customer.orders.sorting.orderStatus"|trans|sw_sanitize }}
+                                            <button type="button"
+                                                    class="btn-sort"
+                                                    data-sorting-type="by-status"
+                                                    data-sorting-direction="default">
+                                                {{ sortingIcon }}
+                                            </button>
+                                        </div>
+                                        <div class="col">
+                                            {{ "ReiffIntegrations.customer.orders.sorting.orderTotal"|trans|sw_sanitize }}
+                                            <button type="button"
+                                                    class="btn-sort"
+                                                    data-sorting-type="by-total"
+                                                    data-sorting-direction="default">
+                                                {{ sortingIcon }}
+                                            </button>
+                                        </div>
+                                        <div class="col col-xl-1">
+                                            {% sw_icon 'eye-open' %}
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="b2b-accordion__body">
-                                    <div
-                                        class="b2b--ajax-panel"
-                                        data-id="reiff-order-detail-{{ order.number }}"
-                                        data-url=""
-                                    ></div>
+                            {% endblock %}
+
+                            {% block reiff_order_search_results  %}
+                                <div class="b2b-order-search-results" data-b2b-order-list="true">
+                                    {% for order in page.orders %}
+                                        {% block reiff_order_list_row %}
+                                            <div class="b2b-accordion"
+                                                 data-sort-by-order-number="{{ order.number }}"
+                                                 data-sort-by-reference="{{ order.reference?: '-' }}"
+                                                 data-sort-by-date="{{ order.orderDate|format_date(pattern="y-M-d") }}"
+                                                 data-sort-by-status="{{ order.status }}"
+                                                 data-sort-by-total="{{ order.netTotal }}">
+                                                <div class="b2b-accordion__title ajax-panel-link"
+                                                     data-bs-target="reiff-order-detail-{{ order.number }}"
+                                                     data-href="{{ path('frontend.b2b.orders.detail', { orderNumber: order.number }) }}">
+                                                    {% block reiff_order_list_row_overview %}
+
+                                                        {# Set order status ampel for multilingual use #}
+                                                        {% set orderStatusIndicator = 'cl-black' %}
+                                                        {% set orderStatusOpen = ['in Bearbeitung'] %}
+                                                        {% set orderStatusInProcess = ['teilweise abgeschlossen','teilweise bearbeitet'] %}
+                                                        {% set orderStatusClosed = ['abgeschlossen','vollständig bearbeitet'] %}
+                                                        {% if order.status in orderStatusOpen %}
+                                                            {% set orderStatusIndicator = 'cl-black' %}
+                                                        {% elseif order.status in orderStatusInProcess %}
+                                                            {% set orderStatusIndicator = 'cl-orange' %}
+                                                        {% elseif order.status in orderStatusClosed %}
+                                                            {% set orderStatusIndicator = 'cl-green' %}
+                                                        {% endif %}
+
+                                                        <div class="container">
+                                                            <div class="row">
+                                                                <div class="col">
+                                                                    <span>{{ order.number }}</span>
+                                                                </div>
+                                                                <div class="col">
+                                                                    <span>{{ order.reference?: '-' }}</span>
+                                                                </div>
+                                                                <div class="col">
+                                                                    <span>{{ order.orderDate|format_date('medium', locale=app.request.locale) }}</span>
+                                                                </div>
+                                                                <div class="col">
+                                                                    <span class="{{ orderStatusIndicator }}">{{ order.status }}</span>
+                                                                </div>
+                                                                <div class="col">
+                                                                    <span>{{ order.netTotal|currency(decimals=decimals) }}</span>
+                                                                </div>
+                                                                <div class="col col-xl-1">
+                                                                    {% sw_icon 'arrow-head-down' style {
+                                                                        size: 'xs'
+                                                                    } %}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    {% endblock %}
+                                                </div>
+                                                <div class="b2b-accordion__body">
+                                                    <div
+                                                        class="b2b--ajax-panel"
+                                                        data-id="reiff-order-detail-{{ order.number }}"
+                                                        data-url=""
+                                                    ></div>
+                                                </div>
+                                            </div>
+                                        {% endblock %}
+                                    {% endfor %}
                                 </div>
-                            </div>
-                        {% endblock %}
-                    {% endfor %}
+                            {% endblock %}
+
+                        </div>
+                    {% endblock %}
+
                 {% endif %}
             {% endblock %}
         {% endblock %}

@@ -1,9 +1,34 @@
 {% block sw_customer_list_grid_columns %}
     {% parent() %}
 
+    <template #column-salesOrganisation="{ item, compact, isInlineEdit }">
+        <template v-if="isInlineEdit">
+            <sw-text-field
+                v-model="item.extensions.reiffCustomer.salesOrganisation"
+                :size="compact ? 'small' : 'default'"
+            />
+        </template>
+        <template v-else-if="item?.extensions?.reiffCustomer?.salesOrganisation">
+            {{ item.extensions.reiffCustomer.salesOrganisation }}
+        </template>
+        <template v-else>
+            {{ $tc('ReiffIntegrations.customer.detail.salesOrganisationPlaceholder') }}
+        </template>
+    </template>
+
     <template #column-debtorNumber="{ item, compact, isInlineEdit }">
-        <p v-if="item && item.extensions && item.extensions.reiffCustomer && item.extensions.reiffCustomer.debtorNumber && item.extensions.reiffCustomer.debtorNumber.length > 0" v-html="item.extensions.reiffCustomer.debtorNumber"></p>
-        <p v-else>-</p>
+        <template v-if="isInlineEdit">
+            <sw-text-field
+                v-model="item.extensions.reiffCustomer.debtorNumber"
+                :size="compact ? 'small' : 'default'"
+            />
+        </template>
+        <template v-else-if="item?.extensions?.reiffCustomer?.debtorNumber">
+            {{ item.extensions.reiffCustomer.debtorNumber }}
+        </template>
+        <template v-else>
+            {{ $tc('ReiffIntegrations.customer.detail.debtorNumberPlaceholder') }}
+        </template>
     </template>
 
     <template #column-doubleOptInRegistration="{ item, compact, isInlineEdit }">
