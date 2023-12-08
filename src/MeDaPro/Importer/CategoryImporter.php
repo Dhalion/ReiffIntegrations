@@ -107,7 +107,7 @@ class CategoryImporter
 
             $notificationData['skipped'] = $isUpdated;
 
-            if ($isUpdated) {
+            if (!$isUpdated) {
                 try {
                     $parentId = $rootCategoryId;
 
@@ -149,7 +149,9 @@ class CategoryImporter
                         'translations' => [
                             $catalogMetadata->getLanguageCode() => [
                                 'name'                                       => $rawCategory->getName(),
-                                ReiffTheme::THEME_CUSTOM_FIELD_CATEGORY_ICON => $mediaId,
+                                'customFields' => [
+                                    ReiffTheme::THEME_CUSTOM_FIELD_CATEGORY_ICON => $mediaId,
+                                ],
                             ],
                         ],
                     ];
