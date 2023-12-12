@@ -149,7 +149,7 @@ class OrderExportCommand extends Command
         $criteria->addFilter(new EqualsFilter(sprintf('%s.queuedAt', OrderExtension::EXTENSION_NAME), null));
         $criteria->addFilter(new EqualsFilter(sprintf('%s.exportedAt', OrderExtension::EXTENSION_NAME), null));
 
-        // commented, actually crefo pay doesn't set payment status as paid
+// disabled, actually we are having problems that CrefoPay can't set status paid after payment.
 //        $criteria->addAssociation('transactions.stateMachineState');
 //        $criteria->addFilter(new OrFilter([
 //            new EqualsFilter('transactions.stateMachineState.technicalName', 'paid'),

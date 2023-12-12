@@ -1,0 +1,392 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<con:soapui-project id="2dbc20e1-6a0e-41ad-943e-b39352171f9c" activeEnvironment="Default" name="availabilityApiUrl" resourceRoot="" soapui-version="5.7.2" xmlns:con="http://eviware.com/soapui/config"><con:settings/><con:interface xsi:type="con:WsdlInterface" id="3a7bf44d-b732-4336-af97-ef2945941dc1" wsaVersion="NONE" name="ZSHOP_MATERIAL_AVAILABILITY_BN" type="wsdl" bindingName="{urn:sap-com:document:sap:rfc:functions}ZSHOP_MATERIAL_AVAILABILITY_BN" soapVersion="1_1" anonymous="optional" definition="https://127.0.0.1:7777/sap/bc/srt/wsdl/flv_10002A111AD1/bndg_url/sap/bc/srt/rfc/sap/zshop_material_availability/100/zshop_material_availability_ws/zshop_material_availability_bn?sap-client=100" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache/><con:endpoints><con:endpoint>https://sapqa202.reiff:9000/sap/bc/srt/rfc/sap/zshop_material_availability/100/zshop_material_availability_ws/zshop_material_availability_bn</con:endpoint></con:endpoints><con:operation id="40c24cf7-5403-4b46-b26c-29befefd469e" isOneWay="false" action="urn:sap-com:document:sap:rfc:functions:ZSHOP_MATERIAL_AVAILABILITY:ZSHOP_MATERIAL_AVAILABILITYRequest" name="ZSHOP_MATERIAL_AVAILABILITY" bindingOperationName="ZSHOP_MATERIAL_AVAILABILITY" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="ef8de14a-4c0b-4e84-8405-8f600f0da8b5" name="Request 1"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://sapqa2-extern.reiff.euf:9000/sap/bc/srt/rfc/sap/zshop_material_availability/100/zshop_material_availability_ws/zshop_material_availability_bn</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:sap-com:document:sap:rfc:functions">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <urn:ZSHOP_MATERIAL_AVAILABILITY>
+         <IT_ITEMS>
+            <!--Zero or more repetitions:-->
+            <item>
+               <MATERIAL>123123</MATERIAL>
+               <PLANT>123123</PLANT>
+            </item>
+         </IT_ITEMS>
+         <!--Optional:-->
+         <IV_DISTRIBUTION_CHANNEL>?</IV_DISTRIBUTION_CHANNEL>
+         <!--Optional:-->
+         <IV_SALES_ORGANISATION>?</IV_SALES_ORGANISATION>
+         <IV_SESSION_LANGUAGE>?</IV_SESSION_LANGUAGE>
+      </urn:ZSHOP_MATERIAL_AVAILABILITY>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="urn:sap-com:document:sap:rfc:functions:ZSHOP_MATERIAL_AVAILABILITY:ZSHOP_MATERIAL_AVAILABILITYRequest"/><con:wsrmConfig version="1.2"/></con:call></con:operation></con:interface><con:interface xsi:type="con:WsdlInterface" id="329661ee-720e-4926-a890-fd3ce2e40a0b" wsaVersion="NONE" name="ZSHOP_MATERIAL_AVAILABILITY_BN_soap12" type="wsdl" bindingName="{urn:sap-com:document:sap:rfc:functions}ZSHOP_MATERIAL_AVAILABILITY_BN_soap12" soapVersion="1_2" anonymous="optional" definition="https://127.0.0.1:7777/sap/bc/srt/wsdl/flv_10002A111AD1/bndg_url/sap/bc/srt/rfc/sap/zshop_material_availability/100/zshop_material_availability_ws/zshop_material_availability_bn?sap-client=100" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="https://127.0.0.1:7777/sap/bc/srt/wsdl/flv_10002A111AD1/bndg_url/sap/bc/srt/rfc/sap/zshop_material_availability/100/zshop_material_availability_ws/zshop_material_availability_bn?sap-client=100"><con:part><con:url>https://127.0.0.1:7777/sap/bc/srt/wsdl/flv_10002A111AD1/bndg_url/sap/bc/srt/rfc/sap/zshop_material_availability/100/zshop_material_availability_ws/zshop_material_availability_bn?sap-client=100</con:url><con:content><![CDATA[<wsdl:definitions targetNamespace="urn:sap-com:document:sap:rfc:functions" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsoap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="urn:sap-com:document:sap:rfc:functions" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
+  <wsdl:documentation>
+    <sidl:sidl xmlns:sidl="http://www.sap.com/2007/03/sidl"/>
+  </wsdl:documentation>
+  <wsp:UsingPolicy wsdl:required="true"/>
+  <wsp:Policy wsu:Id="BN__ZSHOP_MATERIAL_AVAILABILITY_BN">
+    <wsp:ExactlyOne>
+      <wsp:All>
+        <sapattahnd:Enabled xmlns:sapattahnd="http://www.sap.com/710/features/attachment/">false</sapattahnd:Enabled>
+        <saptrnbnd:OptimizedMimeSerialization wsp:Optional="true" xmlns:saptrnbnd="http://schemas.xmlsoap.org/ws/2004/09/policy/optimizedmimeserialization"/>
+        <wsaw:UsingAddressing wsp:Optional="true" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl"/>
+        <wsp:All>
+          <sp:TransportBinding xmlns:sp="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702" xmlns:sapsp="http://www.sap.com/webas/630/soap/features/security/policy" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512" xmlns:wsu="http://schemas.xmlsoap.org/ws/2002/07/utility" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex">
+            <wsp:Policy>
+              <sp:TransportToken>
+                <wsp:Policy>
+                  <sp:HttpsToken>
+                    <wsp:Policy>
+                      <sp:HttpBasicAuthentication/>
+                    </wsp:Policy>
+                  </sp:HttpsToken>
+                </wsp:Policy>
+              </sp:TransportToken>
+              <sp:AlgorithmSuite>
+                <wsp:Policy>
+                  <sp:Basic128Rsa15/>
+                </wsp:Policy>
+              </sp:AlgorithmSuite>
+              <sp:Layout>
+                <wsp:Policy>
+                  <sp:Strict/>
+                </wsp:Policy>
+              </sp:Layout>
+            </wsp:Policy>
+          </sp:TransportBinding>
+        </wsp:All>
+      </wsp:All>
+      <wsp:All>
+        <sapattahnd:Enabled xmlns:sapattahnd="http://www.sap.com/710/features/attachment/">false</sapattahnd:Enabled>
+        <saptrnbnd:OptimizedXMLTransfer uri="http://xml.sap.com/2006/11/esi/esp/binxml" wsp:Optional="true" xmlns:saptrnbnd="http://www.sap.com/webas/710/soap/features/transportbinding/"/>
+        <wsaw:UsingAddressing wsp:Optional="true" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl"/>
+        <wsp:All>
+          <sp:TransportBinding xmlns:sp="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702" xmlns:sapsp="http://www.sap.com/webas/630/soap/features/security/policy" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512" xmlns:wsu="http://schemas.xmlsoap.org/ws/2002/07/utility" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex">
+            <wsp:Policy>
+              <sp:TransportToken>
+                <wsp:Policy>
+                  <sp:HttpsToken>
+                    <wsp:Policy>
+                      <sp:HttpBasicAuthentication/>
+                    </wsp:Policy>
+                  </sp:HttpsToken>
+                </wsp:Policy>
+              </sp:TransportToken>
+              <sp:AlgorithmSuite>
+                <wsp:Policy>
+                  <sp:Basic128Rsa15/>
+                </wsp:Policy>
+              </sp:AlgorithmSuite>
+              <sp:Layout>
+                <wsp:Policy>
+                  <sp:Strict/>
+                </wsp:Policy>
+              </sp:Layout>
+            </wsp:Policy>
+          </sp:TransportBinding>
+        </wsp:All>
+      </wsp:All>
+    </wsp:ExactlyOne>
+  </wsp:Policy>
+  <wsp:Policy wsu:Id="BN__ZSHOP_MATERIAL_AVAILABILITY_BN_soap12">
+    <wsp:ExactlyOne>
+      <wsp:All>
+        <sapattahnd:Enabled xmlns:sapattahnd="http://www.sap.com/710/features/attachment/">false</sapattahnd:Enabled>
+        <saptrnbnd:OptimizedMimeSerialization wsp:Optional="true" xmlns:saptrnbnd="http://schemas.xmlsoap.org/ws/2004/09/policy/optimizedmimeserialization"/>
+        <wsaw:UsingAddressing wsp:Optional="true" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl"/>
+        <wsp:All>
+          <sp:TransportBinding xmlns:sp="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702" xmlns:sapsp="http://www.sap.com/webas/630/soap/features/security/policy" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512" xmlns:wsu="http://schemas.xmlsoap.org/ws/2002/07/utility" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex">
+            <wsp:Policy>
+              <sp:TransportToken>
+                <wsp:Policy>
+                  <sp:HttpsToken>
+                    <wsp:Policy>
+                      <sp:HttpBasicAuthentication/>
+                    </wsp:Policy>
+                  </sp:HttpsToken>
+                </wsp:Policy>
+              </sp:TransportToken>
+              <sp:AlgorithmSuite>
+                <wsp:Policy>
+                  <sp:Basic128Rsa15/>
+                </wsp:Policy>
+              </sp:AlgorithmSuite>
+              <sp:Layout>
+                <wsp:Policy>
+                  <sp:Strict/>
+                </wsp:Policy>
+              </sp:Layout>
+            </wsp:Policy>
+          </sp:TransportBinding>
+        </wsp:All>
+      </wsp:All>
+      <wsp:All>
+        <sapattahnd:Enabled xmlns:sapattahnd="http://www.sap.com/710/features/attachment/">false</sapattahnd:Enabled>
+        <saptrnbnd:OptimizedXMLTransfer uri="http://xml.sap.com/2006/11/esi/esp/binxml" wsp:Optional="true" xmlns:saptrnbnd="http://www.sap.com/webas/710/soap/features/transportbinding/"/>
+        <wsaw:UsingAddressing wsp:Optional="true" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl"/>
+        <wsp:All>
+          <sp:TransportBinding xmlns:sp="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702" xmlns:sapsp="http://www.sap.com/webas/630/soap/features/security/policy" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512" xmlns:wsu="http://schemas.xmlsoap.org/ws/2002/07/utility" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex">
+            <wsp:Policy>
+              <sp:TransportToken>
+                <wsp:Policy>
+                  <sp:HttpsToken>
+                    <wsp:Policy>
+                      <sp:HttpBasicAuthentication/>
+                    </wsp:Policy>
+                  </sp:HttpsToken>
+                </wsp:Policy>
+              </sp:TransportToken>
+              <sp:AlgorithmSuite>
+                <wsp:Policy>
+                  <sp:Basic128Rsa15/>
+                </wsp:Policy>
+              </sp:AlgorithmSuite>
+              <sp:Layout>
+                <wsp:Policy>
+                  <sp:Strict/>
+                </wsp:Policy>
+              </sp:Layout>
+            </wsp:Policy>
+          </sp:TransportBinding>
+        </wsp:All>
+      </wsp:All>
+    </wsp:ExactlyOne>
+  </wsp:Policy>
+  <wsp:Policy wsu:Id="IF__ZSHOP_MATERIAL_AVAILABILITY">
+    <wsp:ExactlyOne>
+      <wsp:All>
+        <sapsession:Session xmlns:sapsession="http://www.sap.com/webas/630/soap/features/session/">
+          <sapsession:enableSession>false</sapsession:enableSession>
+        </sapsession:Session>
+        <sapcentraladmin:CentralAdministration wsp:Optional="true" xmlns:sapcentraladmin="http://www.sap.com/webas/700/soap/features/CentralAdministration/">
+          <sapcentraladmin:BusinessApplicationID>16B610D34E021EDCB5BA2656952B86B6</sapcentraladmin:BusinessApplicationID>
+        </sapcentraladmin:CentralAdministration>
+      </wsp:All>
+    </wsp:ExactlyOne>
+  </wsp:Policy>
+  <wsp:Policy wsu:Id="OP__ZSHOP_MATERIAL_AVAILABILITY">
+    <wsp:ExactlyOne>
+      <wsp:All>
+        <saptrhnw05:required xmlns:saptrhnw05="http://www.sap.com/NW05/soap/features/transaction/">no</saptrhnw05:required>
+        <sapcomhnd:enableCommit xmlns:sapcomhnd="http://www.sap.com/NW05/soap/features/commit/">false</sapcomhnd:enableCommit>
+        <sapblock:enableBlocking xmlns:sapblock="http://www.sap.com/NW05/soap/features/blocking/">true</sapblock:enableBlocking>
+        <saprmnw05:enableWSRM xmlns:saprmnw05="http://www.sap.com/NW05/soap/features/wsrm/">false</saprmnw05:enableWSRM>
+      </wsp:All>
+    </wsp:ExactlyOne>
+  </wsp:Policy>
+  <wsdl:types>
+    <xsd:schema attributeFormDefault="qualified" targetNamespace="urn:sap-com:document:sap:rfc:functions">
+      <xsd:simpleType name="char1">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="1"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="char10">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="10"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="char18">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="18"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="char2">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="2"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="char20">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="20"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="char220">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="220"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="char30">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="30"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="char32">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="32"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="char4">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="4"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="char50">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="50"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="numeric3">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="3"/>
+          <xsd:pattern value="\d*"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="numeric6">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="6"/>
+          <xsd:pattern value="\d*"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="quantum13.3">
+        <xsd:restriction base="xsd:decimal">
+          <xsd:totalDigits value="13"/>
+          <xsd:fractionDigits value="3"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="unit3">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="3"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:complexType name="ZSHOP_AVAILABILITY_CHECK">
+        <xsd:sequence>
+          <xsd:element name="MATERIAL" type="tns:char18"/>
+          <xsd:element name="PLANT" type="tns:char4"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="ZSHOP_AVAILABILITY_RESPONSE">
+        <xsd:sequence>
+          <xsd:element name="MATERIAL" type="tns:char18"/>
+          <xsd:element name="PLANT" type="tns:char4"/>
+          <xsd:element name="QUANTITY" type="tns:quantum13.3"/>
+          <xsd:element name="UOM" type="tns:unit3"/>
+          <xsd:element name="CODE" type="tns:char1"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="BAPIRET2">
+        <xsd:sequence>
+          <xsd:element name="TYPE" type="tns:char1"/>
+          <xsd:element name="ID" type="tns:char20"/>
+          <xsd:element name="NUMBER" type="tns:numeric3"/>
+          <xsd:element name="MESSAGE" type="tns:char220"/>
+          <xsd:element name="LOG_NO" type="tns:char20"/>
+          <xsd:element name="LOG_MSG_NO" type="tns:numeric6"/>
+          <xsd:element name="MESSAGE_V1" type="tns:char50"/>
+          <xsd:element name="MESSAGE_V2" type="tns:char50"/>
+          <xsd:element name="MESSAGE_V3" type="tns:char50"/>
+          <xsd:element name="MESSAGE_V4" type="tns:char50"/>
+          <xsd:element name="PARAMETER" type="tns:char32"/>
+          <xsd:element name="ROW" type="xsd:int"/>
+          <xsd:element name="FIELD" type="tns:char30"/>
+          <xsd:element name="SYSTEM" type="tns:char10"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="ZSHOP_AVAILABILITY_CHECK_T">
+        <xsd:sequence>
+          <xsd:element name="item" type="tns:ZSHOP_AVAILABILITY_CHECK" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="ZSHOP_AVAILABILITY_RESPONSE_T">
+        <xsd:sequence>
+          <xsd:element name="item" type="tns:ZSHOP_AVAILABILITY_RESPONSE" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="BAPIRET2_TAB">
+        <xsd:sequence>
+          <xsd:element name="item" type="tns:BAPIRET2" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:element name="ZSHOP_MATERIAL_AVAILABILITY">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="IT_ITEMS" type="tns:ZSHOP_AVAILABILITY_CHECK_T"/>
+            <xsd:element name="IV_DISTRIBUTION_CHANNEL" type="tns:char2" minOccurs="0"/>
+            <xsd:element name="IV_SALES_ORGANISATION" type="tns:char4" minOccurs="0"/>
+            <xsd:element name="IV_SESSION_LANGUAGE" type="tns:char2"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="ZSHOP_MATERIAL_AVAILABILITYResponse">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="ET_AVAILABILITY" type="tns:ZSHOP_AVAILABILITY_RESPONSE_T"/>
+            <xsd:element name="ET_RETURN" type="tns:BAPIRET2_TAB"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="ZSHOP_MATERIAL_AVAILABILITY">
+    <wsdl:part name="parameters" element="tns:ZSHOP_MATERIAL_AVAILABILITY"/>
+  </wsdl:message>
+  <wsdl:message name="ZSHOP_MATERIAL_AVAILABILITYResponse">
+    <wsdl:part name="parameter" element="tns:ZSHOP_MATERIAL_AVAILABILITYResponse"/>
+  </wsdl:message>
+  <wsdl:portType name="ZSHOP_MATERIAL_AVAILABILITY">
+    <wsp:Policy>
+      <wsp:PolicyReference URI="#IF__ZSHOP_MATERIAL_AVAILABILITY"/>
+    </wsp:Policy>
+    <wsdl:operation name="ZSHOP_MATERIAL_AVAILABILITY">
+      <wsp:Policy>
+        <wsp:PolicyReference URI="#OP__ZSHOP_MATERIAL_AVAILABILITY"/>
+      </wsp:Policy>
+      <wsdl:input message="tns:ZSHOP_MATERIAL_AVAILABILITY"/>
+      <wsdl:output message="tns:ZSHOP_MATERIAL_AVAILABILITYResponse"/>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="ZSHOP_MATERIAL_AVAILABILITY_BN" type="tns:ZSHOP_MATERIAL_AVAILABILITY">
+    <wsp:Policy>
+      <wsp:PolicyReference URI="#BN__ZSHOP_MATERIAL_AVAILABILITY_BN"/>
+    </wsp:Policy>
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+    <wsdl:operation name="ZSHOP_MATERIAL_AVAILABILITY">
+      <soap:operation soapAction="urn:sap-com:document:sap:rfc:functions:ZSHOP_MATERIAL_AVAILABILITY:ZSHOP_MATERIAL_AVAILABILITYRequest" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="ZSHOP_MATERIAL_AVAILABILITY_BN_soap12" type="tns:ZSHOP_MATERIAL_AVAILABILITY">
+    <wsp:Policy>
+      <wsp:PolicyReference URI="#BN__ZSHOP_MATERIAL_AVAILABILITY_BN_soap12"/>
+    </wsp:Policy>
+    <wsoap12:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+    <wsdl:operation name="ZSHOP_MATERIAL_AVAILABILITY">
+      <wsoap12:operation soapAction="urn:sap-com:document:sap:rfc:functions:ZSHOP_MATERIAL_AVAILABILITY:ZSHOP_MATERIAL_AVAILABILITYRequest" style="document"/>
+      <wsdl:input>
+        <wsoap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <wsoap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="ZSHOP_MATERIAL_AVAILABILITY_WS">
+    <wsdl:port name="ZSHOP_MATERIAL_AVAILABILITY_BN" binding="tns:ZSHOP_MATERIAL_AVAILABILITY_BN">
+      <soap:address location="https://sapqa202.reiff:9000/sap/bc/srt/rfc/sap/zshop_material_availability/100/zshop_material_availability_ws/zshop_material_availability_bn"/>
+    </wsdl:port>
+    <wsdl:port name="ZSHOP_MATERIAL_AVAILABILITY_BN_soap12" binding="tns:ZSHOP_MATERIAL_AVAILABILITY_BN_soap12">
+      <wsoap12:address location="https://sapqa202.reiff:9000/sap/bc/srt/rfc/sap/zshop_material_availability/100/zshop_material_availability_ws/zshop_material_availability_bn"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>]]></con:content><con:type>http://schemas.xmlsoap.org/wsdl/</con:type></con:part></con:definitionCache><con:endpoints><con:endpoint>https://sapqa202.reiff:9000/sap/bc/srt/rfc/sap/zshop_material_availability/100/zshop_material_availability_ws/zshop_material_availability_bn</con:endpoint></con:endpoints><con:operation id="0b664da2-fd12-452a-82b2-7517145842ba" isOneWay="false" action="urn:sap-com:document:sap:rfc:functions:ZSHOP_MATERIAL_AVAILABILITY:ZSHOP_MATERIAL_AVAILABILITYRequest" name="ZSHOP_MATERIAL_AVAILABILITY" bindingOperationName="ZSHOP_MATERIAL_AVAILABILITY" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="9854ca8b-0d2e-420b-a4a4-f8d65fe94666" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>https://sapqa202.reiff:9000/sap/bc/srt/rfc/sap/zshop_material_availability/100/zshop_material_availability_ws/zshop_material_availability_bn</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:urn="urn:sap-com:document:sap:rfc:functions">
+   <soap:Header/>
+   <soap:Body>
+      <urn:ZSHOP_MATERIAL_AVAILABILITY>
+         <IT_ITEMS>
+            <!--Zero or more repetitions:-->
+            <item>
+               <MATERIAL>?</MATERIAL>
+               <PLANT>?</PLANT>
+            </item>
+         </IT_ITEMS>
+         <!--Optional:-->
+         <IV_DISTRIBUTION_CHANNEL>?</IV_DISTRIBUTION_CHANNEL>
+         <!--Optional:-->
+         <IV_SALES_ORGANISATION>?</IV_SALES_ORGANISATION>
+         <IV_SESSION_LANGUAGE>?</IV_SESSION_LANGUAGE>
+      </urn:ZSHOP_MATERIAL_AVAILABILITY>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="urn:sap-com:document:sap:rfc:functions/ZSHOP_MATERIAL_AVAILABILITY/ZSHOP_MATERIAL_AVAILABILITYRequest"/></con:call></con:operation></con:interface><con:properties/><con:wssContainer/><con:oAuth2ProfileContainer/><con:oAuth1ProfileContainer/><con:sensitiveInformation/></con:soapui-project>

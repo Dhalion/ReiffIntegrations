@@ -8,9 +8,12 @@ interface Configuration
 {
     public const CONFIG_KEY_ERROR_RECIPIENT = 'ReiffIntegrations.config.errorRecipient';
 
-    public const CONFIG_KEY_API_USER_NAME  = 'ReiffIntegrations.config.apiUserName';
-    public const CONFIG_KEY_API_PASSWORD   = 'ReiffIntegrations.config.apiPassword';
-    public const CONFIG_KEY_API_IGNORE_SSL = 'ReiffIntegrations.config.apiIgnoreSsl';
+    public const CONFIG_KEY_API_USER_NAME                   = 'ReiffIntegrations.config.apiUserName';
+    public const CONFIG_KEY_API_PASSWORD                    = 'ReiffIntegrations.config.apiPassword';
+    public const CONFIG_KEY_API_IGNORE_SSL                  = 'ReiffIntegrations.config.apiIgnoreSsl';
+    public const CONFIG_KEY_API_FALLBACK_DEBTOR_NUMBER      = 'ReiffIntegrations.config.fallbackDebtorNumber';
+    public const CONFIG_KEY_API_FALLBACK_SALES_ORGANISATION = 'ReiffIntegrations.config.fallbackSalesOrganisation';
+    public const CONFIG_KEY_API_FALLBACK_LANGUAGE_CODE      = 'ReiffIntegrations.config.fallbackLanguageCode';
 
     public const CONFIG_KEY_FILE_IMPORT_SOURCE_PATH  = 'ReiffIntegrations.config.pathImportSource';
     public const CONFIG_KEY_FILE_IMPORT_ARCHIVE_PATH = 'ReiffIntegrations.config.pathImportFileArchive';
