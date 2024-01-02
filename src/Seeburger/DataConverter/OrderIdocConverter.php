@@ -44,7 +44,7 @@ class OrderIdocConverter
         $idoc = new IdocRowCollection();
         $this->addIdocHeader($idoc, $order);
         $this->addGeneralHeader($idoc, $order);
-        $this->addOrganisationalData($idoc);
+        $this->addOrganisationalData($idoc, $order);
         $this->addDateRows($idoc, $order);
         $this->addPartnerInformation($idoc, $order);
         $this->addReferenceData($idoc, $order);
@@ -173,7 +173,7 @@ class OrderIdocConverter
         $idoc->add(new IdocRow($identifier, $columns));
     }
 
-    private function addOrganisationalData(IdocRowCollection $idoc): void
+    private function addOrganisationalData(IdocRowCollection $idoc, OrderEntity $order): void
     {
         $identifier = 'E2EDK14';
         $columns    = $this->getBasicIdocColumns($identifier);
@@ -188,7 +188,7 @@ class OrderIdocConverter
 
         $columns = $this->getBasicIdocColumns($identifier);
         $columns->add(new IdocColumn('QUALF', 3, '008'));
-        $columns->add(new IdocColumn('ORGID', 35, '1004'));
+        $columns->add(new IdocColumn('ORGID', 35, $this->getSalesOrganisation($order)));
         $idoc->add(new IdocRow($identifier, $columns));
 
         $columns = $this->getBasicIdocColumns($identifier);
@@ -502,6 +502,35 @@ class OrderIdocConverter
         }
 
         return str_pad($debtorNumber, strlen($debtorNumber) - mb_strlen($debtorNumber) + 10, '0', STR_PAD_LEFT);
+    }
+
+    private function getSalesOrganisation(OrderEntity $order): string
+    {
+        $orderCustomer = $order->getOrderCustomer();
+
+        if (!$orderCustomer instanceof OrderCustomerEntity) {
+            throw new \RuntimeException(sprintf('Order %s has no order customer', $order->getOrderNumber()));
+        }
+
+        $customer = $orderCustomer->getCustomer();
+
+        if (!$customer instanceof CustomerEntity) {
+            throw new \RuntimeException(sprintf('Order %s has no customer', $order->getOrderNumber()));
+        }
+
+        $reiffCustomer = $customer->getExtension(CustomerExtension::EXTENSION_NAME);
+
+        if (!$reiffCustomer instanceof ReiffCustomerEntity) {
+            throw new \RuntimeException(sprintf('Order %s with customer %s has no REIFF customer', $order->getOrderNumber(), $customer->getCustomerNumber()));
+        }
+
+        $salesOrganisation = $reiffCustomer->getSalesOrganisation();
+
+        if ($salesOrganisation === null) {
+            throw new \RuntimeException(sprintf('Customer %s for order %s has no sales organisation', $customer->getCustomerNumber(), $order->getOrderNumber()));
+        }
+
+        return $salesOrganisation;
     }
 
     private function hasLineItemCommission(array $lineItemCustomFields): bool
