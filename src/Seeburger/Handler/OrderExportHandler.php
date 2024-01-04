@@ -152,7 +152,7 @@ class OrderExportHandler extends AbstractExportHandler
             $result = $this->toString($idoc);
 
             if (!$context->hasState(DebugState::NAME) && !$context->hasState(DryRunState::NAME)) {
-                $this->client->post($result, $this->configService->getString(Configuration::CONFIG_KEY_ORDER_EXPORT_URL));
+             //   $this->client->post($result, $this->configService->getString(Configuration::CONFIG_KEY_ORDER_EXPORT_URL));
             }
 
             if (!$context->hasState(DryRunState::NAME)) {

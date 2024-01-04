@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace ReiffIntegrations\MeDaPro\ImportHandler;
 
 use Doctrine\DBAL\Connection;
+use K10rIntegrationHelper\MappingSystem\MappingService;
 use K10rIntegrationHelper\Observability\RunService;
 use ReiffIntegrations\Installer\CustomFieldInstaller;
 use ReiffIntegrations\MeDaPro\DataAbstractionLayer\CategoryExtension;
@@ -34,7 +35,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Unit\UnitEntity;
+use Shopware\Core\System\Unit\UnitDefinition;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -42,18 +43,6 @@ use Symfony\Component\Messenger\MessageBusInterface;
 class ProductImportHandler
 {
     public const DEFAULT_CONTENT_QUANTITY = 1;
-    public const UNIT_MAPPING             = [
-        'Karton'  => 'CT',
-        'Liter'   => 'LTR',
-        'kg'      => 'KGM',
-        'm'       => 'MTR',
-        'm²'      => 'MTK',
-        'Paar'    => 'PR',
-        'Satz'    => 'SET',
-        'Stück'   => 'PCE',
-        'Rolle'   => 'RO',
-        'Packung' => 'PK',
-    ];
 
     public const UNIT_REVERSE_MAPPING = [
         'LTR' => 'Liter',
@@ -111,8 +100,6 @@ class ProductImportHandler
     private array $indexingMessages = [];
     /** @var string[] */
     private array $productIdsByNumber = [];
-    /** @var string[] */
-    private array $unitIds = [];
 
     public function __construct(
         private readonly EntitySyncer $entitySyncer,
@@ -124,10 +111,10 @@ class ProductImportHandler
         private readonly MediaHelper $mediaHelper,
         private readonly MessageBusInterface $messageBus,
         private readonly EntityIndexer $productIndexer,
-        private readonly EntityRepository $unitRepository,
         private readonly RuleProvider $ruleProvider,
         private readonly RunService $runService,
         private readonly NotificationHelper $notificationHelper,
+        private readonly MappingService $mappingService,
     ) {
     }
 
@@ -238,7 +225,7 @@ class ProductImportHandler
         ];
     }
 
-    private function getProductTranslations(ProductStruct $productStruct, CatalogMetadata $catalogMetadata): array
+    private function getProductTranslations(ProductStruct $productStruct, CatalogMetadata $catalogMetadata, Context $context): array
     {
         /** @var string[] $keywords */
         $keywords = array_filter([
@@ -253,11 +240,26 @@ class ProductImportHandler
             $productStruct->getDataByKey('Schlagwort 9'),
         ]);
 
+        $scaleUnit = $productStruct->getDataByKey('Bestelleinheit');
+
+        if (!is_string($scaleUnit)) {
+            throw new \RuntimeException(sprintf('Product %s has no unit', $productStruct->getProductNumber()));
+        }
+
+        $packUnit = $this->mappingService->fetchTargetMapping(
+            sprintf('%s-%s', $catalogMetadata->getLanguageCode(), $scaleUnit),
+            'string',
+            'string',
+            'MeDaPro Bestelleinheit zu mehrsprachiger Shopware Verpackungseinheit',
+            $context
+        );
+
         return [
             $catalogMetadata->getLanguageCode() => [
                 'name'         => $productStruct->getDataByKey('Bezeichnung'),
                 'description'  => $productStruct->getDataByKey('Beschreibung'),
                 'keywords'     => implode('; ', $keywords),
+                'packUnit'     => $packUnit,
                 'customFields' => [
                     CustomFieldInstaller::PRODUCT_ECLASS51               => $productStruct->getDataByKey('ECLASS 51'),
                     CustomFieldInstaller::PRODUCT_ECLASS71               => $productStruct->getDataByKey('ECLASS 71'),
@@ -329,7 +331,7 @@ class ProductImportHandler
             'active'                 => true,
             'properties'             => [],
             'options'                => [],
-            'translations'           => $this->getProductTranslations($productStruct, $catalogMetadata),
+            'translations'           => $this->getProductTranslations($productStruct, $catalogMetadata, $context),
             'swagDynamicAccessRules' => $this->getDynamicAccessRules($sortimentId, $context),
         ];
 
@@ -374,7 +376,7 @@ class ProductImportHandler
                     ],
                 ],
                 'categories' => [
-                    ['id' => $this->getCategoryByUid($categoryUid, $context)],
+                    //['id' => $this->getCategoryByUid($categoryUid, $context)],
                 ],
                 'configuratorSettings' => $this->getRemainingConfiguratorOptions($baseProduct['id'], $productStruct->getVariants(), $catalogMetadata, $context),
             ]
@@ -495,9 +497,9 @@ class ProductImportHandler
         $this->connection->executeStatement('DELETE FROM product_media WHERE product_id = :productId', ['productId' => Uuid::fromHexToBytes($productId)]);
     }
 
-    private function addProperties(array &$product, ProductStruct $productData, Context $context): void
+    private function addProperties(array &$product, ProductStruct $productStruct): void
     {
-        $properties = $productData->getDataByKey('properties');
+        $properties = $productStruct->getDataByKey('properties');
 
         if (!is_array($properties)) {
             return;
@@ -510,9 +512,9 @@ class ProductImportHandler
         }
     }
 
-    private function addOptions(array &$mainProduct, array &$variant, ProductStruct $productData, Context $context): void
+    private function addOptions(array &$mainProduct, array &$variant, ProductStruct $productStruct): void
     {
-        $options = $productData->getDataByKey('options');
+        $options = $productStruct->getDataByKey('options');
 
         if (!is_array($options)) {
             return;
@@ -535,22 +537,22 @@ class ProductImportHandler
      */
     private function addMedia(
         array &$variant,
-        ProductStruct $productData,
+        ProductStruct $productStruct,
         Context $context,
         CatalogMetadata $catalogMetadata
     ): void {
         /** @var string[] $mediaPaths */
         $mediaPaths = [
-            $productData->getDataByKey('Web Groß Hauptbild'),
-            $productData->getDataByKey('Web Groß Detailbild 1'),
-            $productData->getDataByKey('Web Groß Detailbild 2'),
-            $productData->getDataByKey('Web Mittel Hauptbild'),
-            $productData->getDataByKey('Web Mittel Detailbild 1'),
-            $productData->getDataByKey('Web Mittel Detailbild 2'),
-            $productData->getDataByKey('Web Klein Hauptbild'),
-            $productData->getDataByKey('Web Klein Detailbild 1'),
-            $productData->getDataByKey('Web Klein Detailbild 2'),
-            $productData->getDataByKey('Web Logo 2'), // Alternatives Herstellerbild
+            $productStruct->getDataByKey('Web Groß Hauptbild'),
+            $productStruct->getDataByKey('Web Groß Detailbild 1'),
+            $productStruct->getDataByKey('Web Groß Detailbild 2'),
+            $productStruct->getDataByKey('Web Mittel Hauptbild'),
+            $productStruct->getDataByKey('Web Mittel Detailbild 1'),
+            $productStruct->getDataByKey('Web Mittel Detailbild 2'),
+            $productStruct->getDataByKey('Web Klein Hauptbild'),
+            $productStruct->getDataByKey('Web Klein Detailbild 1'),
+            $productStruct->getDataByKey('Web Klein Detailbild 2'),
+            $productStruct->getDataByKey('Web Logo 2'), // Alternatives Herstellerbild
         ];
         $mediaPaths = array_unique(array_filter($mediaPaths));
 
@@ -580,15 +582,15 @@ class ProductImportHandler
             [
                 'files' => array_unique(
                     array_filter([
-                        $productData->getDataByKey('Gefahrstoffsymbol GHS01'),
-                        $productData->getDataByKey('Gefahrstoffsymbol GHS02'),
-                        $productData->getDataByKey('Gefahrstoffsymbol GHS03'),
-                        $productData->getDataByKey('Gefahrstoffsymbol GHS04'),
-                        $productData->getDataByKey('Gefahrstoffsymbol GHS05'),
-                        $productData->getDataByKey('Gefahrstoffsymbol GHS06'),
-                        $productData->getDataByKey('Gefahrstoffsymbol GHS07'),
-                        $productData->getDataByKey('Gefahrstoffsymbol GHS08'),
-                        $productData->getDataByKey('Gefahrstoffsymbol GHS09'),
+                        $productStruct->getDataByKey('Gefahrstoffsymbol GHS01'),
+                        $productStruct->getDataByKey('Gefahrstoffsymbol GHS02'),
+                        $productStruct->getDataByKey('Gefahrstoffsymbol GHS03'),
+                        $productStruct->getDataByKey('Gefahrstoffsymbol GHS04'),
+                        $productStruct->getDataByKey('Gefahrstoffsymbol GHS05'),
+                        $productStruct->getDataByKey('Gefahrstoffsymbol GHS06'),
+                        $productStruct->getDataByKey('Gefahrstoffsymbol GHS07'),
+                        $productStruct->getDataByKey('Gefahrstoffsymbol GHS08'),
+                        $productStruct->getDataByKey('Gefahrstoffsymbol GHS09'),
                     ])
                 ),
                 'customFields' => [CustomFieldInstaller::MEDIA_GEFAHRSTOFF => true],
@@ -596,13 +598,13 @@ class ProductImportHandler
             [
                 'files' => array_unique(
                     array_filter([
-                        $productData->getDataByKey('Web Piktogramm allg 1'),
-                        $productData->getDataByKey('Web Piktogramm allg 2'),
-                        $productData->getDataByKey('Web Piktogramm allg 3'),
-                        $productData->getDataByKey('Web Piktogramm allg 4'),
-                        $productData->getDataByKey('Web Piktogramm allg 5'),
-                        $productData->getDataByKey('Web Piktogramm allg 6'),
-                        $productData->getDataByKey('Web Piktogramm allg 7'),
+                        $productStruct->getDataByKey('Web Piktogramm allg 1'),
+                        $productStruct->getDataByKey('Web Piktogramm allg 2'),
+                        $productStruct->getDataByKey('Web Piktogramm allg 3'),
+                        $productStruct->getDataByKey('Web Piktogramm allg 4'),
+                        $productStruct->getDataByKey('Web Piktogramm allg 5'),
+                        $productStruct->getDataByKey('Web Piktogramm allg 6'),
+                        $productStruct->getDataByKey('Web Piktogramm allg 7'),
                     ])
                 ),
                 'customFields' => [CustomFieldInstaller::MEDIA_PICTOGRAM => true],
@@ -610,10 +612,10 @@ class ProductImportHandler
             [
                 'files' => array_unique(
                     array_filter([
-                        $productData->getDataByKey('Technisches Datenblatt'),
-                        $productData->getDataByKey('Sicherheitsdatenblatt DE') ?? $productData->getDataByKey('Sicherheitsdatenblatt'),
-                        $productData->getDataByKey('Sicherheitsdatenblatt EN'),
-                        $productData->getDataByKey('Montageanleitung'),
+                        $productStruct->getDataByKey('Technisches Datenblatt'),
+                        $productStruct->getDataByKey('Sicherheitsdatenblatt DE') ?? $productStruct->getDataByKey('Sicherheitsdatenblatt'),
+                        $productStruct->getDataByKey('Sicherheitsdatenblatt EN'),
+                        $productStruct->getDataByKey('Montageanleitung'),
                     ])
                 ),
                 'customFields' => [CustomFieldInstaller::MEDIA_DOWNLOAD => true],
@@ -647,57 +649,27 @@ class ProductImportHandler
         }
     }
 
-    private function addUnits(array &$product, ProductStruct $productData, Context $context): void
+    private function addUnits(array &$product, ProductStruct $productStruct, Context $context): void
     {
-        $packagingUnit = $productData->getDataByKey('Verpackungsmenge');
-        $orderUnit     = $productData->getDataByKey('Bestelleinheit');
-        $scaleUnit     = $productData->getDataByKey('Bestelleinheit');
-
-        if (!is_string($scaleUnit)) {
-            throw new \RuntimeException(sprintf('Product %s has no unit', $productData->getProductNumber()));
-        }
-
-        if (array_key_exists($scaleUnit, self::UNIT_REVERSE_MAPPING)) {
-            $scaleUnit = self::UNIT_REVERSE_MAPPING[$scaleUnit];
-        }
-
-        if (is_string($orderUnit) && array_key_exists($orderUnit, self::UNIT_REVERSE_MAPPING)) {
-            $orderUnit = self::UNIT_REVERSE_MAPPING[$orderUnit];
-        }
+        $packagingUnit = $productStruct->getDataByKey('Verpackungsmenge');
 
         if ($packagingUnit !== null && $packagingUnit !== '') {
             $product['purchaseUnit'] = $packagingUnit;
         }
 
-        $product['packUnit'] = $orderUnit;
-        $sapUnit             = self::UNIT_MAPPING[$scaleUnit] ?? null;
+        $scaleUnit = $productStruct->getDataByKey('Bestelleinheit');
 
-        if ($sapUnit === null) {
-            throw new \RuntimeException(sprintf('Product %s has an unknown unit', $productData->getProductNumber()));
+        if (!is_string($scaleUnit)) {
+            throw new \RuntimeException(sprintf('Product %s has no unit', $productStruct->getProductNumber()));
         }
 
-        $product['unitId'] = $this->getUnitId($scaleUnit, $context);
-    }
-
-    private function getUnitId(string $unitName, Context $context): ?string
-    {
-        if (empty($unitName)) {
-            return null;
-        }
-
-        if ($this->unitIds === []) {
-            $units = $this->unitRepository->search(new Criteria(), $context)->getEntities();
-            /** @var UnitEntity $unit */
-            foreach ($units as $unit) {
-                $this->unitIds[$unit->getName()] = $unit->getId();
-            }
-        }
-
-        if (!isset($this->unitIds[$unitName])) {
-            throw new \RuntimeException(sprintf('Unknown unit "%s"', $unitName));
-        }
-
-        return $this->unitIds[$unitName];
+        $product['unitId'] = $this->mappingService->fetchTargetMapping(
+            $scaleUnit,
+            'string',
+            UnitDefinition::ENTITY_NAME,
+            'MeDaPro Bestelleinheit zu Shopware Maßeinheiten',
+            $context
+        );
     }
 
     private function getDynamicAccessRules(?string $sortimentId, Context $context): array
@@ -872,11 +844,11 @@ class ProductImportHandler
 
             if ($catalogMetadata->isSystemLanguage()) {
                 if (is_array($variantStruct->getDataByKey('properties'))) {
-                    $this->addProperties($variant, $variantStruct, $context);
+                    $this->addProperties($variant, $variantStruct);
                 }
 
                 if (is_array($variantStruct->getDataByKey('options'))) {
-                    $this->addOptions($mainProduct, $variant, $variantStruct, $context);
+                    $this->addOptions($mainProduct, $variant, $variantStruct);
                 }
 
                 $this->addMedia($variant, $variantStruct, $context, $catalogMetadata);

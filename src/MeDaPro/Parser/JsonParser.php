@@ -6,6 +6,7 @@ namespace ReiffIntegrations\MeDaPro\Parser;
 
 use JsonMachine\Items;
 use JsonMachine\JsonDecoder\ExtJsonDecoder;
+use K10rIntegrationHelper\MappingSystem\MappingService;
 use K10rIntegrationHelper\Observability\RunService;
 use ReiffIntegrations\MeDaPro\Helper\CrossSellingHelper;
 use ReiffIntegrations\MeDaPro\Helper\NotificationHelper;
@@ -42,6 +43,7 @@ class JsonParser
     public function __construct(
         private readonly RunService $runService,
         private readonly NotificationHelper $notificationHelper,
+        private readonly MappingService $mappingService
     ) {
     }
 
@@ -277,11 +279,16 @@ class JsonParser
                 }
 
                 // Property takes precedence over any standard field.
-                if (array_key_exists('properties', $structuredProduct) && array_key_exists(
-                    self::ATTRIBUTE_PREFIX_MANUFACTURER,
-                    $structuredProduct['properties']
-                ) && !empty($structuredProduct['properties'][self::ATTRIBUTE_PREFIX_MANUFACTURER]['value'])) {
-                    $structuredProduct[self::ATTRIBUTE_PREFIX_MANUFACTURER] = $structuredProduct['properties'][self::ATTRIBUTE_PREFIX_MANUFACTURER]['value'];
+                $manufacturerField = $this->mappingService->fetchTargetMapping(
+                    sprintf('%s_manufacturer_property_field', $catalogMetadata->getLanguageCode()),
+                    'string',
+                    'string',
+                    'Fieldname of the Property Manufacturer Name',
+                    $context
+                );
+
+                if (array_key_exists('properties', $structuredProduct) && array_key_exists($manufacturerField, $structuredProduct['properties']) && !empty($structuredProduct['properties'][$manufacturerField]['value'])) {
+                    $structuredProduct[self::ATTRIBUTE_PREFIX_MANUFACTURER] = $structuredProduct['properties'][$manufacturerField]['value'];
                 }
 
                 $product['structured'] = $structuredProduct;
