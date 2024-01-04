@@ -44,11 +44,6 @@ class ProductImportHandler
 {
     public const DEFAULT_CONTENT_QUANTITY = 1;
 
-    public const UNIT_REVERSE_MAPPING = [
-        'LTR' => 'Liter',
-        'PK'  => 'Packung',
-    ];
-
     public const PRODUCT_MEDIA_FIELDS = [
         'Web Groß Hauptbild',
         'Web Groß Detailbild 1',
