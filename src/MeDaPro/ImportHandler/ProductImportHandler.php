@@ -14,7 +14,6 @@ use ReiffIntegrations\MeDaPro\Helper\MediaHelper;
 use ReiffIntegrations\MeDaPro\Helper\NotificationHelper;
 use ReiffIntegrations\MeDaPro\Importer\ManufacturerImporter;
 use ReiffIntegrations\MeDaPro\Message\ProductImportMessage;
-use ReiffIntegrations\MeDaPro\Parser\JsonParser;
 use ReiffIntegrations\MeDaPro\Struct\CatalogMetadata;
 use ReiffIntegrations\MeDaPro\Struct\ProductCollection;
 use ReiffIntegrations\MeDaPro\Struct\ProductStruct;
@@ -340,7 +339,15 @@ class ProductImportHandler
             ];
         }
 
-        $manufacturerName = $productStruct->getDataByKey(JsonParser::ATTRIBUTE_PREFIX_MANUFACTURER);
+        $manufacturerField = $this->mappingService->fetchTargetMapping(
+            sprintf('%s_manufacturer_property_field', $catalogMetadata->getLanguageCode()),
+            'string',
+            'string',
+            'Fieldname of the Property Manufacturer Name',
+            $context
+        );
+
+        $manufacturerName = $productStruct->getDataByKey($manufacturerField);
 
         if (!empty($manufacturerName) && is_string($manufacturerName)) {
             if (!$this->manufacturerExists($manufacturerName)) {
@@ -371,7 +378,7 @@ class ProductImportHandler
                     ],
                 ],
                 'categories' => [
-                    //['id' => $this->getCategoryByUid($categoryUid, $context)],
+                  //  ['id' => $this->getCategoryByUid($categoryUid, $context)],
                 ],
                 'configuratorSettings' => $this->getRemainingConfiguratorOptions($baseProduct['id'], $productStruct->getVariants(), $catalogMetadata, $context),
             ]
