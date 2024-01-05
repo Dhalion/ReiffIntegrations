@@ -6,6 +6,7 @@ namespace ReiffIntegrations\MeDaPro\Parser;
 
 use JsonMachine\Items;
 use JsonMachine\JsonDecoder\ExtJsonDecoder;
+use K10rIntegrationHelper\MappingSystem\MappingService;
 use K10rIntegrationHelper\Observability\RunService;
 use ReiffIntegrations\MeDaPro\Helper\CrossSellingHelper;
 use ReiffIntegrations\MeDaPro\Helper\NotificationHelper;
@@ -23,8 +24,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class JsonParser
 {
-    public const ATTRIBUTE_PREFIX_MANUFACTURER = 'Hersteller';
-
     private const CATEGORY_TYPE_VARIATION_GROUP = 'variationGroup';
     private const ATTRIBUTE_IDENTIFIER_PROPERTY = 'Textattribute';
     private const ATTRIBUTE_IDENTIFIER_OPTION   = 'Tabellenattribute';
@@ -42,6 +41,7 @@ class JsonParser
     public function __construct(
         private readonly RunService $runService,
         private readonly NotificationHelper $notificationHelper,
+        private readonly MappingService $mappingService
     ) {
     }
 
@@ -113,6 +113,14 @@ class JsonParser
         $properties    = [];
         $manufacturers = [];
 
+        $manufacturerField = $this->mappingService->fetchTargetMapping(
+            sprintf('%s_manufacturer_property_field', $catalogMetadata->getLanguageCode()),
+            'string',
+            'string',
+            'Fieldname of the Property Manufacturer Name',
+            $context
+        );
+
         foreach ($this->getItems($filePath, '/catalogNodes') as $catalogNode) {
             $catalogNodes[$catalogNode['id']] = $catalogNode;
         }
@@ -129,12 +137,12 @@ class JsonParser
         foreach ($rawProducts as &$variants) {
             $firstVariant = reset($variants);
 
-            if (array_key_exists(self::ATTRIBUTE_PREFIX_MANUFACTURER, $firstVariant['raw'])) {
-                unset($firstVariant['raw'][self::ATTRIBUTE_PREFIX_MANUFACTURER]);  // Make sure main product has no manufacturer to prevent inheritance
+            if (array_key_exists($manufacturerField, $firstVariant['raw'])) {
+                unset($firstVariant['raw'][$manufacturerField]);  // Make sure main product has no manufacturer to prevent inheritance
             }
 
-            if (array_key_exists(self::ATTRIBUTE_PREFIX_MANUFACTURER, $firstVariant['attributes'])) {
-                unset($firstVariant['attributes'][self::ATTRIBUTE_PREFIX_MANUFACTURER]);
+            if (array_key_exists($manufacturerField, $firstVariant['attributes'])) {
+                unset($firstVariant['attributes'][$manufacturerField]);
             }
 
             if (array_key_exists(self::CLOSEOUT_IDENTIFIER, $firstVariant['raw'])) {
@@ -219,8 +227,8 @@ class JsonParser
                         continue;
                     }
 
-                    if ($key === self::ATTRIBUTE_PREFIX_MANUFACTURER && !empty($value) && empty($structuredProduct[self::ATTRIBUTE_PREFIX_MANUFACTURER])) {
-                        $structuredProduct[self::ATTRIBUTE_PREFIX_MANUFACTURER] = $value;
+                    if ($key === $manufacturerField && !empty($value) && empty($structuredProduct[$manufacturerField])) {
+                        $structuredProduct[$manufacturerField] = $value;
                     }
 
                     if (array_key_exists($cleanKey, $attributes['text']) && !empty($value) && $attributeType === 'text') {
@@ -277,11 +285,8 @@ class JsonParser
                 }
 
                 // Property takes precedence over any standard field.
-                if (array_key_exists('properties', $structuredProduct) && array_key_exists(
-                    self::ATTRIBUTE_PREFIX_MANUFACTURER,
-                    $structuredProduct['properties']
-                ) && !empty($structuredProduct['properties'][self::ATTRIBUTE_PREFIX_MANUFACTURER]['value'])) {
-                    $structuredProduct[self::ATTRIBUTE_PREFIX_MANUFACTURER] = $structuredProduct['properties'][self::ATTRIBUTE_PREFIX_MANUFACTURER]['value'];
+                if (array_key_exists('properties', $structuredProduct) && array_key_exists($manufacturerField, $structuredProduct['properties']) && !empty($structuredProduct['properties'][$manufacturerField]['value'])) {
+                    $structuredProduct[$manufacturerField] = $structuredProduct['properties'][$manufacturerField]['value'];
                 }
 
                 $product['structured'] = $structuredProduct;
@@ -297,8 +302,8 @@ class JsonParser
                     CrossSellingHelper::getCrossSellingGroups($product['structured'])
                 );
 
-                if (!empty($structuredProduct[self::ATTRIBUTE_PREFIX_MANUFACTURER]) && is_string($structuredProduct[self::ATTRIBUTE_PREFIX_MANUFACTURER])) {
-                    $manufacturerName  = $structuredProduct[self::ATTRIBUTE_PREFIX_MANUFACTURER];
+                if (!empty($structuredProduct[$manufacturerField]) && is_string($structuredProduct[$manufacturerField])) {
+                    $manufacturerName  = $structuredProduct[$manufacturerField];
                     $manufacturerImage = !empty($structuredProduct['Web Logo 1']) ? $structuredProduct['Web Logo 1'] : null;
 
                     if (empty($manufacturers[$manufacturerName])) {
