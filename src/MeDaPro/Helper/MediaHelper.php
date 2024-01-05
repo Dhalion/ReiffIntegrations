@@ -35,8 +35,6 @@ class MediaHelper
     {
         $path = trim($path);
 
-        $path = 'plugin.png';
-
         if (array_key_exists($folder, $this->mediaIdsByPathAndFolder) && array_key_exists($path, $this->mediaIdsByPathAndFolder[$folder])) {
             return $this->mediaIdsByPathAndFolder[$folder][$path];
         }

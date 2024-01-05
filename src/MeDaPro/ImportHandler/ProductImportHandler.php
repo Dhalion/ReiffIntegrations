@@ -378,7 +378,7 @@ class ProductImportHandler
                     ],
                 ],
                 'categories' => [
-                  //  ['id' => $this->getCategoryByUid($categoryUid, $context)],
+                    ['id' => $this->getCategoryByUid($categoryUid, $context)],
                 ],
                 'configuratorSettings' => $this->getRemainingConfiguratorOptions($baseProduct['id'], $productStruct->getVariants(), $catalogMetadata, $context),
             ]
