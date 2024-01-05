@@ -24,8 +24,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class JsonParser
 {
-    public const ATTRIBUTE_PREFIX_MANUFACTURER = 'Hersteller';
-
     private const CATEGORY_TYPE_VARIATION_GROUP = 'variationGroup';
     private const ATTRIBUTE_IDENTIFIER_PROPERTY = 'Textattribute';
     private const ATTRIBUTE_IDENTIFIER_OPTION   = 'Tabellenattribute';
