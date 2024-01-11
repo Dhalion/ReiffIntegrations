@@ -141,34 +141,22 @@ class PriceApiClient extends AbstractApiClient
             return $items;
         }
 
-        $xmlProducts = $xml->xpath('//Article');
-        $products    = [];
+        $products = $xml->xpath('//EtFullPrice/item');
 
-        if (is_array($xmlProducts)) {
-            $products = (array) json_decode((string) json_encode($xmlProducts), true);
-        }
-
-        /** @var array $product */
         foreach ($products as $product) {
-            $priceIterator = new \RecursiveArrayIterator($product['Prices']['ArticlePrice']);
-
-            if (!$priceIterator->hasChildren()) {
-                $price = $product['Prices']['ArticlePrice'];
-                unset($product['Prices']['ArticlePrice']);
-                $product['Prices']['ArticlePrice'][] = $price;
-            }
-
-            $productNumber = $product['ArticleID']['SupplierArticleID'];
-            foreach ($product['Prices']['ArticlePrice'] as $price) {
-                $priceQuantity  = (int) str_replace('.', '', $price['PriceQuantity']);
-                $orderUnit      = $product['OrderUnit'];
-                $formattedPrice = ((float) str_replace(['.', ','], ['', '.'], $price['AmountPerPriceQuantity'])) / $priceQuantity;
-                $quantity       = (int) str_replace('.', '', $price['ScaleLowerBound']);
+            foreach ($product->Price->item as $price) {
+                $productNumber = (string) $product->Matnr;
+                $priceQuantity = (int) $price->Kpein;
+                $orderUnit     = (string) $price->Vrkme;
+                $quantity      = (int) $price->Mgame;
+                $price         = ((float) $price->Netpr) / $priceQuantity * $quantity;
 
                 $items->set(
                     sprintf(ItemCollection::ITEM_KEY_HANDLE, $productNumber, $quantity),
-                    new ItemStruct($productNumber, $quantity, $formattedPrice, $priceQuantity, $orderUnit)
+                    new ItemStruct($productNumber, $quantity, $price, $priceQuantity, $orderUnit)
                 );
+
+                break;
             }
         }
 
