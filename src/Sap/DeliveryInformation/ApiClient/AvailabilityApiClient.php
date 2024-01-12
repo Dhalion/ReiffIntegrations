@@ -143,7 +143,7 @@ class AvailabilityApiClient extends AbstractApiClient
             return $items;
         }
 
-        $xmlProducts = $xml->xpath('//ET_RETURN/item');
+        $xmlProducts = $xml->xpath('//ET_AVAILABILITY/item');
 
         /** @var array $product */
         foreach ($xmlProducts as $product) {
@@ -152,11 +152,12 @@ class AvailabilityApiClient extends AbstractApiClient
             }
 
             $code = (int) $product->CODE;
+            $plant = (string) $product->PLANT;
 
             $items->add(
                 new AvailabilityStruct(
                     (string) $product->MATERIAL,
-                    (string) $product->PLANT,
+                    !empty($plant) ? $plant : self::INVALID_PLANT,
                     (float) $product->QUANTITY,
                     (string) $product->UOM,
                     !empty($code) ? $code : self::INVALID_CODE
