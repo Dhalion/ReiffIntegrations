@@ -200,6 +200,8 @@ class OrderIdocConverter
 
             if ($exportOrdersWithoutSalesOrganisation) {
                 $salesOrganisation = $this->configService->getString(Configuration::CONFIG_KEY_API_FALLBACK_SALES_ORGANISATION);
+            } else {
+                throw $exception;
             }
         }
 
