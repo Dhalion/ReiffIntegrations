@@ -64,12 +64,10 @@
 
         <input-field type="bool">
             <name>orderExportWithoutSalesOrganisation</name>
-            <label>Maximum attempts per order</label>
-            <label lang="de-DE">Maximale Versuche je Bestellung</label>
-            <defaultValue>3</defaultValue>
-            <placeholder>3</placeholder>
-            <helpText>Export Orders without a sales Organisation (uses the configured Fallback)</helpText>
-            <helpText lang="de-DE">Exportiert Aufträge ohne eine Verkaufsorganisation (verwendet den konfigurierten Fallback)</helpText>
+            <label>Export Orders without a sales Organisation</label>
+            <label lang="de-DE">Exportiert Aufträge ohne eine Verkaufsorganisation</label>
+            <helpText>Uses the configured Fallback</helpText>
+            <helpText lang="de-DE">Verwendet den konfigurierten Fallback</helpText>
         </input-field>
 
         <input-field type="int">
