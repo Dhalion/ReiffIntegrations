@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace ReiffIntegrations\Seeburger\DataConverter;
 
+use CrefoPay\Payment\Installer\CustomFieldsInstaller;
 use ReiffIntegrations\Installer\CustomFieldInstaller;
 use ReiffIntegrations\Sap\DataAbstractionLayer\CustomerExtension;
 use ReiffIntegrations\Sap\DataAbstractionLayer\ReiffCustomerEntity;
@@ -142,7 +143,7 @@ class OrderIdocConverter
         }
 
         $termsOfPayment = $paymentMethod->getCustomFields()[CustomFieldInstaller::PAYMENT_TERMS_OF_PAYMENT];
-        $transactionId  = $transaction->getCustomFields()['crefo_pay_transaction_id'] ?? 'UNDEFINED';
+        $transactionId  = $transaction->getCustomFields()[CustomFieldsInstaller::TRANSACTION_ID] ?? 'UNDEFINED';
 
         $columns = $this->getBasicIdocColumns($identifier);
         $columns->add(new IdocColumn('QUALF', 3, $termsOfPayment));

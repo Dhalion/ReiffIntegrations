@@ -6,8 +6,6 @@ namespace ReiffIntegrations\MeDaPro\Serializer;
 
 use ReiffIntegrations\MeDaPro\Struct\ProductCollection;
 use ReiffIntegrations\MeDaPro\Struct\ProductStruct;
-use Symfony\Component\Serializer\Normalizer\ContextAwareDenormalizerInterface;
-use Symfony\Component\Serializer\Normalizer\ContextAwareNormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
@@ -56,6 +54,11 @@ class ProductStructNormalizer implements NormalizerInterface, DenormalizerInterf
         return true;
     }
 
+    public function getSupportedTypes(?string $format): array
+    {
+        return [ProductStruct::class => true];
+    }
+
     private function normalizeVariants(ProductCollection $variantsCollection): array
     {
         $variantsData = [];
@@ -97,10 +100,5 @@ class ProductStructNormalizer implements NormalizerInterface, DenormalizerInterf
         }
 
         return $variantsCollection;
-    }
-
-    public function getSupportedTypes(?string $format): array
-    {
-        return [ProductStruct::class => true];
     }
 }

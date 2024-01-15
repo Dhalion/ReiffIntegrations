@@ -56,12 +56,17 @@ class CustomerWrittenEventSubscriber implements EventSubscriberInterface
                 $this->confirmDoubleOptIn($payload['id'], $event->getContext());
             }
 
-            if ($debtorData === null || empty($debtorData->getDebtorNumber()) || empty($debtorData->getCustomerId())) {
+            if ($debtorData === null || $debtorData->hasIncompleteFields()) {
                 continue;
             }
 
-            $messageStruct = new OrderNumberUpdateStruct($debtorData->getDebtorNumber(), $debtorData->getCustomerId());
-            $message       = $this->messageHandler->getMessage($messageStruct, $event->getContext());
+            $messageStruct = new OrderNumberUpdateStruct(
+                $debtorData->getCustomerId(),
+                $debtorData->getDebtorNumber(),
+                $debtorData->getSalesOrganisation()
+            );
+
+            $message = $this->messageHandler->getMessage($messageStruct, $event->getContext());
 
             $this->messageBus->dispatch($message);
         }

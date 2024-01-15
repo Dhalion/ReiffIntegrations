@@ -8,7 +8,6 @@ use K10rIntegrationHelper\NotificationSystem\DataAbstractionLayer\Notifications\
 use K10rIntegrationHelper\NotificationSystem\DataAbstractionLayer\Notifications\NotificationEntity;
 use K10rIntegrationHelper\NotificationSystem\NotificationService;
 use Monolog\Level;
-use Monolog\Logger;
 use ReiffIntegrations\MeDaPro\Struct\CatalogMetadata;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;

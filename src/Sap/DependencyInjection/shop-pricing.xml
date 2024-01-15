@@ -5,12 +5,13 @@
     <services>
         <service id="ReiffIntegrations\Sap\ShopPricing\ApiClient\PriceApiClient">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="ReiffIntegrations\Logger"/>
+            <argument type="service" id="monolog.logger.reiff_integrations"/>
         </service>
 
         <service id="ReiffIntegrations\Sap\ShopPricing\PriceCacheService">
             <argument type="service" id="cache.object"/>
             <argument type="service" id="ReiffIntegrations\Sap\ShopPricing\ApiClient\PriceApiClient"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
 
         <service id="ReiffIntegrations\Sap\ShopPricing\PriceSubscriber">
