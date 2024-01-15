@@ -24,6 +24,8 @@ interface Configuration
     public const CONFIG_KEY_OFFER_API_URL     = 'ReiffIntegrations.config.offerApiUrl';
     public const CONFIG_KEY_OFFER_PDF_API_URL = 'ReiffIntegrations.config.offerPdfApiUrl';
 
+    public const CONFIG_KEY_ORDER_EXPORT_WITHOUT_SALES_ORGANISATION = 'ReiffIntegrations.config.orderExportWithoutSalesOrganisation';
+
     public const CONFIG_KEY_ORDER_EXPORT_ARCHIVE_PATH        = 'ReiffIntegrations.config.pathOrderExportArchive';
     public const CONFIG_KEY_ORDER_EXPORT_ERROR_PATH          = 'ReiffIntegrations.config.pathOrderExportError';
     public const CONFIG_KEY_ORDER_EXPORT_MAX_ATTEMPTS        = 'ReiffIntegrations.config.orderExportMaxAttempts';

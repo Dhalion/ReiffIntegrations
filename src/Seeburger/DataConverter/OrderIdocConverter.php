@@ -14,6 +14,7 @@ use ReiffIntegrations\Seeburger\Struct\IdocColumn;
 use ReiffIntegrations\Seeburger\Struct\IdocColumnCollection;
 use ReiffIntegrations\Seeburger\Struct\IdocRow;
 use ReiffIntegrations\Seeburger\Struct\IdocRowCollection;
+use ReiffIntegrations\Util\Configuration;
 use Shopware\B2B\Order\BridgePlatform\OrderServiceDecorator;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -23,6 +24,8 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class OrderIdocConverter
 {
@@ -38,6 +41,10 @@ class OrderIdocConverter
     public const I_DOC_LENGTH_CUSTOMER_COMMENT    = 70;
 
     private const DEFAULT_UNIT = 'PCE';
+
+    public function __construct(
+        private readonly SystemConfigService $configService,
+    ) { }
 
     public function convert(OrderEntity $order): IdocRowCollection
     {
@@ -186,9 +193,21 @@ class OrderIdocConverter
         $columns->add(new IdocColumn('ORGID', 35, '10'));
         $idoc->add(new IdocRow($identifier, $columns));
 
+        try {
+            $salesOrganisation = $this->getSalesOrganisation($order);
+        } catch (\Throwable $exception) {
+            $exportOrdersWithoutSalesOrganisation = $this->configService->getBool(Configuration::CONFIG_KEY_ORDER_EXPORT_WITHOUT_SALES_ORGANISATION);
+
+            if ($exportOrdersWithoutSalesOrganisation) {
+                $salesOrganisation = $this->configService->getString(Configuration::CONFIG_KEY_API_FALLBACK_SALES_ORGANISATION);
+            } else {
+                throw $exception;
+            }
+        }
+
         $columns = $this->getBasicIdocColumns($identifier);
         $columns->add(new IdocColumn('QUALF', 3, '008'));
-        $columns->add(new IdocColumn('ORGID', 35, $this->getSalesOrganisation($order)));
+        $columns->add(new IdocColumn('ORGID', 35, $salesOrganisation));
         $idoc->add(new IdocRow($identifier, $columns));
 
         $columns = $this->getBasicIdocColumns($identifier);
@@ -526,7 +545,7 @@ class OrderIdocConverter
 
         $salesOrganisation = $reiffCustomer->getSalesOrganisation();
 
-        if ($salesOrganisation === null) {
+        if (empty($salesOrganisation) || $salesOrganisation === '-') {
             throw new \RuntimeException(sprintf('Customer %s for order %s has no sales organisation', $customer->getCustomerNumber(), $order->getOrderNumber()));
         }
 
