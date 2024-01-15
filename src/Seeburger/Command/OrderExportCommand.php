@@ -146,6 +146,7 @@ class OrderExportCommand extends Command
     {
         $criteria = $this->getOrderCriteria();
         $criteria->addFilter(new PrefixFilter(sprintf('orderCustomer.customer.%s.debtorNumber', CustomerExtension::EXTENSION_NAME), '4'));
+        $criteria->addFilter(new PrefixFilter(sprintf('orderCustomer.customer.%s.salesOrganisation', CustomerExtension::EXTENSION_NAME), '1'));
         $criteria->addFilter(new EqualsFilter(sprintf('%s.queuedAt', OrderExtension::EXTENSION_NAME), null));
         $criteria->addFilter(new EqualsFilter(sprintf('%s.exportedAt', OrderExtension::EXTENSION_NAME), null));
 

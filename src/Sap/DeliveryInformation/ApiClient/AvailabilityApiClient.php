@@ -143,26 +143,24 @@ class AvailabilityApiClient extends AbstractApiClient
             return $items;
         }
 
-        $xmlProducts = $xml->xpath('//GetAvailabilityResponse');
-        $products    = [];
-
-        if (is_array($xmlProducts)) {
-            $products = (array) json_decode((string) json_encode($xmlProducts), true);
-        }
+        $xmlProducts = $xml->xpath('//ET_AVAILABILITY/item');
 
         /** @var array $product */
-        foreach ($products as $product) {
-            if (!array_key_exists('MATERIAL', $product)) {
+        foreach ($xmlProducts as $product) {
+            if (empty((string) $product->MATERIAL)) {
                 continue;
             }
 
+            $code = (int) $product->CODE;
+            $plant = (string) $product->PLANT;
+
             $items->add(
                 new AvailabilityStruct(
-                    !empty($product['MATERIAL']) ? $product['MATERIAL'] : '',
-                    !empty($product['PLANT']) ? $product['PLANT'] : self::INVALID_PLANT,
-                    !empty($product['QUANTITY']) ? (float) str_replace([','], ['.'], $product['QUANTITY']) : 0.0,
-                    !empty($product['UOM']) ? $product['UOM'] : '',
-                    !empty($product['CODE']) ? (int) $product['CODE'] : self::INVALID_CODE
+                    (string) $product->MATERIAL,
+                    !empty($plant) ? $plant : self::INVALID_PLANT,
+                    (float) $product->QUANTITY,
+                    (string) $product->UOM,
+                    !empty($code) ? $code : self::INVALID_CODE
                 )
             );
         }

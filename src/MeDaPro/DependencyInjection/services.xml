@@ -46,6 +46,7 @@
         <service id="ReiffIntegrations\MeDaPro\Parser\JsonParser">
             <argument type="service" id="K10rIntegrationHelper\Observability\RunService"/>
             <argument type="service" id="ReiffIntegrations\MeDaPro\Helper\NotificationHelper"/>
+            <argument type="service" id="K10rIntegrationHelper\MappingSystem\MappingService"/>
         </service>
 
         <service id="ReiffIntegrations\MeDaPro\DataAbstractionLayer\CategoryExtension">

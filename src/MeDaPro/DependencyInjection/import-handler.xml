@@ -23,10 +23,10 @@
             <argument type="service" id="ReiffIntegrations\MeDaPro\Helper\MediaHelper"/>
             <argument type="service" id="messenger.bus.shopware"/>
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer"/>
-            <argument type="service" id="unit.repository"/>
             <argument type="service" id="ReiffIntegrations\MeDaPro\DataProvider\RuleProvider"/>
             <argument type="service" id="K10rIntegrationHelper\Observability\RunService"/>
             <argument type="service" id="ReiffIntegrations\MeDaPro\Helper\NotificationHelper"/>
+            <argument type="service" id="K10rIntegrationHelper\MappingSystem\MappingService"/>
 
             <tag name="messenger.message_handler"/>
         </service>
