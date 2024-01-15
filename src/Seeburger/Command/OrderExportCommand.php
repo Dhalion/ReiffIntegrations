@@ -149,7 +149,7 @@ class OrderExportCommand extends Command
 
         $exportOrdersWithoutSalesOrganisation = $this->configService->getBool(Configuration::CONFIG_KEY_ORDER_EXPORT_WITHOUT_SALES_ORGANISATION);
 
-        if ($exportOrdersWithoutSalesOrganisation) {
+        if (!$exportOrdersWithoutSalesOrganisation) {
             $criteria->addFilter(new PrefixFilter(sprintf('orderCustomer.customer.%s.salesOrganisation', CustomerExtension::EXTENSION_NAME), '1'));
         }
 
