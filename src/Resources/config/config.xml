@@ -62,6 +62,14 @@
             <defaultValue>https://edi.reiff.eu/SeeburgerHTTP/HTTPController?MessageType=ORDERS</defaultValue>
         </input-field>
 
+        <input-field type="bool">
+            <name>orderExportWithoutSalesOrganisation</name>
+            <label>Export Orders without a sales Organisation</label>
+            <label lang="de-DE">Exportiert Aufträge ohne eine Verkaufsorganisation</label>
+            <helpText>Uses the configured Fallback</helpText>
+            <helpText lang="de-DE">Verwendet den konfigurierten Fallback</helpText>
+        </input-field>
+
         <input-field type="int">
             <name>orderExportMaxAttempts</name>
             <label>Maximum attempts per order</label>
