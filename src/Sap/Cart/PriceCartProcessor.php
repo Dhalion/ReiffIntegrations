@@ -209,10 +209,6 @@ class PriceCartProcessor implements CartDataCollectorInterface, CartProcessorInt
 
         $data->remove(self::SAP_CART_HASH);
         $cart->removeExtension(CartHashStruct::NAME);
-
-        $cart->addErrors(
-            new SapNotAvavilableError()
-        );
     }
 
     private function getCartCacheKey(string $debtorNumber): string
