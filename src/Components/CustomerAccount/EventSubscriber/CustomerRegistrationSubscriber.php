@@ -20,7 +20,6 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 class CustomerRegistrationSubscriber implements EventSubscriberInterface
 {
     public const CUSTOMER_REGISTRATION_KEY_DEBTOR_NUMBER      = 'customerDebtorNumber';
-    public const CUSTOMER_REGISTRATION_KEY_INDUSTRY           = 'customerIndustry';
     public const CUSTOMER_REGISTRATION_KEY_ELECTRONIC_INVOICE = 'emailElectronicInvoice';
 
     public const B2B_CUSTOMER_DATA_KEY = 'b2bCustomerData';
@@ -35,15 +34,10 @@ class CustomerRegistrationSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            'framework.validation.customer.create'      => 'onCustomerValidationCreation',
             CustomerDoubleOptInRegistrationEvent::class => 'onRegister',
         ];
     }
 
-    public function onCustomerValidationCreation(BuildValidationEvent $event): void
-    {
-        $event->getDefinition()->add(self::CUSTOMER_REGISTRATION_KEY_INDUSTRY, new NotBlank());
-    }
 
     public function onRegister(CustomerDoubleOptInRegistrationEvent $event): void
     {
@@ -99,11 +93,7 @@ class CustomerRegistrationSubscriber implements EventSubscriberInterface
             $additionalData[CustomFieldInstaller::CUSTOMER_PROVIDED_DEBTOR_NUMBER] = $providedDebtorNumber;
         }
 
-        $industry = $currentRequest->get(self::CUSTOMER_REGISTRATION_KEY_INDUSTRY);
 
-        if (!empty($industry)) {
-            $additionalData[CustomFieldInstaller::CUSTOMER_INDUSTRY] = $industry;
-        }
 
         $invoiceMail = $currentRequest->get(self::CUSTOMER_REGISTRATION_KEY_ELECTRONIC_INVOICE);
 
