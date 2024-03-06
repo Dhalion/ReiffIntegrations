@@ -149,7 +149,7 @@ class PriceApiClient extends AbstractApiClient
                 $priceQuantity = (int) $price->Kpein;
                 $orderUnit     = (string) $price->Vrkme;
                 $quantity      = (int) $price->Mgame;
-                $price         = ((float) $price->Netpr) / $priceQuantity * $quantity;
+                $price         = ((float) $price->Netpr) / $priceQuantity;
 
                 $items->set(
                     sprintf(ItemCollection::ITEM_KEY_HANDLE, $productNumber, $quantity),
