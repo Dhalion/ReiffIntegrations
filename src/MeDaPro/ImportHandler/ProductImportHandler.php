@@ -196,13 +196,8 @@ class ProductImportHandler
         // Calculate correct unit price for product based on price's base quantity and product content quantity
         // e.g. price is based on 100 pieces, unit contains 20 pieces -> price / 100 * 20
         $priceQuantity   = (int) $productStruct->getDataByKey('Preismenge');
-        $contentQuantity = self::DEFAULT_CONTENT_QUANTITY;
-
-        if ($productStruct->getCatalogId() === '1600') {
-            /** @var string $minQuantity */
-            $minQuantity     = $productStruct->getDataByKey('Mindestbestellmenge') ?? '';
-            $contentQuantity = (float) (str_replace(',', '.', $minQuantity) ?: self::DEFAULT_CONTENT_QUANTITY);
-        }
+        $minQuantity     = $productStruct->getDataByKey('Mindestbestellmenge') ?? '';
+        $contentQuantity = (float) (str_replace(',', '.', $minQuantity) ?: self::DEFAULT_CONTENT_QUANTITY);
 
         $price = $price / $priceQuantity * $contentQuantity;
 
@@ -833,10 +828,6 @@ class ProductImportHandler
                 $variant['ean']                = $variantStruct->getDataByKey('EAN');
 
                 $minPurchase = $variantStruct->getDataByKey('Mindestbestellmenge');
-
-                if ($productStruct->getCatalogId() === '1600') {
-                    $minPurchase = self::DEFAULT_CONTENT_QUANTITY;
-                }
 
                 $variant['minPurchase']   = ((int) $minPurchase > 0) ? (int) $minPurchase : 1;
                 $variant['purchaseSteps'] = $variant['minPurchase'];
