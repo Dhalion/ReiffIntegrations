@@ -199,7 +199,7 @@ class ProductImportHandler
         $minQuantity     = $productStruct->getDataByKey('Mindestbestellmenge') ?? '';
         $contentQuantity = (float) (str_replace(',', '.', $minQuantity) ?: self::DEFAULT_CONTENT_QUANTITY);
 
-        $price = $price / $priceQuantity * $contentQuantity;
+        $price = $price / $priceQuantity;
 
         $gross = $price * 1.19;
         $net   = $price;
