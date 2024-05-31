@@ -117,7 +117,8 @@
             "error": {
                 "ERROR_SAP": "Your individual prices can't be displayed. They will still be taken into account when placing an order."
             },
-            "notShownInfo": "The price displayed here may differ from your personal price. This is displayed and used on the product detail page and in the shopping cart."
+            "notShownInfo": "The price displayed here may differ from your personal price. This is displayed and used on the product detail page and in the shopping cart.",
+            "priceOnRequest": "Price on request"
         },
         "contract": {
             "navItemTitle": "Contracts",
@@ -175,6 +176,7 @@
         "custom-delivery-date-blocked": "The selected delivery date is not valid. Please select a date that is at least one day in the future.",
         "commission-order-blocked": "The provided commission for the order is to long. Please use %characters% characters max.",
         "commission-product-blocked": "The provided commission for the product is to long. Please use %characters% characters max.",
+        "product-price-request-required-error": "Please request the price for the product first.",
         "sap-not-available": "An order is currently not possible. Please try again later."
     },
     "b2b": {
