@@ -172,10 +172,10 @@
         }
     },
     "checkout": {
-        "custom-order-number-blocked": "The provided custom order number is to long. Please use %characters% characters max.",
+        "custom-order-number-blocked": "The provided custom order number is too long. Please use %characters% characters max.",
         "custom-delivery-date-blocked": "The selected delivery date is not valid. Please select a date that is at least one day in the future.",
-        "commission-order-blocked": "The provided commission for the order is to long. Please use %characters% characters max.",
-        "commission-product-blocked": "The provided commission for the product is to long. Please use %characters% characters max.",
+        "commission-order-blocked": "The provided commission for the order is too long. Please use %characters% characters max.",
+        "commission-product-blocked": "The provided commission for the product is too long. Please use %characters% characters max.",
         "product-price-request-required-error": "Please request the price for the product first.",
         "sap-not-available": "An order is currently not possible. Please try again later."
     },
