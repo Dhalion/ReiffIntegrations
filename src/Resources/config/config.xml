@@ -351,4 +351,17 @@
         </input-field>
     </card>
 
+    <card>
+        <title>Product price on request</title>
+        <title lang="de-DE">Produktpreis auf Anfrage</title>
+        <input-field>
+            <name>productPriceRequestReiffMail</name>
+            <label>Reiff mail for price requests</label>
+            <label lang="de-DE">Reiff E-Mail für Preis-Anfragen</label>
+            <helpText>Price requests will be sent to this E-Mail</helpText>
+            <helpText lang="de-DE">Preisanfragen werden an diese E-Mail gesendet</helpText>
+            <defaultValue>preisanfragen@example.com</defaultValue>
+        </input-field>
+    </card>
+
 </config>
