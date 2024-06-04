@@ -59,13 +59,18 @@ class RequestPriceApiController extends AbstractController {
             'product' => $product,
             'customer' => $customer,
         ]);
+        $subjectRaw = $mailTemplate->getSubject();
+        $subject = $this->twig->createTemplate($subjectRaw)->render([
+            'product' => $product,
+            'customer' => $customer,
+        ]);
         $recipient = $this->systemConfigService->get('ReiffIntegrations.config.productPriceRequestReiffMail');
         $encodedBody = urlencode($contentPlain);
         $encodedBody = str_replace('+', '%20', $encodedBody);
         $mailtoUrl = sprintf(
             'mailto:%s?subject=%s&body=%s',
             urlencode($recipient ?? 'preisanfragen@example.com'),
-            urlencode($mailTemplate->getSubject()),
+            urlencode($subject),
             $encodedBody
         );
 
