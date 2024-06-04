@@ -67,10 +67,12 @@ class RequestPriceApiController extends AbstractController {
         $recipient = $this->systemConfigService->get('ReiffIntegrations.config.productPriceRequestReiffMail');
         $encodedBody = urlencode($contentPlain);
         $encodedBody = str_replace('+', '%20', $encodedBody);
+        $encodedSubject = urlencode($subject);
+        $encodedSubject = str_replace('+', '%20', $encodedSubject);
         $mailtoUrl = sprintf(
             'mailto:%s?subject=%s&body=%s',
             urlencode($recipient ?? 'preisanfragen@example.com'),
-            urlencode($subject),
+            $encodedSubject,
             $encodedBody
         );
 
