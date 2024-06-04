@@ -253,7 +253,7 @@ class ProductImportHandler
                     CustomFieldInstaller::PRODUCT_ECLASS51               => $productStruct->getDataByKey('ECLASS 51'),
                     CustomFieldInstaller::PRODUCT_ECLASS71               => $productStruct->getDataByKey('ECLASS 71'),
                     CustomFieldInstaller::PRODUCT_MATERIALFRACHTGRUPPE   => $productStruct->getDataByKey('Materialfrachtgruppe SAP'),
-                    CustomFieldInstaller::PRODUCT_ANFRAGE                => $productStruct->getDataByKey('Anfrage') === self::POSITIVE_ANFRAGE_VALUE,
+                    CustomFieldInstaller::PRODUCT_ANFRAGE                => $productStruct->getDataByKey('Anfrage') === self::POSITIVE_BOOL_VALUE,
                     CustomFieldInstaller::PRODUCT_BANNER_OFFER           => $productStruct->getDataByKey('Banner_Angebot') === self::POSITIVE_ANGEBOT_VALUE,
                     CustomFieldInstaller::PRODUCT_BANNER_NEW             => $productStruct->getDataByKey('Banner_Neuheit') === self::POSITIVE_NEUHEIT_VALUE,
                     CustomFieldInstaller::PRODUCT_ABSCHNITT              => $productStruct->getDataByKey('Abschnitt') === self::POSITIVE_BOOL_VALUE,
