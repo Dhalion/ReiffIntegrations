@@ -7,18 +7,24 @@
     {% set hasRegulationPrice = price.regulationPrice != null and price.regulationPrice.price > 0 %}
 
     <div class="maxia-variants-table-price{% if showListPrice %} with-list-price{% endif %}{% if hasRegulationPrice %} with-regulation-price{% endif %}">
+      
         <span class="price-default">
-            {% sw_include '@Storefront/storefront/component/k10r-price/simple-price-placeholder.html.twig' with { productNumber: product.productNumber, price: price.unitPrice } %}
-            {% block order_unit %}
-                <span class="product-price-unit-text">
-                    {% block order_unit_divider %}
-                        {{ 'ReiffIntegrations.unit.divider'|trans }}
-                    {% endblock %}
-                    {% block order_unit_unit %}
-                        {{ product.unit.translated.name }}
-                    {% endblock %}
-                </span>
-            {% endblock %}
+            {% if not product.translated.customFields.reiff_product_anfrage %}
+                {% sw_include '@Storefront/storefront/component/k10r-price/simple-price-placeholder.html.twig' with { productNumber: product.productNumber, price: price.unitPrice } %}
+                {% block order_unit %}
+                    <span class="product-price-unit-text">
+                        {% block order_unit_divider %}
+                            {{ 'ReiffIntegrations.unit.divider'|trans }}
+                        {% endblock %}
+                        {% block order_unit_unit %}
+                            {{ product.unit.translated.name }}
+                        {% endblock %}
+                    </span>
+                {% endblock %}
+            {% else %}
+                {{ 'ReiffIntegrations.price.priceOnRequest'|trans }}
+            {% endif %}
+           
         </span>
 
         {% if showListPrice %}

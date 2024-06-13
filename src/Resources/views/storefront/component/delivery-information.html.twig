@@ -13,13 +13,16 @@
     {% endif %}
 
     {% if product is defined %}
-        <div class="product-delivery-information">
-            {%  sw_include '@Storefront/storefront/component/k10r-product-delivery-information/index.html.twig' with {
-                productNumber: product.productNumber,
-                deliveryCode: deliveryCode,
-                isProductShippingFree: product.shippingFree,
-                isProductActive: product.active,
-            } %}
-        </div>
+        {% set isRequestProduct = product.customFields.reiff_product_anfrage %}
+        {% if not isRequestProduct %}
+            <div class="product-delivery-information">
+                {%  sw_include '@Storefront/storefront/component/k10r-product-delivery-information/index.html.twig' with {
+                    productNumber: product.productNumber,
+                    deliveryCode: deliveryCode,
+                    isProductShippingFree: product.shippingFree,
+                    isProductActive: product.active,
+                } %}
+            </div>
+        {% endif %}
     {% endif %}
 {% endblock %}
