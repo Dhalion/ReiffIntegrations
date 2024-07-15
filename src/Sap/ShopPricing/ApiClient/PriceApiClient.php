@@ -156,7 +156,6 @@ class PriceApiClient extends AbstractApiClient
                     new ItemStruct($productNumber, $quantity, $price, $priceQuantity, $orderUnit)
                 );
 
-                break;
             }
         }
 
