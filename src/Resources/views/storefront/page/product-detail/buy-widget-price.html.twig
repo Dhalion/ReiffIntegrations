@@ -30,7 +30,7 @@
             isPageRendering: isPageRendering,
             isFallback: isFallback,
             debtorNumber: debtorNumber,
-            unit: page.product.unit.translated.name
+            unit: page.product.unit.translated.name|default(page.product.packUnit),
         } only %}
     </td>
 {% endblock %}
