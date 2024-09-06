@@ -49,7 +49,10 @@ class OrderPdfApiClient extends AbstractApiClient
             'Content-length: ' . strlen($postData),
         ];
 
-        $handle = $this->getCurlHandle($url, '', '', $headerData, $method, $postData, $ignoreSsl);
+        $username = $this->systemConfigService->getString(Configuration::CONFIG_KEY_API_USER_NAME);
+        $password = $this->systemConfigService->getString(Configuration::CONFIG_KEY_API_PASSWORD);
+
+        $handle = $this->getCurlHandle($url, $username, $password, $headerData, $method, $postData, $ignoreSsl);
 
         $response    = curl_exec($handle);
         $errorNumber = curl_errno($handle);
@@ -99,7 +102,10 @@ class OrderPdfApiClient extends AbstractApiClient
             'Content-length: ' . strlen($postData),
         ];
 
-        $handle = $this->getCurlHandle($url, '', '', $headerData, $method, $postData, $ignoreSsl);
+        $username = $this->systemConfigService->getString(Configuration::CONFIG_KEY_API_USER_NAME);
+        $password = $this->systemConfigService->getString(Configuration::CONFIG_KEY_API_PASSWORD);
+
+        $handle = $this->getCurlHandle($url, $username, $password, $headerData, $method, $postData, $ignoreSsl);
 
         $response    = curl_exec($handle);
         $errorNumber = curl_errno($handle);
