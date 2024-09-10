@@ -8,6 +8,7 @@ use Psr\Log\LoggerInterface;
 use ReiffIntegrations\Api\Client\AbstractApiClient;
 use ReiffIntegrations\Sap\Controller\Storefront\OrdersController;
 use ReiffIntegrations\Util\Configuration;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
@@ -22,17 +23,21 @@ class OrderPdfApiClient extends AbstractApiClient
     ) {
     }
 
-    public function getInvoicePdf(string $documentNumber, Context $context): OrderPdfApiResponse
+    public function getInvoicePdf(string $documentNumber, CustomerEntity $shopwareCustomer, Context $context): OrderPdfApiResponse
     {
-        $postData = sprintf('<?xml version="1.0"?>
-                        <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:itb="http://www.itb-web.de/">
-                          <soapenv:Header/>
-                          <soapenv:Body>
-                            <itb:GetInvoicePdf>
-                              <Document_Number>%s</Document_Number>
-                            </itb:GetInvoicePdf>
-                          </soapenv:Body>
-                        </soapenv:Envelope>', $documentNumber);
+        $languageCode = $this->fetchLanguageCode($shopwareCustomer);
+
+        $postData = sprintf('
+            <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:sap-com:document:sap:rfc:functions">
+                <soapenv:Header/>
+                <soapenv:Body>
+                    <urn:ZSHOP_PDF_INV>
+                         <IV_DOCUMENT_NUMBER>%s</IV_DOCUMENT_NUMBER>
+                         <IV_SESSION_LANGUAGE>%s</IV_SESSION_LANGUAGE>
+                    </urn:ZSHOP_PDF_INV>
+                </soapenv:Body>
+            </soapenv:Envelope>
+                        ', $documentNumber, $languageCode);
 
         $method = self::METHOD_POST;
 
@@ -75,17 +80,21 @@ class OrderPdfApiClient extends AbstractApiClient
         return $this->responseParser->parseResponse(true, (string) $response, OrdersController::DOCUMENT_TYPE_INVOICE);
     }
 
-    public function getDeliveryPdf(string $documentNumber, Context $context): OrderPdfApiResponse
+    public function getDeliveryPdf(string $documentNumber, CustomerEntity $shopwareCustomer, Context $context): OrderPdfApiResponse
     {
-        $postData = sprintf('<?xml version="1.0"?>
-                        <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:itb="http://www.itb-web.de/">
-                          <soapenv:Header/>
-                          <soapenv:Body>
-                            <itb:GetDeliveryPdf>
-                              <Document_Number>%s</Document_Number>
-                            </itb:GetDeliveryPdf>
-                          </soapenv:Body>
-                        </soapenv:Envelope>', $documentNumber);
+        $languageCode = $this->fetchLanguageCode($shopwareCustomer);
+
+        $postData = sprintf('
+            <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:sap-com:document:sap:rfc:functions">
+                <soapenv:Header/>
+                <soapenv:Body>
+                 <urn:ZSHOP_PDF_DEL>
+                    <IV_DOCUMENT_NUMBER>%s</IV_DOCUMENT_NUMBER>
+                    <IV_SESSION_LANGUAGE>%s</IV_SESSION_LANGUAGE>
+                 </urn:ZSHOP_PDF_DEL>
+                </soapenv:Body>
+            </soapenv:Envelope>
+                        ', $documentNumber, $languageCode);
 
         $method = self::METHOD_POST;
 
@@ -97,7 +106,7 @@ class OrderPdfApiClient extends AbstractApiClient
         }
 
         $headerData = [
-            'Content-Type: ' . self::API_CONTENT_TYPE,
+            'Content-Type: ' . self::API_CONTENT_TYPE . "; charset='utf-8'",
             'Accept: ' . self::API_CONTENT_TYPE,
             'Content-length: ' . strlen($postData),
         ];
@@ -126,5 +135,16 @@ class OrderPdfApiClient extends AbstractApiClient
         }
 
         return $this->responseParser->parseResponse(true, (string) $response, OrdersController::DOCUMENT_TYPE_DELIVERY);
+    }
+
+    private function fetchLanguageCode(CustomerEntity $shopwareCustomer): string
+    {
+        $languageCode = $shopwareCustomer->getLanguage()?->getTranslationCode()?->getCode();
+
+        if ($languageCode === null) {
+            $languageCode = $this->systemConfigService->getString(Configuration::CONFIG_KEY_API_FALLBACK_LANGUAGE_CODE);
+        }
+
+        return strtoupper(substr($languageCode, 0, 2));
     }
 }
