@@ -9,10 +9,7 @@ use ReiffIntegrations\Sap\Struct\PdfStruct;
 
 class OrderPdfResponseParser
 {
-    private const PDF_ELEMENTS = [
-        'invoice'  => 'InvoicePdfOutput',
-        'delivery' => 'GetDeliveryPdfOutput',
-    ];
+    private const PDF_ELEMENT = 'ES_DOCUMENT';
 
     public function __construct(private readonly LoggerInterface $logger)
     {
@@ -29,7 +26,7 @@ class OrderPdfResponseParser
         $documentData = [];
 
         try {
-            $xmlReturn = (new \SimpleXMLElement($rawResponse))->xpath(sprintf('//%s', self::PDF_ELEMENTS[$documentType]));
+            $xmlReturn = (new \SimpleXMLElement($rawResponse))->xpath(sprintf('//%s', self::PDF_ELEMENT));
 
             if (is_array($xmlReturn)) {
                 $xmlReturn = reset($xmlReturn);
