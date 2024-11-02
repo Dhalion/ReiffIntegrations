@@ -56,11 +56,11 @@ class OrdersController extends StorefrontController
 
         switch ($documentType) {
             case self::DOCUMENT_TYPE_INVOICE:
-                $documentData = $this->pdfApiClient->getInvoicePdf($documentNumber, $context->getContext());
+                $documentData = $this->pdfApiClient->getInvoicePdf($documentNumber, $customer, $context->getContext());
 
                 break;
             case self::DOCUMENT_TYPE_DELIVERY:
-                $documentData = $this->pdfApiClient->getDeliveryPdf($documentNumber, $context->getContext());
+                $documentData = $this->pdfApiClient->getDeliveryPdf($documentNumber, $customer, $context->getContext());
 
                 break;
             default:
