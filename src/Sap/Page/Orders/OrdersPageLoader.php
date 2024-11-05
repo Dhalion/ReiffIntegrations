@@ -149,6 +149,6 @@ class OrdersPageLoader
             $languageCode = $this->systemConfigService->getString(Configuration::CONFIG_KEY_API_FALLBACK_LANGUAGE_CODE);
         }
 
-        return $languageCode;
+        return strtoupper(substr($languageCode, 0, 2));
     }
 }

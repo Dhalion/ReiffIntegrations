@@ -70,6 +70,10 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="ReiffIntegrations\Sap\SalesChannel\ContextFactoryCustomerCriteriaSubscriber">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="ReiffIntegrations\Sap\SalesChannel\PriceSalesChannelContextFactory" decorates="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory">
             <argument type="service" id="ReiffIntegrations\Sap\SalesChannel\PriceSalesChannelContextFactory.inner"/>
             <argument type="service" id="request_stack" on-invalid="null"/>
